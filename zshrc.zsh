@@ -11,10 +11,6 @@ export ZSH="$HOME/.oh-my-zsh"
 #
 #ZSH_THEME="robbyrussell"
 
-fpath+=($HOME/.oh-my-zsh/themes/pure)
-autoload -U promptinit; promptinit
-prompt pure
-
 # source /home/dpr/.oh-my-zsh/custom/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 
 # Set list of themes to pick from when loading at random
@@ -81,9 +77,22 @@ plugins=(
 	git
 	zsh-autosuggestions
 	zsh-syntax-highlighting
+  rust
 	)
 
 source $ZSH/oh-my-zsh.sh
+
+KEYTIMEOUT=1
+
+fpath+=($HOME/.oh-my-zsh/themes/pure)
+autoload -U promptinit; promptinit
+prompt pure
+
+
+export PURE_PROMPT_SYMBOL="❯"
+export PURE_PROMPT_VICMD_SYMBOL="%{$fg[cyan]%}❮%{$reset_color%}"
+
+bindkey -v
 
 # User configuration
 
