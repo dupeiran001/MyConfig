@@ -36,9 +36,9 @@ multiplier = 3
 normal = { family = "FiraCodeNerdFont", style = "Medium" }
 bold = { family = "FiraCodeNerdFont", style = "SemiBold" }
 italic = { family = "FiraCodeNerdFont", style = "Italic" }
-bold_italic = { family = "FiraCodeNerdFont", style = "Bold" }
-size = 12.0
-offset = { x = 1, y = 0 }
+bold_italic = { family = "FiraCodeNerdFont", style = "SemiBold" }
+size = 11.5
+offset = { x = 1, y = 1 }
 glyph_offset = { x = 0, y = 0 }
 builtin_box_drawing = true
 
