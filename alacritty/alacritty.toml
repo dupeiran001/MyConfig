@@ -1,0 +1,71 @@
+
+import = ["~/.config/alacritty/themes/themes/nord.toml"]
+
+shell = "/bin/zsh"
+working_directory = "/home/dpr"
+live_config_reload = true
+
+[env]
+ALL_PROXY = "socks5://127.0.0.1:7890"
+HTTP_PROXY = "socks5://127.0.0.1:7890"
+HTTPS_PROXY = "socks5://127.0.0.1:7890"
+
+[window]
+
+dimensions = { columns = 0, lines = 0 }
+position = "None"
+padding = { x = 0, y = 0 }
+dynamic_padding = true
+decorations = "None"                                      # | "None" | "Full"
+opacity = 0.96
+blur = true
+startup_mode = "Windowed"
+title = "Alacritty"
+dynamic_title = true
+class = { instance = "Alacritty", general = "Alacritty" }
+decorations_theme_variant = "None"
+resize_increments = false
+
+[scrolling]
+
+history = 20000
+multiplier = 3
+
+[font]
+
+normal = { family = "FiraCodeNerdFont", style = "Medium" }
+bold = { family = "FiraCodeNerdFont", style = "SemiBold" }
+italic = { family = "FiraCodeNerdFont", style = "Italic" }
+bold_italic = { family = "FiraCodeNerdFont", style = "Bold" }
+size = 12.0
+offset = { x = 1, y = 0 }
+glyph_offset = { x = 0, y = 0 }
+builtin_box_drawing = true
+
+[bell]
+animation = "Linear"
+duration = 0
+color = "#ffffff"
+command = "None"
+
+[selection]
+semantic_escape_chars = ",│`|:\"' ()[]{}<>t"
+save_to_clipboard = true
+
+[cursor]
+style = "Block"
+vi_mode_style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+thickness = 0.05
+
+[terminal]
+osc52 = "OnlyCopy"
+
+[mouse]
+hide_when_typing = false
+bindings = [{ mouse = "Right", mods = "Control", action = "Paste" }]
+
+[keyboard]
+bindings = [{ key = "F11", action = "ToggleFullScreen" }]
+
+[hints]
