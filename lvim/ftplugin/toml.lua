@@ -1,7 +1,5 @@
 local opts = {}
 
-
-
 require("lvim.lsp.manager").setup("taplo", opts)
 
 local whk_status, whk = pcall(require, "which-key")

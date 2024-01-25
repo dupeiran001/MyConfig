@@ -122,7 +122,7 @@ source $HOME/.bashrc
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin
+export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin
 
 export RANGER_LOAD_DEFAULT_RC=false
 

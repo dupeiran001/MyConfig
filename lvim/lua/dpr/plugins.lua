@@ -74,6 +74,14 @@ lvim.plugins = {
     end
 
   },
+
+  -- Maven
+  {
+    "eatgrass/maven.nvim",
+    cmd = { "Maven", "MavenExec" },
+    dependencies = "nvim-lua/plenary.nvim",
+  },
+  -- LSP lsp signature
   {
     "ray-x/lsp_signature.nvim",
     event = "VeryLazy",
@@ -99,29 +107,29 @@ lvim.plugins = {
     end,
   },
   -- tabnine
-  --{
-  --  "tzachar/cmp-tabnine",
-  --  build = "./install.sh",
-  --  dependencies = "hrsh7th/nvim-cmp",
-  --  event = "InsertEnter",
-  --  config = function()
-  --    local tabnine = require('cmp_tabnine.config')
+  {
+    "tzachar/cmp-tabnine",
+    build = "./install.sh",
+    dependencies = "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
+    config = function()
+      local tabnine = require('cmp_tabnine.config')
 
-  --    tabnine:setup({
-  --      max_lines = 1000,
-  --      max_num_results = 20,
-  --      sort = true,
-  --      run_on_every_keystroke = true,
-  --      snippet_placeholder = '..',
-  --      ignored_file_types = {
-  --        -- default is not to ignore
-  --        -- uncomment to ignore in lua:
-  --        -- lua = true
-  --      },
-  --      show_prediction_strength = false
-  --    })
-  --  end
-  --},
+      tabnine:setup({
+        max_lines = 1000,
+        max_num_results = 20,
+        sort = true,
+        run_on_every_keystroke = true,
+        snippet_placeholder = '..',
+        ignored_file_types = {
+          -- default is not to ignore
+          -- uncomment to ignore in lua:
+          -- lua = true
+        },
+        show_prediction_strength = false
+      })
+    end
+  },
 
   -- trouble pad
   {
