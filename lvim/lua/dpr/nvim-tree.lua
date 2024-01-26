@@ -20,10 +20,10 @@ nvimtree.setup.on_attach = my_on_attach
 nvimtree.setup.hijack_cursor = true
 
 -- auto chdir to project root
-nvimtree.setup.sync_root_with_cwd = true
-nvimtree.setup.respect_buf_cwd = true
-nvimtree.setup.prefer_startup_root = true
-nvimtree.setup.update_focused_file.enable = true
+nvimtree.setup.sync_root_with_cwd = false
+nvimtree.setup.respect_buf_cwd = false
+nvimtree.setup.prefer_startup_root = false
+nvimtree.setup.update_focused_file.enable = false
 
 
 -- highlight render
