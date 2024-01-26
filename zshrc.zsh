@@ -122,7 +122,7 @@ source $HOME/.bashrc
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
 
 export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin
 
