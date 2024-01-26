@@ -12,5 +12,8 @@
 !/zshrc.zsh
 !/zathura
 !/atuin
+atuin/history.db
+atuin/history.db-shm
+atuin/history.db-wal
 !/resources
 
