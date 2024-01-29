@@ -44,7 +44,7 @@ zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
@@ -84,13 +84,26 @@ source $ZSH/oh-my-zsh.sh
 
 KEYTIMEOUT=1
 
-fpath+=($HOME/.oh-my-zsh/themes/pure)
-autoload -U promptinit; promptinit
-prompt pure
+#fpath+=($HOME/.oh-my-zsh/themes/pure)
+#autoload -U promptinit; promptinit
+#prompt pure
+#
+#
+#export PURE_PROMPT_SYMBOL="❯"
+#export PURE_PROMPT_VICMD_SYMBOL="%{$fg[cyan]%}❮%{$reset_color%}"
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+source ~/.config/resources/powerlevel10k/powerlevel10k.zsh-theme
 
 
-export PURE_PROMPT_SYMBOL="❯"
-export PURE_PROMPT_VICMD_SYMBOL="%{$fg[cyan]%}❮%{$reset_color%}"
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.config/p10k.zsh ]] || source ~/.config/p10k.zsh
 
 bindkey -v
 
