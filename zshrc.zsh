@@ -149,3 +149,8 @@ alias v="lvim"
 alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"
 
 alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
+
+# show prompt at the bottom
+#alias clear='clear && print ${(pl:$LINES::\n:):-}'
+#print ${(pl:$LINES::\n:):-}
+
