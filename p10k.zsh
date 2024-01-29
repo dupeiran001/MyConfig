@@ -32,7 +32,7 @@
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
-    os_icon                 # os identifier
+    # os_icon                 # os identifier
     dir                     # current directory
     vcs                     # git status
     # =========================[ Line #2 ]=========================
@@ -317,11 +317,11 @@
   #
   # For example, given these settings:
   #
-  #   typeset -g POWERLEVEL9K_DIR_CLASSES=(
+  #typeset -g POWERLEVEL9K_DIR_CLASSES=(
   #     '~/work(|/*)'  WORK     ''
   #     '~(|/*)'       HOME     ''
   #     '*'            DEFAULT  '')
-  #
+  
   # Whenever the current directory is ~/work or a subdirectory of ~/work, it gets styled with one
   # of the following classes depending on its writability and existence: WORK, WORK_NOT_WRITABLE or
   # WORK_NON_EXISTENT.
