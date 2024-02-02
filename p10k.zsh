@@ -109,7 +109,7 @@
     #
     # proxy                 # system-wide http/https/ftp proxy
     proxy_status            # custom proxy status
-    time                    # current time
+    # time                    # current time
     # =========================[ Line #2 ]=========================
     newline
     # ip                    # ip address and bandwidth usage for a specified network interface
