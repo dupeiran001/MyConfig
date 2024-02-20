@@ -28,6 +28,7 @@ set $menu wofi --show=run --width=750 --height=400 --always_parse_args=true --sh
 output * bg /home/dpr/Pictures/wallpaper.png fill
 seat * xcursor_theme dmz-black 24
 bindsym $mod+Escape exec swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e --image /home/dpr/Pictures/wallpaper.png
+
 #
 # Example configuration:
 #
