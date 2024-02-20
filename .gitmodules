@@ -1,0 +1,3 @@
+[submodule "resources/powerlevel10k"]
+	path = resources/powerlevel10k
+	url = https://github.com/romkatv/powerlevel10k.git
