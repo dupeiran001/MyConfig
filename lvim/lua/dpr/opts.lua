@@ -1,5 +1,3 @@
-
-
 vim.opt.clipboard = "unnamedplus"
 vim.opt.fileencoding = "utf-8"
 
@@ -17,4 +15,3 @@ vim.cmd [[set iskeyword+=-]]
 
 vim.opt.foldmethod = "manual"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-

@@ -1,5 +1,9 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin:$HOME/.cargo/bin
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -128,7 +132,7 @@ export ARCHFLAGS="-arch x86_64"
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 
-source $HOME/.bashrc
+# source $HOME/.bashrc
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
@@ -137,13 +141,13 @@ source $HOME/.bashrc
 
 eval "$(atuin init zsh --disable-up-arrow)"
 
-export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin
 
 export RANGER_LOAD_DEFAULT_RC=false
 
 [ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" # ghcup-env
 
 alias r="ranger"
+alias nvim="/Users/dupeiran/.local/bin/nvim"
 alias v="lvim"
 
 alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"

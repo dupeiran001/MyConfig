@@ -20,7 +20,7 @@ local function scandir(directory)
   return t
 end
 
-for _, i in pairs(scandir("/home/dpr/.config/lvim/lua/dpr")) do
+for _, i in pairs(scandir("/Users/dupeiran/.config/lvim/lua/dpr")) do
   local i = string.gsub(i, ".lua", "")
   reload('dpr/' .. i .. '')
 end

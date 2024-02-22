@@ -2,13 +2,14 @@
 import = ["~/.config/alacritty/themes/themes/nord.toml"]
 
 shell = "/bin/zsh"
-working_directory = "/home/dpr"
+#working_directory = "/home/dpr"
+working_directory = "/Users/dupeiran"
 live_config_reload = true
 
 [env]
-ALL_PROXY = "socks5://127.0.0.1:7890"
-HTTP_PROXY = "socks5://127.0.0.1:7890"
-HTTPS_PROXY = "socks5://127.0.0.1:7890"
+#ALL_PROXY = "socks5://127.0.0.1:7890"
+#HTTP_PROXY = "socks5://127.0.0.1:7890"
+#HTTPS_PROXY = "socks5://127.0.0.1:7890"
 
 [window]
 
@@ -16,8 +17,8 @@ dimensions = { columns = 0, lines = 0 }
 position = "None"
 padding = { x = 0, y = 0 }
 dynamic_padding = true
-decorations = "None"                                      # | "None" | "Full"
-opacity = 0.96
+decorations = "Full"                                      # | "None" | "Full"
+opacity = 1.0
 blur = true
 startup_mode = "Windowed"
 title = "Alacritty"
@@ -33,11 +34,11 @@ multiplier = 3
 
 [font]
 
-normal = { family = "FiraCodeNerdFont", style = "Medium" }
-bold = { family = "FiraCodeNerdFont", style = "SemiBold" }
-italic = { family = "FiraCodeNerdFont", style = "Italic" }
-bold_italic = { family = "FiraCodeNerdFont", style = "SemiBold" }
-size = 11.5
+normal = { family = "FiraCode Nerd Font", style = "Medium" }
+bold = { family = "FiraCode Nerd Font", style = "SemiBold" }
+italic = { family = "FiraCode Nerd Font", style = "Italic" }
+bold_italic = { family = "FiraCode Nerd Font", style = "SemiBold" }
+size = 13
 offset = { x = 1, y = 1 }
 glyph_offset = { x = 0, y = 0 }
 builtin_box_drawing = true

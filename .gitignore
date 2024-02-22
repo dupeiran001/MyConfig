@@ -17,4 +17,3 @@ atuin/history.db-shm
 atuin/history.db-wal
 !/resources
 !/p10k.zsh
-
