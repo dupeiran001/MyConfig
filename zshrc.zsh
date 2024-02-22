@@ -1,5 +1,12 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+# if macos
+if["$(uname)"=="Darwin"];then
+eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin:$HOME/.cargo/bin
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
