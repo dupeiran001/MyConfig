@@ -82,11 +82,11 @@ COMPLETION_WAITING_DOTS="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
 	git
-	zsh-autosuggestions
-	zsh-syntax-highlighting
-  rust
+  	rust
 	)
 
+source ~/.config/resources/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+source ~/.config/resources/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
 source $ZSH/oh-my-zsh.sh
 
 KEYTIMEOUT=1
