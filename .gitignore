@@ -18,3 +18,4 @@ atuin/history.db-wal
 !/resources
 !/p10k.zsh
 
+.DS_Store
