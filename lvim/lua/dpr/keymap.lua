@@ -30,8 +30,13 @@ lvim.builtin.which_key.mappings["s"].p = nil
 lvim.builtin.which_key.mappings["f"] =
     vim.tbl_extend("error", lvim.builtin.which_key.mappings["f"], lvim.builtin.which_key.mappings["s"])
 
---lvim.builtin.which_key.mappings["s"] = {
---  name = "split buffer",
---  s = { "<cmd>split<CR>", "horizonal split" },
---  v = { "<cmd>vsplit<CR>", "vertical split" }
---}
+
+lvim.builtin.which_key.mappings["s"] = {
+  name = "split buffer",
+  s = { "<cmd>split<CR>", "horizonal split" },
+  v = { "<cmd>vsplit<CR>", "vertical split" }
+}
+
+lvim.builtin.which_key.mappings["a"] = {
+  "<cmd>AerialToggle!<CR>", "aerial"
+}

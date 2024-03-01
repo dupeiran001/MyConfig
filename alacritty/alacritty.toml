@@ -13,7 +13,7 @@ live_config_reload = true
 
 dimensions = { columns = 0, lines = 0 }
 position = "None"
-padding = { x = 0, y = 0 }
+padding = { x = 2, y = 0 }
 dynamic_padding = true
 decorations = "Full"                                      # | "None" | "Full"
 opacity = 1.0
