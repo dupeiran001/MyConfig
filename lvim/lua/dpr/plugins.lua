@@ -7,6 +7,7 @@ lvim.plugins = {
   {
     "petertriho/nvim-scrollbar",
     after = "nvim-treesitter",
+    event = { "BufEnter", "BufNewFile" },
     config = function()
       require("scrollbar").setup()
     end,
@@ -16,6 +17,7 @@ lvim.plugins = {
   {
     "kevinhwang91/nvim-hlslens",
     after = "nvim-treesitter",
+    event = { "BufEnter", "BufNewFile" },
     config = function()
       -- require('hlslens').setup() is not required
       require("scrollbar.handlers.search").setup({
@@ -27,6 +29,7 @@ lvim.plugins = {
   -- treesitter context
   {
     "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufEnter", "BufNewFile" },
     config = function()
       require 'treesitter-context'.setup {
         enable = true,            -- Enable this plugin (Can be enabled/disabled later via commands)
@@ -48,6 +51,7 @@ lvim.plugins = {
   -- aerial structure viewer
   {
     'stevearc/aerial.nvim',
+    event = { "BufEnter", "BufNewFile" },
     opts = {},
     -- Optional dependencies
     dependencies = {
@@ -78,6 +82,7 @@ lvim.plugins = {
     end
   },
 
+  -- colorizer
   {
     "norcalli/nvim-colorizer.lua",
     config = function()
@@ -143,7 +148,6 @@ lvim.plugins = {
     "tzachar/cmp-tabnine",
     build = "./install.sh",
     dependencies = "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
     config = function()
       local tabnine = require('cmp_tabnine.config')
 
@@ -158,7 +162,7 @@ lvim.plugins = {
           -- uncomment to ignore in lua:
           -- lua = true
         },
-        show_prediction_strength = false
+        show_prediction_strength = true
       })
     end
   },

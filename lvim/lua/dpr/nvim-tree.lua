@@ -19,6 +19,8 @@ nvimtree.setup.on_attach = my_on_attach
 
 nvimtree.setup.hijack_cursor = true
 
+nvimtree.setup.disable_netrw = true
+
 -- auto chdir to project root
 nvimtree.setup.sync_root_with_cwd = false
 nvimtree.setup.respect_buf_cwd = false

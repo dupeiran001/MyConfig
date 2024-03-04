@@ -6,13 +6,11 @@ vim.g.nord_cursorline_transparent = false
 vim.g.nord_enable_sidebar_background = true
 vim.g.nord_uniform_diff_background = true
 
-lvim.builtin.lualine.options.theme = 'nord'
 lvim.transparent_window = true
 
-lvim.builtin.lualine.options.component_separators = { left = '', right = '' }
-lvim.builtin.lualine.options.section_separators = { left = '', right = '' }
-
 lvim.builtin.treesitter.rainbow.enable = true
+
+-- StatusLineInactive
 
 lvim.autocommands = {
   {

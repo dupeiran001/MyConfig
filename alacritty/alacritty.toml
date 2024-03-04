@@ -36,7 +36,7 @@ normal = { family = "FiraCode Nerd Font", style = "Medium" }
 bold = { family = "FiraCode Nerd Font", style = "SemiBold" }
 italic = { family = "FiraCode Nerd Font", style = "Italic" }
 bold_italic = { family = "FiraCode Nerd Font", style = "SemiBold" }
-size = 13
+size = 13.5
 offset = { x = 1, y = 1 }
 glyph_offset = { x = 0, y = 0 }
 builtin_box_drawing = true

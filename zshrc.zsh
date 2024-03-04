@@ -1,4 +1,4 @@
-# If you come from bash you might have to change your $PATH.
+#l If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # if macos
@@ -151,7 +151,7 @@ export RANGER_LOAD_DEFAULT_RC=false
 
 alias r="ranger"
 alias nvim="~/.local/bin/nvim"
-alias v="lvim"
+alias v="nvim"
 
 alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"
 

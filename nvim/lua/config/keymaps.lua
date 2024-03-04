@@ -5,11 +5,6 @@ local term_opts = { silent = true }
 -- Shorten function name
 local keymap = vim.api.nvim_set_keymap
 
---Remap space as leader key
-keymap("", "<Space>", "<Nop>", opts)
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-
 -- Modes
 --   normal_mode = "n",
 --   insert_mode = "i",
@@ -28,9 +23,6 @@ keymap("n", "<C-l>", "<C-w>l", opts)
 -- Tab between windows
 keymap("n", "<Tab>", "<C-w>w", opts)
 
--- Nvimtree
-keymap("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", opts)
-
 -- Close Window
 keymap("n", "<leader>q", "<cmd>close<cr>", opts)
 
@@ -39,14 +31,6 @@ keymap("n", "<C-Up>", ":resize +2<CR>", opts)
 keymap("n", "<C-Down>", ":resize -2<CR>", opts)
 keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
-
--- Navigate buffers
-keymap("n", "<S-l>", ":bprevious<CR>", opts)
-keymap("n", "<S-h>", ":bnext<CR>", opts)
-
--- Insert --
--- Press jk fast to enter
--- keymap("i", "jk", "<ESC>", opts)
 
 -- Visual --
 -- Stay in indent mode
@@ -68,7 +52,7 @@ keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 -- Terminal --
 -- Easy creation of a terminal
 
-keymap("n", "<leader>t", "<cmd>ToggleTerm<cr>", opts)
+keymap("n", "<C-\\>", "<cmd>ToggleTerm<cr>", opts)
 
 -- Better terminal navigation
 keymap("t", "<C-h>", "<C-c><C-\\><C-N><C-w>h", term_opts)
