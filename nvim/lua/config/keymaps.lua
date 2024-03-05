@@ -74,3 +74,6 @@ keymap("n", "<leader>bp", "<cmd>BufferLineCyclePrev<cr>", opts)
 keymap("n", "<leader>bn", "<cmd>BufferLineCycleNext<cr>", opts)
 keymap("n", "<leader>bf", "<cmd>BufferLinePick<cr>", opts)
 keymap("n", "<leader>bd", "<cmd>Bdelete<cr>", opts)
+
+-- use <cr> to open diagnostic
+vim.keymap.set('n', '<cr>', vim.diagnostic.open_float)
