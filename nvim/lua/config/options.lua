@@ -33,7 +33,7 @@ vim.opt.signcolumn =
 vim.opt.wrap = true                             -- display lines as one long line
 vim.opt.scrolloff = 8                           -- is one of my fav
 vim.opt.sidescrolloff = 8
-vim.opt.guifont = "Cascadia Mono:h17"           -- the font used in graphical neovim applications
+vim.opt.guifont = "FiraCode Nerd Font:h17"           -- the font used in graphical neovim applications
 
 -- vim.opt.shortmess:append { "c" }
 
@@ -43,3 +43,5 @@ vim.cmd [[set formatoptions-=cro]] -- TODO: this doesn't seem to work
 vim.cmd [[let g:loaded_node_provider = 0]]
 vim.cmd [[let g:loaded_perl_provider = 0]]
 vim.cmd [[let g:loaded_ruby_provider = 0]]
+
+vim.g.autoformat = true
