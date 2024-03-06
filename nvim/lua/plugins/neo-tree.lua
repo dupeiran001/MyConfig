@@ -31,7 +31,7 @@ return {
       popup_border_style = "rounded",
       enable_git_status = true,
       enable_diagnostics = true,
-      enable_cursor_hijack = true,
+      enable_cursor_hijack = false,
       enable_normal_mode_for_inputs = false,                             -- Enable normal mode for input dialogs.
       add_blank_line_at_top = true,
       open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- when opening files, do not use windows containing these filetypes or buftypes
@@ -213,7 +213,7 @@ return {
             ["<bs>"] = "navigate_up",
             ["."] = "set_root",
             ["H"] = "toggle_hidden",
-            ["/"] = "fuzzy_finder",
+            ["/"] = "none",
             ["D"] = "fuzzy_finder_directory",
             ["#"] = "fuzzy_sorter", -- fuzzy sorting using the fzy algorithm
             -- ["D"] = "fuzzy_sorter_directory",

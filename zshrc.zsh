@@ -12,7 +12,7 @@ export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zul
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
+# load a random theme each time oh-my-zsh is loaded, in which cakube,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 #
@@ -81,8 +81,10 @@ COMPLETION_WAITING_DOTS="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-	git
+	  git
   	rust
+    kubectl
+    minikube
 	)
 
 source ~/.config/resources/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
