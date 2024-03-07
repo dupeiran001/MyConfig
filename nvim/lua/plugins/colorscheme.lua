@@ -132,8 +132,8 @@ return {
       vim.api.nvim_set_hl(0, "WinBarNC", { link = "StatusLineNC" })
       vim.api.nvim_set_hl(0, "NeoTreeTabInactive", { link = "BufferInactive" })
       vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorInactive", { link = "BufferInactive" })
-      vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorActive", { link = "BufferActive" })
-      vim.api.nvim_set_hl(0, "NeoTreeTabActive", { link = "BufferActive" })
+      vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorActive", { link = "BufferLineTabSelected" })
+      vim.api.nvim_set_hl(0, "NeoTreeTabActive", { link = "BufferLineTabSelected" })
 
       vim.api.nvim_set_hl(0, "BufferLineBufferSelected", { link = "BufferLineTabSelected" })
       vim.api.nvim_set_hl(0, "BufferLineFill", { link = "BufferLineBackground" })

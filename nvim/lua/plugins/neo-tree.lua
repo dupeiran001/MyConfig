@@ -37,6 +37,12 @@ return {
       open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- when opening files, do not use windows containing these filetypes or buftypes
       sort_case_insensitive = false,                                     -- used when sorting files and directories in the tree
       sort_function = nil,                                               -- use a custom function for sorting files and directories in the tree
+      sources = {
+        "filesystem",
+        "buffers",
+        "git_status",
+        "document_symbols",
+      },
       -- sort_function = function (a,b)
       --       if a.type == b.type then
       --           return a.path > b.path
@@ -46,9 +52,28 @@ return {
       --   end , -- this sorts files and directories descendantly
       source_selector = {
         winbar = true, -- toggle to show selector on winbar
-        statusline = true,
+        statusline = false,
+        sources = { -- table
+          {
+            source = "filesystem", -- string
+            display_name = " 󰉓 " -- string | nil
+          },
+          {
+            source = "buffers", -- string
+            display_name = " 󰈚 " -- string | nil
+          },
+          {
+            source = "git_status", -- string
+            display_name = " 󰊢 " -- string | nil
+          },
+          {
+            source = "document_symbols",
+            display_name = "  "
+          }
+        },
         content_layout = "center",
-        tabs_layout = "active",
+        tabs_layout = "equal",
+        tabs_max_width = 5,
         separator_active = { left = "▏", right = "▕" },
       },
       container = {
@@ -122,7 +147,7 @@ return {
         mappings = {
           ["<2-LeftMouse>"] = "open",
           ["<cr>"] = "open",
-          ["h"] = "close_node",
+          ["h"] = "toggle_node",
           ["l"] = "open",
           ["<esc>"] = "cancel", -- close preview or floating neo-tree window
           ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = true } },
@@ -165,8 +190,8 @@ return {
           ["<space>e"] = "close_window",
           ["R"] = "refresh",
           ["?"] = "show_help",
-          ["<"] = "prev_source",
-          [">"] = "next_source",
+          ["H"] = "prev_source",
+          ["L"] = "next_source",
           ["i"] = "show_file_details",
         }
       },
@@ -212,7 +237,7 @@ return {
           mappings = {
             ["<bs>"] = "navigate_up",
             ["."] = "set_root",
-            ["H"] = "toggle_hidden",
+            -- ["<H>"] = "toggle_hidden",
             ["/"] = "none",
             ["D"] = "fuzzy_finder_directory",
             ["#"] = "fuzzy_sorter", -- fuzzy sorting using the fzy algorithm
@@ -295,6 +320,48 @@ return {
             ["ot"] = { "order_by_type", nowait = false },
           }
         }
+      },
+      document_symbols = {
+        follow_cursor = true,
+        client_filters = "first",
+        renderers = {
+          root = {
+            { "indent" },
+            { "icon",  default = "C" },
+            { "name",  zindex = 10 },
+          },
+          symbol = {
+            { "indent",    with_expanders = true },
+            { "kind_icon", default = "?" },
+            {
+              "container",
+              content = {
+                { "name", zindex = 10 },
+                --{ "kind_name", zindex = 20, align = "right" },
+              }
+            }
+          },
+        },
+        window = {
+          mappings = {
+            ["<cr>"] = "jump_to_symbol",
+            ["o"] = "jump_to_symbol",
+            ["<2-LeftMouse>"] = "jump_to_symbol",
+            ["h"] = "close_node",
+            ["l"] = "toggle_node",
+            ["A"] = "noop", -- also accepts the config.show_path and config.insert_as options.
+            ["d"] = "noop",
+            ["y"] = "noop",
+            ["x"] = "noop",
+            ["p"] = "noop",
+            ["c"] = "noop",
+            ["m"] = "noop",
+            ["a"] = "noop",
+            ["i"] = "noop",
+            ["/"] = "none",
+            ["f"] = "filter_on_submit",
+          },
+        },
       }
     }
   }
