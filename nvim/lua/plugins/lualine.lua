@@ -12,19 +12,19 @@ return {
         lualine_a = { { "mode", separator = { left = '' }, right_padding = 2 } },
         lualine_c = {
           {
-            "diagnostics",
-          },
-          {
             "filetype",
             icon_only = true,
-            separator = "",
-            padding = { left = 1, right = 0 }
+            separator = { left = "" },
+            padding = { left = 1, right = 0 },
           },
           {
             'filename',
           },
 
-          { "%{%v:lua.require'nvim-navic'.get_location()%}", separator = { left = ">" } },
+          {
+            "%{%v:lua.require'nvim-navic'.get_location()%}",
+            separator = { left = "" }
+          },
         },
         lualine_z = { {
           function()
