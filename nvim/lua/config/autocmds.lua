@@ -10,7 +10,6 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
   pattern = { "term://*" },
   callback = function()
-    print("toggleterm write")
     vim.api.nvim_feedkeys(":q", "n", false)
   end,
 })
