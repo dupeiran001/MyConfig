@@ -6,7 +6,7 @@ if [ "$(uname)" = "Darwin" ] ; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin:$HOME/.cargo/bin:/opt/homebrew/bin
+export PATH=$PATH:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:/opt/zulu-jdk21/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/opt/flutter/bin/
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -149,6 +149,11 @@ eval "$(atuin init zsh --disable-up-arrow)"
 
 export RANGER_LOAD_DEFAULT_RC=false
 
+# flutter mirror 
+export PUB_HOSTED_URL="https://mirrors.tuna.tsinghua.edu.cn/dart-pub"
+export FLUTTER_STORAGE_BASE_URL="https://mirrors.tuna.tsinghua.edu.cn/flutter"
+export NO_PROXY="pub.flutter-io.cn, mirrors.tuna.tsinghua.edu.cn, storage.flutter-io.cn, localhost, 127.0.0.1, ::1"
+
 [ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" # ghcup-env
 
 alias r="ranger"
@@ -156,7 +161,6 @@ alias nvim="~/.local/bin/nvim"
 alias v="nvim"
 
 alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"
-
 alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
 
 # show prompt at the bottom
