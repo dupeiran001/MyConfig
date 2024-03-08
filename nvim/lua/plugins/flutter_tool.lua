@@ -79,6 +79,7 @@ return {
       },
       on_attach = function()
         vim.api.nvim_set_hl(0, "FlutterWidgetGuides", { fg = "#67729d", default = false })
+        vim.api.nvim_set_hl(0, "FlutterToolsOutlineIndentGuides", { fg = "#67729d", default = false })
 
         local whk_status, whk = pcall(require, "which-key")
         if not whk_status then
