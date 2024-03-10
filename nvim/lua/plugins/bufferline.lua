@@ -90,6 +90,15 @@ return {
       offset_separator = { bg = "#2e3440" },
 
       trunc_marker = { bg = "#2e3440" },
-    }
+    },
+
+    options = {
+      indicator = {
+        icon = '▎', -- this should be omitted if indicator style is not 'icon'
+        style = 'icon' -- | 'underline' | 'none',
+      },
+      always_show_bufferline = true, -- | false,
+    },
+
   }
 }
