@@ -2,7 +2,15 @@ return {
   "neovim/nvim-lspconfig",
 
   opts = {
-      inlay_hints = {
+    diagnostics = {
+      virtual_text = {
+        prefix = "icons",
+      }
+    },
+    inlay_hints = {
+      enabled = true,
+    },
+    codelens = {
       enabled = true,
     },
   },
