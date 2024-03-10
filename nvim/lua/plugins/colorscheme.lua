@@ -135,10 +135,6 @@ return {
       vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorActive", { link = "BufferLineTabSelected" })
       vim.api.nvim_set_hl(0, "NeoTreeTabActive", { link = "BufferLineTabSelected" })
 
-      vim.api.nvim_set_hl(0, "BufferLineBufferSelected", { link = "BufferLineTabSelected" })
-      vim.api.nvim_set_hl(0, "BufferLineFill", { link = "BufferLineBackground" })
-      vim.api.nvim_set_hl(0, "BufferLineSeparator", { link = "BufferLineBackground" })
-
       -- navic highlights
       vim.api.nvim_set_hl(0, "NavicIconsFile", { default = false, bg = "#3b4252", fg = "#a3be8c" })
       vim.api.nvim_set_hl(0, "NavicIconsModule", { default = false, bg = "#3b4252", fg = "#b48ead" })

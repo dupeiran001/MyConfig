@@ -32,7 +32,6 @@ return {
       enable_git_status = true,
       enable_diagnostics = true,
       enable_cursor_hijack = false,
-      enable_normal_mode_for_inputs = false,                             -- Enable normal mode for input dialogs.
       add_blank_line_at_top = true,
       open_files_do_not_replace_types = { "terminal", "trouble", "qf" }, -- when opening files, do not use windows containing these filetypes or buftypes
       sort_case_insensitive = false,                                     -- used when sorting files and directories in the tree

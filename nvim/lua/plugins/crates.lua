@@ -4,7 +4,6 @@ return {
   dependencies = { 'nvim-lua/plenary.nvim' },
   ft = "Cargo.toml",
   config = function()
-
     require('crates').setup()
     local whk_status, whk = pcall(require, "which-key")
     if not whk_status then
@@ -23,7 +22,5 @@ return {
         A = { "<cmd>lua require('crates').upgrade_all_crates()<cr>", "Upgrade all crates" },
       },
     }
-
   end,
- }
-
+}
