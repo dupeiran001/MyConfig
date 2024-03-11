@@ -1,3 +1,7 @@
+-- Autocmds are automatically loaded on the VeryLazy event
+-- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+-- Add any additional autocmds here
+
 -- make neo tree not scrollable
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   pattern = { "neo-tree*" },
@@ -25,7 +29,7 @@ vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
 
 -- auto format on save
 local auto_fmt_id = nil
-vim.api.nvim_create_user_command('AutoFormatToggle', function()
+vim.api.nvim_create_user_command("AutoFormatToggle", function()
   if auto_fmt_id == nil then
     -- not enabled
     auto_fmt_id = vim.api.nvim_create_autocmd({ "BufWritePre" }, {

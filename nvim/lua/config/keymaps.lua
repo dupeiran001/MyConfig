@@ -1,3 +1,7 @@
+-- Keymaps are automatically loaded on the VeryLazy event
+-- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
+-- Add any additional keymaps here
+
 local opts = { noremap = true, silent = false }
 
 local term_opts = { silent = true }
@@ -60,12 +64,12 @@ keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
 keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
 keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
 
-keymap('t', '<esc>', "<C-\\><C-N>", opts)
-keymap('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+keymap("t", "<esc>", "<C-\\><C-N>", opts)
+keymap("t", "<C-w>", [[<C-\><C-n><C-w>]], opts)
 
 keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", opts)
 keymap("n", "<leader>fc", "<cmd>Telescope live_grep<cr>", opts)
-keymap('n', "<leader>fp", "<cmd>Telescope projects<cr>", opts)
+keymap("n", "<leader>fp", "<cmd>Telescope projects<cr>", opts)
 
 -- split window
 keymap("n", "<leader>ss", "<cmd>split<cr>", opts)
@@ -76,4 +80,4 @@ keymap("n", "<leader>bf", "<cmd>BufferLinePick<cr>", opts)
 keymap("n", "<leader>bd", "<cmd>Bdelete<cr>", opts)
 
 -- use <cr> to open diagnostic
-vim.keymap.set('n', '<cr>', vim.diagnostic.open_float)
+vim.keymap.set("n", "<cr>", vim.diagnostic.open_float)
