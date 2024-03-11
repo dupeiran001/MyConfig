@@ -5,9 +5,9 @@ shell = "/bin/zsh"
 live_config_reload = true
 
 [env]
-#ALL_PROXY = "socks5://127.0.0.1:7890"
-#HTTP_PROXY = "socks5://127.0.0.1:7890"
-#HTTPS_PROXY = "socks5://127.0.0.1:7890"
+ALL_PROXY = "socks5://127.0.0.1:7890"
+HTTP_PROXY = "socks5://127.0.0.1:7890"
+HTTPS_PROXY = "socks5://127.0.0.1:7890"
 
 [window]
 
