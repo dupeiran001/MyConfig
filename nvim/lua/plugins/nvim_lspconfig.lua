@@ -13,5 +13,16 @@ return {
     codelens = {
       enabled = true,
     },
+    servers = {
+      yamlls = {
+        settings = {
+          yaml = {
+            format = {
+              enable = true
+            }
+          }
+        }
+      }
+    }
   },
 }
