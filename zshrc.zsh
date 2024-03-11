@@ -146,7 +146,6 @@ export ARCHFLAGS="-arch x86_64"
 
 eval "$(atuin init zsh --disable-up-arrow)"
 
-
 export RANGER_LOAD_DEFAULT_RC=false
 
 # flutter mirror 
@@ -154,10 +153,10 @@ export PUB_HOSTED_URL="https://mirrors.tuna.tsinghua.edu.cn/dart-pub"
 export FLUTTER_STORAGE_BASE_URL="https://mirrors.tuna.tsinghua.edu.cn/flutter"
 export NO_PROXY="pub.flutter-io.cn, mirrors.tuna.tsinghua.edu.cn, storage.flutter-io.cn, localhost, 127.0.0.1, ::1"
 
-[ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" # ghcup-env
+# ghcup-env
+[ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" 
 
 alias r="ranger"
-alias nvim="~/.local/bin/nvim"
 alias v="nvim"
 
 alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"
