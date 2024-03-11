@@ -14,13 +14,14 @@ vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
   end,
 })
 
--- map esc to q in normal mode in lazygit
-vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = { "term://*lazygit" },
-  callback = function()
-    vim.api.nvim_buf_set_keymap(0, "t", "<Esc>", "q", { silent = true })
-  end
-})
+-- FIXME only map esc to q in main page
+-- -- map esc to q in normal mode in lazygit
+-- vim.api.nvim_create_autocmd("TermOpen", {
+--   pattern = { "term://*lazygit" },
+--   callback = function()
+--     vim.api.nvim_buf_set_keymap(0, "t", "<Esc>", "q", { silent = true })
+--   end
+-- })
 
 -- auto format on save
 local auto_fmt_id = nil
