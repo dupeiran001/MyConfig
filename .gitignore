@@ -2,7 +2,6 @@
 /*
 !/.gitignore
 !/nvim
-!/lvim
 !/alacritty
 !/README.md
 !/sing-box.json
@@ -12,11 +11,10 @@
 !/zshrc.zsh
 !/zathura
 !/atuin
-atuin/history.db
-atuin/history.db-shm
-atuin/history.db-wal
 !/resources
-!/p10k.zsh
 !/starship.toml
 
 .DS_Store
+atuin/history.db
+atuin/history.db-shm
+atuin/history.db-wal
