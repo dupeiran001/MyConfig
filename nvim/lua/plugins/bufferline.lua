@@ -1,11 +1,11 @@
 return {
-  'akinsho/bufferline.nvim',
-  dependencies = 'nvim-tree/nvim-web-devicons',
+  "akinsho/bufferline.nvim",
+  dependencies = "nvim-tree/nvim-web-devicons",
   keys = {
     { "<leader>bt", "<cmd>BufferLineTogglePin<cr>", desc = "Toggle Pin" },
-    { "<leader>bp", "<cmd>BufferLinePick<cr>",      desc = "Pick" },
-    { "<leader>bH", "<cmd>BufferLineMovePrev<cr>",  desc = "Move Left" },
-    { "<leader>bL", "<cmd>BufferLineMoveNext<cr>",  desc = "Move Right" },
+    { "<leader>bp", "<cmd>BufferLinePick<cr>", desc = "Pick" },
+    { "<leader>bH", "<cmd>BufferLineMovePrev<cr>", desc = "Move Left" },
+    { "<leader>bL", "<cmd>BufferLineMoveNext<cr>", desc = "Move Right" },
   },
   opts = {
     highlights = {
@@ -16,8 +16,8 @@ return {
       tab_selected = { bg = "#2e3440" },
       tab_close = { bg = "#2e3440" },
 
-      tab_separator = { bg = "#2e3440" },
-      tab_separator_selected = { bg = "#2e3440" },
+      tab_separator = { bg = "#2e3440", fg = "#4C566A" },
+      tab_separator_selected = { bg = "#2e3440", fg = "#81a1c1" },
 
       close_button = { bg = "#2e3440" },
       close_button_visible = { bg = "#2e3440" },
@@ -82,7 +82,6 @@ return {
       indicator_selected = { bg = "#2e3440" },
       indicator_visible = { bg = "#2e3440" },
 
-
       pick = { bg = "#2e3440" },
       pick_visible = { bg = "#2e3440" },
       pick_selected = { bg = "#2e3440" },
@@ -94,11 +93,10 @@ return {
 
     options = {
       indicator = {
-        icon = '▎', -- this should be omitted if indicator style is not 'icon'
-        style = 'icon' -- | 'underline' | 'none',
+        icon = "▎", -- this should be omitted if indicator style is not 'icon'
+        style = "icon", -- | 'underline' | 'none',
       },
       always_show_bufferline = true, -- | false,
     },
-
-  }
+  },
 }
