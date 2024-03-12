@@ -1,0 +1,41 @@
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+follow_symlinks = true
+
+[character] 
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](yellow)"
+vimcmd_symbol = "[❮](cyan)"
+
+[package]
+disabled = true
+
+format = "${all}${custom.proxy_enable}${custom.proxy_disable}"
+
+[status]
+disabled = false
+symbol = " "
+not_executable_symbol = " "
+not_found_symbol = "󱧸 "
+sigint_symbol = " "
+signal_symbol = " "
+
+[custom.proxy_enable]
+command = """ 
+if ! ([ -z "${ALL_PROXY}" ] && [ -z "${all_proxy}" ] && [ -z "${HTTP_PROXY}" ] && [ -z "${http_proxy}" ] && [ -z "${HTTPS_PROXY}" ] && [ -z "${https_proxy}" ]); then
+  echo 󱧄
+fi
+"""
+format = "[${output}](#F6B17A) "
+when = true
+
+[custom.proxy_disable]
+command = """ 
+if [ -z "${ALL_PROXY}" ] && [ -z "${all_proxy}" ] && [ -z "${HTTP_PROXY}" ] && [ -z "${http_proxy}" ] && [ -z "${HTTPS_PROXY}" ] && [ -z "${https_proxy}" ]; then
+  echo 󱫃
+fi
+"""
+format = "[${output}](#7077A1) "
+when = true
