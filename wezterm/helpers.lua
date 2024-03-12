@@ -1,4 +1,4 @@
-function table_merge(into, from)
+function TableMerge(into, from)
 	local stack = {}
 	local node1 = into
 	local node2 = from
