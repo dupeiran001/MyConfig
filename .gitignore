@@ -2,7 +2,6 @@
 /*
 !/.gitignore
 !/nvim
-!/alacritty
 !/README.md
 !/sing-box.json
 !/sway
@@ -13,6 +12,7 @@
 !/atuin
 !/resources
 !/starship.toml
+!/wezterm
 
 .DS_Store
 atuin/history.db
