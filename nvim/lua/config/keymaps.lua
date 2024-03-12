@@ -55,8 +55,7 @@ keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 
 -- Terminal --
 -- Easy creation of a terminal
-
-keymap("n", "<C-\\>", "<cmd>ToggleTerm<cr>", opts)
+--keymap("n", "<C-\\>", "<cmd>ToggleTerm<cr>", opts)
 
 -- Better terminal navigation
 keymap("t", "<C-h>", "<C-c><C-\\><C-N><C-w>h", term_opts)
@@ -70,14 +69,6 @@ keymap("t", "<C-w>", [[<C-\><C-n><C-w>]], opts)
 keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", opts)
 keymap("n", "<leader>fc", "<cmd>Telescope live_grep<cr>", opts)
 keymap("n", "<leader>fp", "<cmd>Telescope projects<cr>", opts)
-
--- split window
-keymap("n", "<leader>ss", "<cmd>split<cr>", opts)
-keymap("n", "<leader>sv", "<cmd>vsplit<cr>", opts)
-keymap("n", "<leader>bp", "<cmd>BufferLineCyclePrev<cr>", opts)
-keymap("n", "<leader>bn", "<cmd>BufferLineCycleNext<cr>", opts)
-keymap("n", "<leader>bf", "<cmd>BufferLinePick<cr>", opts)
-keymap("n", "<leader>bd", "<cmd>Bdelete<cr>", opts)
 
 -- use <cr> to open diagnostic
 vim.keymap.set("n", "<cr>", vim.diagnostic.open_float)
