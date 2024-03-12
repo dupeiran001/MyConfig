@@ -52,7 +52,9 @@ end, {})
 auto_fmt_id = vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   pattern = "*",
   callback = function()
-    local res = pcall(vim.lsp.buf.format, { async = false })
-    print(res)
+    local format_ok, res = pcall(vim.lsp.buf.format, { async = false })
+    if not format_ok then
+      print(res)
+    end
   end,
 })
