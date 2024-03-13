@@ -27,7 +27,7 @@ vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
 --   end
 -- })
 
--- map esc to q in normal mode in lazygit
+-- just pass <ESC> through to gitui
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = { "term://*gitui" },
   callback = function()
