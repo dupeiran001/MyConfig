@@ -27,6 +27,15 @@ vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
 --   end
 -- })
 
+-- map esc to q in normal mode in lazygit
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = { "term://*gitui" },
+  callback = function()
+    print("enter gitui")
+    vim.api.nvim_buf_set_keymap(0, "t", "<Esc>", "<C-\\><Esc>", { silent = true, noremap = true, nowait = true })
+  end,
+})
+
 -- auto format on save
 local auto_fmt_id = nil
 vim.api.nvim_create_user_command("AutoFormatToggle", function()
