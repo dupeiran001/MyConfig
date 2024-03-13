@@ -12,5 +12,8 @@ TableMerge(config, startup_config)
 local fonts_config = require("fonts")
 TableMerge(config, fonts_config)
 
+local scrollback_config = require("scrollback")
+TableMerge(config, scrollback_config)
+
 config.color_scheme = "nord"
 return config

@@ -13,6 +13,7 @@
 !/resources
 !/starship.toml
 !/wezterm
+!/gitui
 
 .DS_Store
 atuin/history.db
