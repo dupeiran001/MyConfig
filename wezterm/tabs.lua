@@ -26,7 +26,6 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	end
 
 	local title = tab_title(tab)
-	title = wezterm.truncate_right(title, max_width - 2)
 
 	return {
 		{ Attribute = { Intensity = "Bold" } },
