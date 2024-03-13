@@ -1,6 +1,6 @@
 return {
   "lukas-reineke/headlines.nvim",
-  ft = "*.md",
+  ft = "markdown",
   config = function()
     require("headlines").setup({
       markdown = {
@@ -17,6 +17,5 @@ return {
         quote_highlight = "Quote",
       },
     })
-  end
-
+  end,
 }
