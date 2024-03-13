@@ -5,7 +5,7 @@ return {
     diagnostics = {
       virtual_text = {
         prefix = "icons",
-      }
+      },
     },
     inlay_hints = {
       enabled = true,
@@ -18,11 +18,11 @@ return {
         settings = {
           yaml = {
             format = {
-              enable = true
-            }
-          }
-        }
-      }
-    }
+              enable = true,
+            },
+          },
+        },
+      },
+    },
   },
 }
