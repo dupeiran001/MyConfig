@@ -1,15 +1,15 @@
 return {
-  'saecki/crates.nvim',
-  tag = 'stable',
-  dependencies = { 'nvim-lua/plenary.nvim' },
-  ft = "Cargo.toml",
+  "saecki/crates.nvim",
+  tag = "stable",
+  dependencies = { "nvim-lua/plenary.nvim" },
+  ft = "toml",
   config = function()
-    require('crates').setup()
+    require("crates").setup()
     local whk_status, whk = pcall(require, "which-key")
     if not whk_status then
       return
     end
-    whk.register {
+    whk.register({
       ["<leader>cc"] = {
         name = "+crates",
         t = { "<cmd>lua require('crates').toggle()<cr>", "Toggle" },
@@ -21,6 +21,6 @@ return {
         U = { "<cmd>lua require('crates').upgrade_crate()<cr>", "Upgrade crate" },
         A = { "<cmd>lua require('crates').upgrade_all_crates()<cr>", "Upgrade all crates" },
       },
-    }
+    })
   end,
 }

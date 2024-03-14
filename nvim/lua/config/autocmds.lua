@@ -67,3 +67,11 @@ auto_fmt_id = vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     end
   end,
 })
+
+-- support lalrpop file type
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.lalrpop" },
+  callback = function()
+    vim.bo.filetype = "lalrpop"
+  end,
+})
