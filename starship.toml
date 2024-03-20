@@ -1,10 +1,9 @@
 format = """
-$all\
+$all $fill ${status}${cmd_duration}${custom.proxy_enable}${custom.proxy_disable}\n$character
 """
 
-right_format = """
-${status}${cmd_duration}${custom.proxy_enable}${custom.proxy_disable}\
-"""
+#right_format = """
+#"""
 
 add_newline = true
 follow_symlinks = true
@@ -13,6 +12,17 @@ follow_symlinks = true
 success_symbol = "[❯](purple)"
 error_symbol = "[❯](yellow)"
 vimcmd_symbol = "[❮](cyan)"
+
+[fill]
+symbol = ""
+style = "bold #9290C3"
+
+
+[line_break]
+disabled = true
+
+[directory]
+truncate_to_repo = false
 
 [package]
 disabled = true

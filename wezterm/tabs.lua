@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local os = require("os")
 
 local function tab_title(tab_info)
 	local title = tab_info.tab_title
@@ -26,6 +27,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	end
 
 	local title = tab_title(tab)
+	title = wezterm.truncate_right(title, max_width - 3)
 
 	return {
 		{ Attribute = { Intensity = "Bold" } },
@@ -37,14 +39,36 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		{ Text = title },
 		{ Foreground = { Color = background_shape } },
 		{ Background = { Color = background } },
-		{ Text = " " },
+		{ Text = "" },
 	}
+end)
+
+wezterm.on("update-right-status", function(window, _pane)
+	local bat = ""
+	for _, b in ipairs(wezterm.battery_info()) do
+		bat = string.format("%.0f%%", b.state_of_charge * 100)
+	end
+
+	local cell = {
+		{ Foreground = { Color = "#FFFDDD" } },
+		{ Attribute = { Intensity = "Bold" } },
+		{ Text = wezterm.strftime("%a %H:%M") },
+		{ Foreground = { Color = "#F6B17A" } },
+		{ Text = " | " },
+		{ Foreground = { Color = "#FFFDDD" } },
+		{ Text = bat },
+	}
+
+	window:set_right_status(wezterm.format(cell))
 end)
 
 local M = {}
 
 M.use_fancy_tab_bar = false
 M.hide_tab_bar_if_only_one_tab = true
+
+M.native_macos_fullscreen_mode = true
+M.tab_max_width = 22
 
 M.colors = {
 	tab_bar = {
