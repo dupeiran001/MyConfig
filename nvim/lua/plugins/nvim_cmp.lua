@@ -10,13 +10,12 @@ return {
       opts.mapping = vim.tbl_extend("force", opts.mapping, {
         ["<C-j>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
         ["<C-k>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
-        ["<Tab>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
-        ["<Tab>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+        --["<Tab>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
       })
     end,
   },
-  {
-    "L3MON4D3/LuaSnip",
-    keys = function() end,
-  },
+  -- {
+  --   "L3MON4D3/LuaSnip",
+  --   keys = function() end,
+  -- },
 }
