@@ -67,5 +67,8 @@ keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", opts)
 keymap("n", "<leader>fc", "<cmd>Telescope live_grep<cr>", opts)
 keymap("n", "<leader>fp", "<cmd>Telescope projects<cr>", opts)
 
+keymap("c", "<C-j>", "<C-n>", opts)
+keymap("c", "<C-k>", "<C-p>", opts)
+
 -- use <cr> to open diagnostic
 vim.keymap.set("n", "<cr>", vim.diagnostic.open_float)
