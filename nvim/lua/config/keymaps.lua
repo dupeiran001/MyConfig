@@ -70,5 +70,7 @@ keymap("n", "<leader>fp", "<cmd>Telescope projects<cr>", opts)
 keymap("c", "<C-j>", "<C-n>", opts)
 keymap("c", "<C-k>", "<C-p>", opts)
 
+keymap("c", "wqa<cr>", "<cmd>wa<cr><cmd>qa<cr>", { noremap = true, nowait = true, silent = true })
+
 -- use <cr> to open diagnostic
 vim.keymap.set("n", "<cr>", vim.diagnostic.open_float)

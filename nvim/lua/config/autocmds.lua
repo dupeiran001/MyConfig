@@ -10,22 +10,12 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
   end,
 })
 
--- auto close terminal when :wqa
-vim.api.nvim_create_autocmd({ "BufWriteCmd" }, {
-  pattern = { "term://*" },
+vim.api.nvim_create_autocmd("TermEnter", {
+  pattern = "*",
   callback = function()
-    vim.api.nvim_feedkeys(":q", "n", false)
+    vim.bo.buflisted = false
   end,
 })
-
--- FIXME only map esc to q in main page
--- -- map esc to q in normal mode in lazygit
--- vim.api.nvim_create_autocmd("TermOpen", {
---   pattern = { "term://*lazygit" },
---   callback = function()
---     vim.api.nvim_buf_set_keymap(0, "t", "<Esc>", "q", { silent = true })
---   end
--- })
 
 -- just pass <ESC> through to gitui
 vim.api.nvim_create_autocmd("TermOpen", {
