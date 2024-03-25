@@ -65,7 +65,7 @@ end)
 local M = {}
 
 M.use_fancy_tab_bar = false
-M.hide_tab_bar_if_only_one_tab = true
+M.hide_tab_bar_if_only_one_tab = false
 
 M.native_macos_fullscreen_mode = true
 M.tab_max_width = 22
