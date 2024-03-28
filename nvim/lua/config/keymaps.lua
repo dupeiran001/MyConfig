@@ -36,6 +36,10 @@ keymap("n", "<C-Down>", ":resize -2<CR>", opts)
 keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
+-- jump list keymap
+keymap("n", "<C-i>", "<C-I>", opts)
+keymap("n", "<C-o>", "<C-O>", opts)
+
 -- Visual --
 -- Stay in indent mode
 keymap("v", "<S-h>", "<gv", opts)
