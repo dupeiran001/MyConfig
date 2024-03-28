@@ -14,9 +14,18 @@ return {
         lualine_b = { "branch" },
         lualine_c = {
           {
+            "diagnostics",
+            symbols = {
+              error = icons.diagnostics.Error,
+              warn = icons.diagnostics.Warn,
+              info = icons.diagnostics.Info,
+              hint = icons.diagnostics.Hint,
+            },
+          },
+          {
             "filetype",
             icon_only = true,
-            separator = { left = "" },
+            separator = { right = "" },
             padding = { left = 1, right = 0 },
           },
           {
@@ -31,7 +40,7 @@ return {
         lualine_x = {
           -- stylua: ignore
           {
-            function() return require("noice").api.status.command.get() end,
+            function() return require("noice.api.status").command.get() end,
             cond = function() return package.loaded["noice"] and require("noice").api.status.command.has() end,
             color = LazyVim.ui.fg("Statement"),
           },
