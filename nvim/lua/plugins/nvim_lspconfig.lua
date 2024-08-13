@@ -11,7 +11,7 @@ return {
       enabled = true,
     },
     codelens = {
-      enabled = true,
+      enabled = false,
     },
     servers = {
       yamlls = {

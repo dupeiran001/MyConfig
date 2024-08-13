@@ -19,3 +19,5 @@
 atuin/history.db
 atuin/history.db-shm
 atuin/history.db-wal
+nvim/lazy-lock.json 
+nvim/lazyvim.json

@@ -106,7 +106,7 @@ bindkey -v
 
 # Preferred editor for local and remote sessions
  if [[ -n $SSH_CONNECTION ]]; then
-   export EDITOR='lvim'
+   export EDITOR='vim'
  else
    export EDITOR='vim'
  fi
@@ -134,14 +134,20 @@ export PUB_HOSTED_URL="https://mirrors.tuna.tsinghua.edu.cn/dart-pub"
 export FLUTTER_STORAGE_BASE_URL="https://mirrors.tuna.tsinghua.edu.cn/flutter"
 export NO_PROXY="pub.flutter-io.cn, mirrors.tuna.tsinghua.edu.cn, storage.flutter-io.cn, localhost, 127.0.0.1, ::1"
 
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home
+
 # ghcup-env
 [ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" 
 
 alias r="ranger"
 alias v="nvim"
 
-alias proxy="export HTTP_PROXY='socks5://127.0.0.1:7890' HTTPS_PROXY='socks5://127.0.0.1:7890' ALL_PROXY='socks5://127.0.0.1:7890'"
-alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY"
+# alias proxy="export HTTP_PROXY='socks5://127.0.0.1:55906' HTTPS_PROXY='socks5://127.0.0.1:55906' ALL_PROXY='socks5://127.0.0.1:55906'"
+alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY https_proxy http_proxy all_proxy"
+alias proxy="export https_proxy=http://127.0.0.1:55906 http_proxy=http://127.0.0.1:55906 all_proxy=socks5://127.0.0.1:55906"
+
+# hugo completion
+source $HOME/.config/hugo.zsh
 
 # show prompt at the bottom
 #alias clear='clear && print ${(pl:$LINES::\n:):-}'
