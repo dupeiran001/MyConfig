@@ -15,6 +15,7 @@
 !/wezterm
 !/gitui
 !/zellij
+!hugo.zsh
 
 .DS_Store
 atuin/history.db
