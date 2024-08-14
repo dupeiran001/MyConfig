@@ -141,6 +141,7 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home
 
 alias r="ranger"
 alias v="nvim"
+alias z="zellij"
 
 # alias proxy="export HTTP_PROXY='socks5://127.0.0.1:55906' HTTPS_PROXY='socks5://127.0.0.1:55906' ALL_PROXY='socks5://127.0.0.1:55906'"
 alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY https_proxy http_proxy all_proxy"
