@@ -17,7 +17,7 @@ local background = "#2E3440"
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
 	local background_shape = "#4C566A"
 	local foreground = "#D8DEE9"
-	local highlight = "#D08770"
+	local highlight = "#B48EAD"
 
 	if hover then
 		background_shape = "#5E81AC"
@@ -33,9 +33,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	local idx = ""
 	if tab.is_active then
 	elseif tab.tab_index <= 7 then
-		idx = tostring(tab.tab_index + 1)
+		idx = tostring(tab.tab_index + 1) .. " "
 	elseif tab.tab_index == #tabs - 1 then
-		idx = tostring(9)
+		idx = tostring(9) .. " "
 	end
 
 	return {
@@ -46,7 +46,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		{ Text = " " },
 		{ Foreground = { Color = highlight } },
 		{ Background = { Color = background_shape } },
-		{ Text = idx .. ":" },
+		{ Text = idx },
 		{ Foreground = { Color = foreground } },
 		{ Background = { Color = background_shape } },
 		{ Text = title },
