@@ -27,9 +27,6 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		foreground = "#D8DEE9"
 	end
 
-	local title = tab_title(tab)
-	title = wezterm.truncate_right(title, max_width - 3)
-
 	local idx = ""
 	if tab.is_active then
 	elseif tab.tab_index <= 7 then
@@ -37,6 +34,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	elseif tab.tab_index == #tabs - 1 then
 		idx = tostring(9) .. " "
 	end
+
+	local title = tab_title(tab)
+	title = wezterm.truncate_right(title, max_width - 3 - #idx)
 
 	return {
 		{ Attribute = { Intensity = "Bold" } },
