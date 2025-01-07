@@ -1,4 +1,3 @@
--- :help options
 vim.opt.backup = false -- creates a backup file
 vim.opt.clipboard = "unnamedplus" -- allows neovim to access the system clipboard
 vim.opt.cmdheight = 1 -- more space in the neovim command line for displaying messages
@@ -9,10 +8,11 @@ vim.opt.hlsearch = true -- highlight all matches on previous search pattern
 vim.opt.ignorecase = true -- ignore case in search patterns
 vim.opt.mouse = "a" -- allow the mouse to be used in neovim
 vim.opt.pumheight = 10 -- pop up menu height
-vim.opt.showmode = true -- we need to see things like -- INSERT --
+vim.opt.showmode = false -- we need to see things like -- INSERT --
 vim.opt.showtabline = 2 -- always show tabs
 vim.opt.smartcase = true -- smart case
 vim.opt.smartindent = true -- make indenting smarter again
+vim.opt.autoindent = true -- make indenting smarter again
 vim.opt.splitbelow = true -- force all horizontal splits to go below current window
 vim.opt.splitright = true -- force all vertical splits to go to the right of current window
 vim.opt.swapfile = false -- creates a swapfile
@@ -33,6 +33,8 @@ vim.opt.wrap = true -- display lines as one long line
 vim.opt.scrolloff = 8 -- is one of my fav
 vim.opt.sidescrolloff = 8
 vim.opt.guifont = "FiraCode Nerd Font:h17" -- the font used in graphical neovim applications
+vim.opt.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,terminal"
+
 
 -- vim.opt.shortmess:append { "c" }
 

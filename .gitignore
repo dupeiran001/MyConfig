@@ -1,6 +1,7 @@
 
 /*
 !/.gitignore
+!/git.gitconfig
 !/nvim
 !/README.md
 !/sing-box.json
@@ -16,6 +17,7 @@
 !/gitui
 !/zellij
 !hugo.zsh
+!/mynvim
 
 .DS_Store
 atuin/history.db

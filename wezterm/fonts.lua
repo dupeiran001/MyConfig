@@ -9,5 +9,8 @@ M.bold_brightens_ansi_colors = true
 M.freetype_load_target = "Light"
 M.line_height = 1.05
 M.harfbuzz_features = { "calt=1", "clig=1", "liga=1" }
+M.underline_position = -7
+
+M.enable_kitty_graphics = true
 
 return M
