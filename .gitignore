@@ -20,7 +20,8 @@
 !/mynvim
 
 .DS_Store
+lazy-lock.json
+
 atuin/history.db
 atuin/history.db-shm
 atuin/history.db-wal
-nvim/lazy-lock.json
