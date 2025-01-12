@@ -1,10 +1,12 @@
 require("helpers")
 
 local config = {}
-local wezterm = require("wezterm")
 
 local tabs_config = require("tabs")
 TableMerge(config, tabs_config)
+
+-- something failed to configure, lets use my own tabs
+-- require("tabline")
 
 local startup_config = require("startup")
 TableMerge(config, startup_config)
