@@ -1,17 +1,18 @@
 return {
   "zbirenbaum/copilot.lua",
+  lazy = true,
   cmd = "Copilot",
   event = "InsertEnter",
   opts = {
     panel = {
-      enabled = true,
-      auto_refresh = false,
+      enabled = false,
+      auto_refresh = true,
       keymap = {
         jump_prev = "[[",
         jump_next = "]]",
         accept = "<CR>",
         refresh = "gr",
-        open = "<M-CR>"
+        open = "<C-CR>",
       },
       layout = {
         position = "bottom", -- | top | left | right | horizontal | vertical
@@ -19,8 +20,8 @@ return {
       },
     },
     suggestion = {
-      enabled = true,
-      auto_trigger = false,
+      enabled = false,
+      auto_trigger = true,
       hide_during_completion = true,
       debounce = 75,
       keymap = {

@@ -28,6 +28,19 @@ return {
           }
         }
       },
+      ['core.esupports.metagen'] = {
+        config = {
+          author = "Peiran Du",
+          type = "auto",
+        }
+      },
+      ['core.export'] = {},
+      ['core.latex.renderer'] = {
+        config = {
+          conceal = true,
+          render_on_enter = true,
+        }
+      },
       ["core.highlights"] = {
         config = {
           highlights = {
@@ -68,9 +81,9 @@ return {
       ["core.dirman"] = {
         config = {
           workspaces = {
-            notes = "~/Documents/neorg",
+            document = "~/Documents/document/",
           },
-          default_workspace = "notes",
+          default_workspace = "document",
         },
       },
       ["core.keybinds"] = {

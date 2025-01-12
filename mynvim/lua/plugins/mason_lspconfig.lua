@@ -10,7 +10,7 @@ return {
     -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
     -- This setting has no relation with the `automatic_installation` setting.
     ---@type string[]
-    ensure_installed = { "lua_ls", "rust_analyzer", "clangd", "bashls", "cmake", "grammarly", "marksman", "pyright", "taplo" },
+    ensure_installed = { "lua_ls", "rust_analyzer", "clangd", "bashls", "cmake", "marksman", "pyright", "taplo" },
 
     -- Whether servers that are set up (via lspconfig) should be automatically installed if they're not already installed.
     -- This setting has no relation with the `ensure_installed` setting.
@@ -74,7 +74,7 @@ return {
             Lua = {}
           }
         })
-      end
+      end,
     }
   end
 }

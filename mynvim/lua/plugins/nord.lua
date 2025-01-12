@@ -35,18 +35,20 @@ return {
       custom_highlights = {
         -- ["NeoTreeNormal"] = { guibg = "NONE" }
 
-        ["@neorg.headings.n.1.prefix"] = { fg = "#BF616A" },
-        ["@neorg.headings.n.1.title"]  = { fg = "#BF616A" },
-        ["@neorg.headings.n.2.prefix"] = { fg = "#D08770" },
-        ["@neorg.headings.n.2.title"]  = { fg = "#D08770" },
-        ["@neorg.headings.n.3.prefix"] = { fg = "#EBCB8B" },
-        ["@neorg.headings.n.3.title"]  = { fg = "#EBCB8B" },
-        ["@neorg.headings.n.4.prefix"] = { fg = "#A3BE8C" },
-        ["@neorg.headings.n.4.title"]  = { fg = "#A3BE8C" },
-        ["@neorg.headings.n.5.prefix"] = { fg = "#B48EAD" },
-        ["@neorg.headings.n.5.title"]  = { fg = "#B48EAD" },
-        ["@neorg.headings.n.6.prefix"] = { fg = "#81A1C1" },
-        ["@neorg.headings.n.6.title"]  = { fg = "#81A1C1" }
+
+        ["@neorg.headings.n.1.prefix"] = { fg = "#D08770" },
+        ["@neorg.headings.n.1.title"]  = { fg = "#D08770" },
+        ["@neorg.headings.n.2.prefix"] = { fg = "#EBCB8B" },
+        ["@neorg.headings.n.2.title"]  = { fg = "#EBCB8B" },
+        ["@neorg.headings.n.3.prefix"] = { fg = "#A3BE8C" },
+        ["@neorg.headings.n.3.title"]  = { fg = "#A3BE8C" },
+        ["@neorg.headings.n.4.prefix"] = { fg = "#8FBCBB" },
+        ["@neorg.headings.n.4.title"]  = { fg = "#8FBCBB" },
+        ["@neorg.headings.n.5.prefix"] = { fg = "#88C0D0" },
+        ["@neorg.headings.n.5.title"]  = { fg = "#88C0D0" },
+        ["@neorg.headings.n.6.prefix"] = { fg = "#B48EAD" },
+        ["@neorg.headings.n.6.title"]  = { fg = "#B48EAD" },
+
 
       },                  -- Overwrite default highlight groups
       custom_colors = {}, -- Overwrite default colors
