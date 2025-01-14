@@ -25,7 +25,8 @@ return {
                 "@neorg.headings.n.6.prefix"
               },
             }
-          }
+          },
+          init_open_folds = 'never',
         }
       },
       ['core.esupports.metagen'] = {

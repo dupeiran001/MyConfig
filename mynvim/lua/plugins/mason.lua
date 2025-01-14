@@ -3,9 +3,6 @@ return {
   lazy = true,
   event = "VeryLazy",
   cmd = "Mason",
-  keys = {
-    { "<leader>lm", "<cmd>Mason<cr>", desc = "Mason" },
-  },
   opts = {
     ---@since 1.0.0
     -- The directory in which to install packages.

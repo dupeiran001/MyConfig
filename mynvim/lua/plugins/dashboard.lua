@@ -70,7 +70,7 @@ return {
     --
     --    ]]
 
-    logo = string.rep("\n", 8) .. logo .. "\n\n"
+    logo = string.rep("\n", 4) .. logo .. "\n\n"
 
     local opts = {
       theme = "doom",
@@ -90,7 +90,7 @@ return {
           { action = function() _G.fzf_marks() end, desc = " Find Mark", icon = " ", key = "m" },
           { action = 'FzfLua files cwd=~/.config', desc = " Config", icon = " ", key = "C" },
           { action = 'lua require("persistence").load()', desc = " Restore Session", icon = " ", key = "s" },
-          { action = 'Neorg workspace notes', desc = " Neorg notes", icon = " ", key = "n" },
+          { action = 'Neorg workspace document', desc = " Neorg document", icon = " ", key = "n" },
           { action = "Lazy", desc = " Lazy", icon = "󰒲 ", key = "l" },
           { action = function() vim.api.nvim_input("<cmd>qa<cr>") end, desc = " Quit", icon = " ", key = "q" },
         },
