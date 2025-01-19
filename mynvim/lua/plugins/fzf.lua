@@ -11,7 +11,7 @@ return {
   keys = {
     { "<leader>ff",  "<cmd>FzfLua files<cr>",                                        desc = "Find files" },
     { "<leader>fh",  "<cmd>FzfLua files cwd=~<cr>",                                  desc = "Find files (HOME)" },
-    { "<leader>fc",  "<cmd>FzfLua grep_project<cr>",                                 desc = "Grep" },
+    { "<leader>fc",  "<cmd>FzfLua live_grep<cr>",                                    desc = "Grep" },
     { "<leader>fb",  "<cmd>FzfLua buffers<cr>",                                      desc = "Buffers" },
     { "<leader>fgc", "<cmd>FzfLua git_commits<cr>",                                  desc = "Git Commits" },
     { "<leader>fgb", "<cmd>FzfLua git_branches<cr>",                                 desc = "Git Branches" },
