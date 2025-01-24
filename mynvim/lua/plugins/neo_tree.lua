@@ -8,12 +8,7 @@ return {
   keys = {
     { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle NeoTree" },
   },
-  init = function()
-    vim.api.nvim_set_hl(0, "NeoTreeTabInactive", { link = "BufferInactive" })
-    vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorInactive", { link = "BufferInactive" })
-    vim.api.nvim_set_hl(0, "NeoTreeTabActive", { bg = "#353b49", fg = "#81a1c1" })
-    vim.api.nvim_set_hl(0, "NeoTreeTabSeparatorActive", { link = "NeoTreeTabActive" })
-  end,
+
   opts = {
     close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
     popup_border_style = "rounded",

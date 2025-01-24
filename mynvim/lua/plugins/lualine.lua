@@ -1,6 +1,7 @@
 return {
   "nvim-lualine/lualine.nvim",
   dependencies = {
+    "nord.nvim",
     "nvim-tree/nvim-web-devicons",
     "folke/noice.nvim",
     --"SmiteshP/nvim-navic",
@@ -27,7 +28,7 @@ return {
     -- bubble theme
     return {
       options = {
-        theme = "onenord",
+        theme = "nord",
         component_separators = "|",
         section_separators = { left = "", right = "" },
         globalstatus = true,

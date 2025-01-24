@@ -1,57 +1,56 @@
 return {
   "dupeiran001/nord.nvim",
+  -- dir = "~/Develop/nvim/nord.nvim/",
   lazy = false,
   priority = 1000,
   init = function()
-    -- vim.api.nvim_set_hl(0, "NormalFloat", {link = "Normal", force = true})
-    -- vim.api.nvim_set_hl(0, "FloatBorder", {link = "Normal", force = true})
-    -- vim.api.nvim_set_hl(0, "NeoTreeNormal", {link = "Normal", force = true})
-    -- vim.api.nvim_set_hl(0, "NeoTreeNormalNC", {link = "Normal", force = true})
+    vim.cmd [[colorscheme nord]]
   end,
-  config = function()
-    require('onenord').setup({
-      theme = nil,     -- "dark" or "light". Alternatively, remove the option and set vim.o.background instead
-      borders = true,  -- Split window borders
-      fade_nc = false, -- Fade non-current windows, making them more distinguishable
-      -- Style that is applied to various groups: see `highlight-args` for options
-      styles = {
-        comments = "NONE",
-        strings = "NONE",
-        keywords = "NONE",
-        functions = "italic",
-        variables = "bold",
-        diagnostics = "underline",
-      },
-      disable = {
-        background = false,       -- Disable setting the background color
-        float_background = false, -- Disable setting the background color for floating windows
-        cursorline = false,       -- Disable the cursorline
-        eob_lines = false,        -- Hide the end-of-buffer lines
-      },
-      -- Inverse highlight for different groups
-      inverse = {
-        match_paren = false,
-      },
-      custom_highlights = {
-        -- ["NeoTreeNormal"] = { guibg = "NONE" }
+  opts = {
+    style = 'dark',         -- The style can ether be 'light' or 'dark'
+    transparent = false,    -- Whether we should set the background color
+    terminal_colors = true, -- Configure the colors used when opening a `:terminal` in Neovim
+    dim_inactive = false,   -- Dims inactive windows
+    lualine_bold = true,    -- When `true`, section headers in the lualine theme will be bold
+
+    light_brightness = 0.7, -- Adjusts the brightness of the colors of the **light** style. Number between 0 and 1, from dull to vibrant colors
 
 
-        ["@neorg.headings.n.1.prefix"] = { fg = "#D08770" },
-        ["@neorg.headings.n.1.title"]  = { fg = "#D08770" },
-        ["@neorg.headings.n.2.prefix"] = { fg = "#EBCB8B" },
-        ["@neorg.headings.n.2.title"]  = { fg = "#EBCB8B" },
-        ["@neorg.headings.n.3.prefix"] = { fg = "#A3BE8C" },
-        ["@neorg.headings.n.3.title"]  = { fg = "#A3BE8C" },
-        ["@neorg.headings.n.4.prefix"] = { fg = "#8FBCBB" },
-        ["@neorg.headings.n.4.title"]  = { fg = "#8FBCBB" },
-        ["@neorg.headings.n.5.prefix"] = { fg = "#88C0D0" },
-        ["@neorg.headings.n.5.title"]  = { fg = "#88C0D0" },
-        ["@neorg.headings.n.6.prefix"] = { fg = "#B48EAD" },
-        ["@neorg.headings.n.6.title"]  = { fg = "#B48EAD" },
+    styles = {
+      -- Style to be applied to different syntax groups
+      -- Value is any valid attr-list value for `:help nvim_set_hl`
+      comments = { italic = true },
+      keywords = { italic = true },
+      functions = {},
+      variables = { italic = true },
+      -- Background styles. Can be "dark", "transparent" or "normal"
+      sidebars = "dark", -- style for sidebars, see below
+      floats = "dark",   -- style for floating windows
+    },
 
+    --- You can override specific highlights to use other groups or a hex color
+    --- function will be called with a Highlights and ColorScheme table
+    on_highlights = function(highlights, colors) end,
 
-      },                  -- Overwrite default highlight groups
-      custom_colors = {}, -- Overwrite default colors
-    })
-  end,
+    --- You can override specific color groups to use other groups or a hex color
+    --- function will be called with a ColorScheme table
+    on_colors = function(colors) end,
+
+    cache = true, -- When set to true, the theme will be cached for better performance
+
+    ---@type table<string, boolean|{enabled:boolean}>
+    plugins = {
+      all = false,
+      -- uses your plugin manager to automatically enable needed plugins
+      -- currently only lazy.nvim is supported
+      auto = true,
+      -- add any plugins here that you want to enable
+      -- telescope = true,
+    },
+
+    config = function(_, opts)
+      require("nord").setup(opts)
+    end,
+
+  }
 }

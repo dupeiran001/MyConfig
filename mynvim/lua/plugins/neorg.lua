@@ -38,8 +38,10 @@ return {
       ['core.export'] = {},
       ['core.latex.renderer'] = {
         config = {
-          conceal = true,
+          conceal = false,
           render_on_enter = true,
+          debounce_ms = 100, -- default 200
+          dpi = 150,         -- default 350
         }
       },
       ["core.highlights"] = {
@@ -125,20 +127,4 @@ return {
       },
     },
   },
-  config = function(_, opts)
-    require('neorg').setup(opts)
-
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.1.prefix", { fg = "#BF616A" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.1.title", { fg = "#BF616A" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.2.prefix", { fg = "#D08770" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.2.title", { fg = "#D08770" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.3.prefix", { fg = "#EBCB8B" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.3.title", { fg = "#EBCB8B" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.4.prefix", { fg = "#A3BE8C" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.4.title", { fg = "#A3BE8C" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.5.prefix", { fg = "#B48EAD" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.5.title", { fg = "#B48EAD" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.6.prefix", { fg = "#81A1C1" })
-    -- vim.api.nvim_set_hl(0, "@neorg.headings.6.title", { fg = "#81A1C1" })
-  end
 }

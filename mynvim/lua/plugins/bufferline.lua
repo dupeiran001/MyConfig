@@ -1,9 +1,11 @@
 return {
-  'akinsho/bufferline.nvim',
+  'dupeiran001/bufferline.nvim',
   dependencies = {
     'nvim-tree/nvim-web-devicons',
     'famiu/bufdelete.nvim',
+    -- "dupeiran001/nord.nvim",
   },
+  preority = 500,
   lazy = false,
   keys = {
     { "<leader>b<S-l>", "<cmd>BufferLineCloseLeft<cr>",                      desc = "Close all left buffers" },
@@ -24,129 +26,58 @@ return {
     { "<leader>8",      function() require("bufferline").go_to(8, true) end, desc = "goto Buffer 8" },
     { "<leader>9",      function() require("bufferline").go_to(9, true) end, desc = "goto Buffer 9" },
   },
-  opts = {
-    options = {
-      close_command = "Bdelete! %d",
-      themable = true,
-      indicator = {
-        icon = '▎',
-        style = 'icon'
+  opts = function()
+    local color = require("nord.colors").setup()
+    local bufferline_hl = require("nord").bufferline
+    return
+    {
+      options = {
+        close_command = "Bdelete! %d",
+        themable = true,
+        indicator = {
+          icon = '▎',
+          style = 'icon'
+        },
+        diagnostics = "nvim_lsp",
+        diagnostics_indicator = function(count, level, diagnostics_dict, context)
+          local icon = level:match("error") and " " or " "
+          return " " .. icon .. count
+        end,
+        show_buffer_close_icons = false,
+        offsets = {
+          {
+            filetype = "neo-tree",
+            text = "Neo-Tree",
+            text_align = 'left',
+            separator = false,
+          }
+        },
+        numbers = "visible", --function(opts)
+        --   local state = require("bufferline.state")
+        --   local list = state.visible_components
+        --   for buf in list do
+        --     if buf.name == opts.name then
+        --       return string.format('%s', buf.id)
+        --     end
+        --   end
+        --   return opts
+        --   -- return string.format('%s', opts.ordinal)
+        --   -- return string.format('%s', state.current_element_index)
+        -- end,
+        show_tab_indicator = true,
+        show_duplicate_prefix = true,
+        separator_style = "none",
+        always_show_bufferline = true,
+        auto_toggle_bufferline = true,
+        sort_by = 'insert_after_current',
       },
-      diagnostics = "nvim_lsp",
-      diagnostics_indicator = function(count, level, diagnostics_dict, context)
-        local icon = level:match("error") and " " or " "
-        return " " .. icon .. count
-      end,
-      show_buffer_close_icons = false,
-      offsets = {
-        {
-          filetype = "neo-tree",
-          text = "Neo-Tree",
-          text_align = 'left',
-          separator = false,
-        }
-      },
-      numbers = "both", --function(opts)
-      --   local state = require("bufferline.state")
-      --   local list = state.visible_components
-      --   for buf in list do
-      --     if buf.name == opts.name then
-      --       return string.format('%s', buf.id)
-      --     end
-      --   end
-      --   return opts
-      --   -- return string.format('%s', opts.ordinal)
-      --   -- return string.format('%s', state.current_element_index)
-      -- end,
-      show_tab_indicator = true,
-      show_duplicate_prefix = true,
-      separator_style = "none",
-      always_show_bufferline = true,
-      auto_toggle_bufferline = true,
-      sort_by = 'insert_after_current',
-    },
-    highlights = {
-      fill = { bg = "#2e3440" },
-      background = { bg = "#2e3440" },
 
-      tab = { bg = "#2e3440" },
-      tab_selected = { bg = "#2e3440" },
-      tab_close = { bg = "#2e3440" },
-
-      tab_separator = { bg = "#2e3440", fg = "#4C566A" },
-      tab_separator_selected = { bg = "#2e3440", fg = "#81a1c1" },
-
-      close_button = { bg = "#2e3440" },
-      close_button_visible = { bg = "#2e3440" },
-      close_button_selected = { bg = "#2e3440" },
-
-      buffer = { bg = "#2e3440" },
-      buffer_visible = { bg = "#2e3440" },
-      buffer_selected = { bg = "#2e3440" },
-
-      numbers = { bg = "#2e3440" },
-      numbers_visible = { bg = "#2e3440" },
-      numbers_selected = { bg = "#2e3440" },
-
-      diagnostic = { bg = "#2e3440" },
-      diagnostic_visible = { bg = "#2e3440" },
-      diagnostic_selected = { bg = "#2e3440" },
-
-      hint = { bg = "#2e3440" },
-      hint_visible = { bg = "#2e3440" },
-      hint_selected = { bg = "#2e3440" },
-
-      hint_diagnostic = { bg = "#2e3440" },
-      hint_diagnostic_visible = { bg = "#2e3440" },
-      hint_diagnostic_selected = { bg = "#2e3440" },
-
-      info = { bg = "#2e3440" },
-      info_visible = { bg = "#2e3440" },
-      info_selected = { bg = "#2e3440" },
-
-      info_diagnostic = { bg = "#2e3440" },
-      info_diagnostic_visible = { bg = "#2e3440" },
-      info_diagnostic_selected = { bg = "#2e3440" },
-
-      warning = { bg = "#2e3440" },
-      warning_visible = { bg = "#2e3440" },
-      warning_selected = { bg = "#2e3440" },
-
-      warning_diagnostic = { bg = "#2e3440" },
-      warning_diagnostic_visible = { bg = "#2e3440" },
-      warning_diagnostic_selected = { bg = "#2e3440" },
-
-      error = { bg = "#2e3440" },
-      error_visible = { bg = "#2e3440" },
-      error_selected = { bg = "#2e3440" },
-
-      error_diagnostic = { bg = "#2e3440" },
-      error_diagnostic_visible = { bg = "#2e3440" },
-      error_diagnostic_selected = { bg = "#2e3440" },
-
-      duplicate = { bg = "#2e3440" },
-      duplicate_visible = { bg = "#2e3440" },
-      duplicate_selected = { bg = "#2e3440" },
-
-      separator = { bg = "#2e3440", fg = "#4C566A" },
-      separator_selected = { bg = "#2e3440" },
-      separator_visible = { bg = "#2e3440" },
-
-      modified = { bg = "#2e3440" },
-      modified_visible = { bg = "#2e3440" },
-      modified_selected = { bg = "#2e3440" },
-
-      indicator_selected = { bg = "#2e3440" },
-      indicator_visible = { bg = "#2e3440" },
-
-      pick = { bg = "#2e3440" },
-      pick_visible = { bg = "#2e3440" },
-      pick_selected = { bg = "#2e3440" },
-
-      offset_separator = { bg = "#2e3440" },
-
-      trunc_marker = { bg = "#2e3440" },
-
+      -- highlights = {
+      --   background = { bg = color.bg },
+      --   buffer_selected = { bg = color.bg_dark1 },
+      --   buffer_visible = { bg = color.bg },
+      -- }
+      highlights = bufferline_hl
     }
-  }
+  end
 }
