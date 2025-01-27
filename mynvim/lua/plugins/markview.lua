@@ -1,54 +1,115 @@
 return {
-  "OXY2DEV/markview.nvim",
-  lazy = true,
-  ft = "markdown",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-    "nvim-tree/nvim-web-devicons"
-  },
-  opts = {
-    -- Buffer types to ignore
-    buf_ignore = { "nofile" },
-    -- Delay, in miliseconds
-    -- to wait before a redraw occurs(after an event is triggered)
-    debounce = 50,
-    -- Filetypes where the plugin is enabled
-    filetypes = { "markdown", "quarto", "rmd" },
-    -- Highlight groups to use
-    -- "dynamic" | "light" | "dark"
-    highlight_groups = "dynamic",
-    -- Modes where hybrid mode is enabled
-    hybrid_modes = { "n", "no", "c" },
-    -- Tree-sitter query injections
-    injections = {},
-    -- Initial plugin state,
-    -- true = show preview
-    -- falss = don't show preview
-    initial_state = true,
-    -- Max file size that is rendered entirely
-    max_file_length = 1000,
-    -- Modes where preview is shown
-    modes = { "n", "no", "c" },
-    -- Lines from the cursor to draw when the
-    -- file is too big
-    render_distance = 100,
-    -- Window configuration for split view
-    split_conf = {},
+	"OXY2DEV/markview.nvim",
+	lazy = true,
+	ft = "markdown",
+	dependencies = {
+		"nvim-treesitter/nvim-treesitter",
+		"nvim-tree/nvim-web-devicons",
+	},
+	opts = {
+		experimental = {
+			date_formats = {},
+			date_time_formats = {},
 
-    -- Rendering related configuration
-    block_quotes = {},
-    callbacks = {},
-    checkboxes = {},
-    code_blocks = {},
-    escaped = {},
-    footnotes = {},
-    headings = {},
-    horizontal_rules = {},
-    html = {},
-    inline_codes = {},
-    latex = {},
-    links = {},
-    list_items = {},
-    tables = {}
-  }
+			text_filetypes = {},
+			read_chunk_size = 1000,
+			link_open_alerts = false,
+			file_open_command = "tabnew",
+
+			list_empty_line_tolerance = 3,
+		},
+		highlight_groups = {},
+		preview = {
+			enable = true,
+			filetypes = { "md", "rmd", "quarto" },
+			ignore_buftypes = { "nofile" },
+			ignore_previews = {},
+
+			modes = { "n", "no", "c" },
+			hybrid_modes = {},
+			debounce = 50,
+			draw_range = { vim.o.lines, vim.o.lines },
+			edit_range = { 1, 0 },
+
+			callbacks = {},
+
+			splitview_winopts = { split = "left" },
+		},
+		renderers = {},
+
+		html = {
+			enable = true,
+
+			container_elements = {},
+			headings = {},
+			void_elements = {},
+		},
+		latex = {
+			enable = true,
+
+			blocks = {},
+			commands = {},
+			escapes = {},
+			fonts = {},
+			inlines = {},
+			parenthesis = {},
+			subscripts = {},
+			superscripts = {},
+			symbols = {},
+			texts = {},
+		},
+		markdown = {
+			enable = true,
+
+			block_quotes = {},
+			code_blocks = {},
+			headings = {},
+			horizontal_rules = {},
+			list_items = {},
+			metadata_plus = {},
+			metadata_minus = {},
+			tables = {},
+		},
+		markdown_inline = {
+			enable = true,
+
+			block_references = {},
+			checkboxes = {},
+			emails = {},
+			embed_files = {},
+			entities = {},
+			escapes = {},
+			footnotes = {},
+			highlights = {},
+			hyperlinks = {},
+			images = {},
+			inline_codes = {},
+			internal_links = {},
+			uri_autolinks = {},
+		},
+		typst = {
+			enable = true,
+
+			codes = {},
+			escapes = {},
+			headings = {},
+			labels = {},
+			list_items = {},
+			math_blocks = {},
+			math_spans = {},
+			raw_blocks = {},
+			raw_spans = {},
+			reference_links = {},
+			subscripts = {},
+			superscript = {},
+			symbols = {},
+			terms = {},
+			url_links = {},
+		},
+		yaml = {
+			enable = true,
+
+			properties = {},
+		},
+	},
 }
