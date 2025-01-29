@@ -1,4 +1,3 @@
-
 local opts = { noremap = true, silent = false }
 
 local term_opts = { silent = true }
@@ -65,4 +64,3 @@ keymap("t", "<C-w>", [[<C-\><C-n><C-w>]], opts)
 
 keymap("c", "<C-j>", "<C-n>", opts)
 keymap("c", "<C-k>", "<C-p>", opts)
-

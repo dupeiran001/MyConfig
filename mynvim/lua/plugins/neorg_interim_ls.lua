@@ -1,5 +1,5 @@
 return {
-  'benlubas/neorg-interim-ls',
-  lazy = true,
-  config = false,
+	"benlubas/neorg-interim-ls",
+	lazy = true,
+	config = false,
 }
