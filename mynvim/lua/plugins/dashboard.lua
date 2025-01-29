@@ -7,6 +7,8 @@ return {
 		{ "folke/persistence.nvim" },
 	},
 	opts = function()
+		local win_height = vim.api.nvim_win_get_height(0)
+		local options_height = 20
 		--local logo = [[
 		--   ██╗      █████╗ ███████╗██╗   ██╗██╗   ██╗██╗███╗   ███╗          Z
 		--   ██║     ██╔══██╗╚══███╔╝╚██╗ ██╔╝██║   ██║██║████╗ ████║      Z
@@ -42,6 +44,7 @@ return {
        ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡽⠀⠣⡄⢚⣾⣓⡤⢪⣴⡽⣷⣿⣿⣿⣿⣿⣿⣿⣏⢸⠏⠑⠁⠀⣟⠃⣿⣿⣇⣿⡾⣹⣿⣿⢻⣿⣿⣿⣯⣽⣷⣶⣿⣷⡾⠥⠒⠀⠀⢀⡴⢦⣠⣔
 
 
+
       ]]
 		--      header =[[
 		--
@@ -69,8 +72,19 @@ return {
 		--⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠐⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 		--
 		--    ]]
+		local logo_line_count = 0
 
-		logo = string.rep("\n", 4) .. logo .. "\n\n"
+		for _ in logo:gmatch("[^\n]+") do
+			logo_line_count = logo_line_count + 1
+		end
+
+		local padding_lines = 0
+
+		if options_height + logo_line_count >= win_height then
+			logo = string.rep("\n", (win_height - options_height) / 2)
+		else
+			logo = string.rep("\n", (win_height - options_height - logo_line_count) / 2) .. logo
+		end
 
 		local opts = {
 			theme = "doom",
