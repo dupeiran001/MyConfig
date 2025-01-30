@@ -44,43 +44,7 @@ return {
 					dpi = 150, -- default 350
 				},
 			},
-			["core.highlights"] = {
-				config = {
-					highlights = {
-						headings = {
-							["1"] = {
-								title = "+@neorg.headings.n.1.title",
-								prefix = "+@neorg.headings.n.1.prefix",
-							},
-
-							["2"] = {
-								title = "+@neorg.headings.n.2.title",
-								prefix = "+@neorg.headings.n.2.prefix",
-							},
-
-							["3"] = {
-								title = "+@neorg.headings.n.3.title",
-								prefix = "+@neorg.headings.n.3.prefix",
-							},
-
-							["4"] = {
-								title = "+@neorg.headings.n.4.title",
-								prefix = "+@neorg.headings.n.4.prefix",
-							},
-
-							["5"] = {
-								title = "+@neorg.headings.n.5.title",
-								prefix = "+@neorg.headings.n.5.prefix",
-							},
-
-							["6"] = {
-								title = "+@neorg.headings.n.6.title",
-								prefix = "+@neorg.headings.n.6.prefix",
-							},
-						},
-					},
-				},
-			},
+			["core.highlights"] = {},
 			["core.dirman"] = {
 				config = {
 					workspaces = {
