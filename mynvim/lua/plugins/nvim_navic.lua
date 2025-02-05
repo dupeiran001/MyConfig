@@ -1,6 +1,7 @@
 return {
 	"SmiteshP/nvim-navic",
 	lazy = true,
+	event = "LspAttach",
 	dependencies = { "neovim/nvim-lspconfig" },
 	opts = {
 		icons = {

@@ -1,6 +1,7 @@
 return {
 	"ya2s/nvim-cursorline",
-	lazy = false,
+	lazy = true,
+	event = { "BufReadPre", "BufNewFile" },
 	opts = {
 		cursorline = {
 			enable = false,

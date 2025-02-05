@@ -3,7 +3,6 @@ return {
 	event = "VimEnter",
 	dependencies = {
 		{ "nvim-tree/nvim-web-devicons" },
-		{ "ibhagwan/fzf-lua" },
 		{ "folke/persistence.nvim" },
 	},
 	opts = function()

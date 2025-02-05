@@ -35,7 +35,7 @@ return {
 		--- function will be called with a ColorScheme table
 		on_colors = function(colors) end,
 
-		cache = false, -- When set to true, the theme will be cached for better performance
+		cache = true, -- When set to true, the theme will be cached for better performance
 
 		---@type table<string, boolean|{enabled:boolean}>
 		plugins = {

@@ -1,6 +1,14 @@
 return {
 	"akinsho/toggleterm.nvim",
 	version = "*",
+	lazy = true,
+	keys = {
+		{
+			"<C-\\>",
+			"<cmd>ToggleTerm<cr>",
+			desc = "ToggleTerm",
+		},
+	},
 	opts = {
 		open_mapping = [[<c-\>]],
 		direction = "float",

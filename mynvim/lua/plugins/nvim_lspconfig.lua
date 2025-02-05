@@ -17,11 +17,7 @@ return {
 				-- vim.lsp.buf.definition()
 				local params = vim.lsp.util.make_position_params()
 				vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result, ctx, _)
-					if err then
-						vim.notify("Error fetching definitions: " .. err.message, vim.log.levels.ERROR)
-						return
-					end
-					if not result or vim.tbl_isempty(result) then
+					if err or not result or vim.tbl_isempty(result) then
 						vim.notify("No definitions found.", vim.log.levels.INFO)
 						return
 					end
@@ -43,11 +39,7 @@ return {
 
 				local params = vim.lsp.util.make_position_params()
 				vim.lsp.buf_request(0, "textDocument/declaration", params, function(err, result, ctx, _)
-					if err then
-						vim.notify("Error fetching declarations: " .. err.message, vim.log.levels.ERROR)
-						return
-					end
-					if not result or vim.tbl_isempty(result) then
+					if err or not result or vim.tbl_isempty(result) then
 						vim.notify("No declarations found.", vim.log.levels.INFO)
 						return
 					end
@@ -68,11 +60,7 @@ return {
 				-- "<cmd>FzfLua lsp_references<cr>"
 				local params = vim.lsp.util.make_position_params()
 				vim.lsp.buf_request(0, "textDocument/references", params, function(err, result, ctx, _)
-					if err then
-						vim.notify("Error fetching references: " .. err.message, vim.log.levels.ERROR)
-						return
-					end
-					if not result or vim.tbl_isempty(result) then
+					if err or not result or vim.tbl_isempty(result) then
 						vim.notify("No references found.", vim.log.levels.INFO)
 						return
 					end
@@ -93,11 +81,7 @@ return {
 				-- vim.lsp.buf.implementation()
 				local params = vim.lsp.util.make_position_params()
 				vim.lsp.buf_request(0, "textDocument/implementation", params, function(err, result, ctx, _)
-					if err then
-						vim.notify("Error fetching implementations: " .. err.message, vim.log.levels.ERROR)
-						return
-					end
-					if not result or vim.tbl_isempty(result) then
+					if err or not result or vim.tbl_isempty(result) then
 						vim.notify("No implementations found.", vim.log.levels.INFO)
 						return
 					end
@@ -118,11 +102,7 @@ return {
 				-- vim.lsp.buf.type_definition()
 				local params = vim.lsp.util.make_position_params()
 				vim.lsp.buf_request(0, "textDocument/typeDefinition", params, function(err, result, ctx, _)
-					if err then
-						vim.notify("Error fetching type definitions: " .. err.message, vim.log.levels.ERROR)
-						return
-					end
-					if not result or vim.tbl_isempty(result) then
+					if err or not result or vim.tbl_isempty(result) then
 						vim.notify("No type definitions found.", vim.log.levels.INFO)
 						return
 					end

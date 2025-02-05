@@ -1,6 +1,5 @@
 return {
   "nvim-lualine/lualine.nvim",
-
   opts = function()
     -- bubble theme
     local icons = require("lazyvim.config").icons

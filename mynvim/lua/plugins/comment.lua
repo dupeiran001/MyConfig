@@ -1,5 +1,7 @@
 return {
 	"numToStr/Comment.nvim",
+	lazy = true,
+	event = { "BufReadPre", "BufNewFile" },
 	opts = {
 		---Add a space b/w comment and the line
 		padding = true,
