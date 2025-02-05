@@ -5,6 +5,18 @@ return {
 		open_mapping = [[<c-\>]],
 		direction = "float",
 		close_on_exit = true,
+		highlights = {
+			-- highlights which map to a highlight group name and a table of it's values
+			Normal = {
+				link = "Normal",
+			},
+			NormalFloat = {
+				link = "NormalFloat",
+			},
+			FloatBorder = {
+				link = "FloatBorder",
+			},
+		},
 	},
 	init = function()
 		-- solve exit error when toggleterm runs on backend

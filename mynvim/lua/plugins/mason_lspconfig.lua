@@ -5,6 +5,8 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		"saghen/blink.cmp",
 	},
+	event = { "BufReadPre", "BufNewFile" },
+	lazy = true,
 	opts = {
 
 		-- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }

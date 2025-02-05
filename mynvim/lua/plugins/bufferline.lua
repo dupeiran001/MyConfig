@@ -81,7 +81,7 @@ return {
 		},
 	},
 	opts = function()
-		local bufferline_hl = require("nord").bufferline
+		-- local bufferline_hl = require("nord").bufferline
 		return {
 			options = {
 				close_command = "Bdelete! %d",
@@ -129,7 +129,7 @@ return {
 			--   buffer_selected = { bg = color.bg_dark1 },
 			--   buffer_visible = { bg = color.bg },
 			-- }
-			highlights = bufferline_hl,
+			-- highlights = bufferline_hl,
 		}
 	end,
 }

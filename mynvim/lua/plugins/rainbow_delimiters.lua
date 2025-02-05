@@ -17,7 +17,7 @@ return {
 				lua = 210,
 			},
 			highlight = {
-				"Normal",
+				"RainbowDelimiterNormal",
 				"RainbowDelimiterOrange",
 				"RainbowDelimiterYellow",
 				"RainbowDelimiterGreen",

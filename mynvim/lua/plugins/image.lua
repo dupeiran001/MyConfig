@@ -1,5 +1,6 @@
 return {
 	"3rd/image.nvim",
+	ft = { "markdown", "html", "latex", "typst", "yaml" },
 	opts = {
 		backend = "kitty",
 		processor = "magick_cli", -- or "magick_rock"
