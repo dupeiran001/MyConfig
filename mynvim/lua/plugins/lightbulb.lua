@@ -18,7 +18,7 @@ return {
 		--   LightBulbNumber -> DiagnosticSignInfo
 		--   LightBulbLine -> CursorLine
 		-- Only works if configured during NvimLightbulb.setup
-		link_highlights = true,
+		link_highlights = false,
 
 		-- Perform full validation of configuration.
 		-- Available options: "auto", "always", "never"

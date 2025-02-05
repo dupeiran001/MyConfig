@@ -145,7 +145,7 @@ alias z="zellij"
 
 # alias proxy="export HTTP_PROXY='socks5://127.0.0.1:55906' HTTPS_PROXY='socks5://127.0.0.1:55906' ALL_PROXY='socks5://127.0.0.1:55906'"
 alias unproxy="unset HTTP_PROXY HTTPS_PROXY ALL_PROXY https_proxy http_proxy all_proxy"
-alias proxy="export https_proxy=http://127.0.0.1:55906 http_proxy=http://127.0.0.1:55906 all_proxy=socks5://127.0.0.1:55906"
+alias proxy="export https_proxy=http://127.0.0.1:45678 http_proxy=http://127.0.0.1:45678 all_proxy=socks5://127.0.0.1:45678"
 
 # hugo completion
 source $HOME/.config/hugo.zsh
