@@ -1,6 +1,5 @@
 return {
 	"neovim/nvim-lspconfig",
-	dependencies = "ibhagwan/fzf-lua",
 	config = function()
 		-- we want to automatically setup lsp in mason_lspconfig hook
 		local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
