@@ -18,6 +18,8 @@
 !/zellij
 !hugo.zsh
 !/mynvim
+!/awesome
+!/rofi
 
 .DS_Store
 lazy-lock.json
