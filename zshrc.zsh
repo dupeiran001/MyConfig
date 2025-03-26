@@ -140,7 +140,8 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home
 [ -f "/home/dpr/.ghcup/env" ] && source "/home/dpr/.ghcup/env" 
 
 alias r="ranger"
-alias v="NVIM_APPNAME=mynvim nvim"
+#alias v="NVIM_APPNAME=mynvim nvim"
+alias v="nvim"
 alias z="zellij"
 
 # alias proxy="export HTTP_PROXY='socks5://127.0.0.1:55906' HTTPS_PROXY='socks5://127.0.0.1:55906' ALL_PROXY='socks5://127.0.0.1:55906'"

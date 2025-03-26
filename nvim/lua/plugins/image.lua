@@ -1,5 +1,8 @@
 return {
 	"3rd/image.nvim",
+	cond = function()
+		return vim.g.started_by_firenvim == nil or vim.g.started_by_firevim == false
+	end,
 	ft = { "markdown", "html", "latex", "typst", "yaml" },
 	opts = {
 		backend = "kitty",

@@ -1,30 +1,45 @@
 return {
-  'akinsho/toggleterm.nvim',
-  keys = {
-    { "<C-\\>", "<cmd>ToggleTerm<cr>",                      desc = "Terminal (toggle)" },
-    { "<C-1>",  "<cmd>ToggleTerm direction=vertical<cr>",   desc = "Terminal (vertical)" },
-    { "<C-2>",  "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Find Files (horizonal)" },
-    { "<C-3>",  "<cmd>ToggleTerm direction=float<cr>",      desc = "Find Files (float)" },
-    { "<C-4>",  "<cmd>ToggleTerm direction=tab<cr>",        desc = "Find Files (tab)" },
-  },
-
-  opts = { --[[ things you want to change go here]] },
-  config = function()
-    require("toggleterm").setup({
-      open_mapping = [[<C-\>]],
-      autochdir = true,
-      float_opts = {
-        border = "curved",
-      },
-      size = function(term)
-        if term.direction == "horizontal" then
-          return 15
-        elseif term.direction == "vertical" then
-          return vim.o.columns * 0.3
-        end
-      end,
-      direction = "float",
-      close_on_exit = true,
-    })
-  end
+	"akinsho/toggleterm.nvim",
+	version = "*",
+	lazy = true,
+	keys = {
+		{
+			"<C-\\>",
+			"<cmd>ToggleTerm<cr>",
+			desc = "ToggleTerm",
+		},
+	},
+	opts = {
+		open_mapping = [[<c-\>]],
+		direction = "float",
+		close_on_exit = true,
+		highlights = {
+			-- highlights which map to a highlight group name and a table of it's values
+			Normal = {
+				link = "Normal",
+			},
+			NormalFloat = {
+				link = "NormalFloat",
+			},
+			FloatBorder = {
+				link = "FloatBorder",
+			},
+		},
+	},
+	init = function()
+		-- solve exit error when toggleterm runs on backend
+		vim.api.nvim_create_autocmd({ "TermEnter" }, {
+			callback = function()
+				for _, buffers in ipairs(vim.fn.getbufinfo()) do
+					local filetype = vim.bo.filetype
+					if filetype == "toggleterm" then
+						vim.api.nvim_create_autocmd({ "BufWriteCmd", "FileWriteCmd", "FileAppendCmd" }, {
+							buffer = buffers.bufnr,
+							command = "q!",
+						})
+					end
+				end
+			end,
+		})
+	end,
 }
