@@ -1,6 +1,6 @@
 return {
 	"dupeiran001/nord.nvim",
-	--dir = "~/Develop/nvim/nord.nvim/",
+	--dir = "~/Develop/nvim/nord.nvim/", -- DEV: referencing local file
 	lazy = false,
 	priority = 1000,
 	init = function()
