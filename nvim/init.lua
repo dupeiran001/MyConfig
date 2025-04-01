@@ -1,6 +1,3 @@
--- TODO: Temporarily workaround to solve error while using :Inspect
-vim.hl = vim.highlight
-
 local function scandir(directory)
 	local i, t, popen = 0, {}, io.popen
 	local pfile = popen('ls -a "' .. directory .. '"')
