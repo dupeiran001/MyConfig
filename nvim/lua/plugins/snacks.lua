@@ -5,7 +5,6 @@ return {
 	init = function()
 		vim.g.snacks_animate = false
 	end,
-	---@type snacks.Config
 	opts = {
 		-- your configuration comes here
 		-- or leave it empty to use the default settings
@@ -14,5 +13,15 @@ return {
 		profiler = { enable = false },
 		quickfile = { enable = true },
 		scroll = { enable = true },
+		---@class snacks.indent.Config
+		---@field enabled? boolean
+		indent = {
+			priority = 1,
+			enabled = true, -- enable indent guides
+			char = "│",
+			only_scope = false, -- only show indent guides of the scope
+			only_current = false, -- only show indent guides in the current window
+			hl = "SnacksIndent", ---@type string|string[] hl groups for indent guides
+		},
 	},
 }
