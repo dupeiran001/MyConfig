@@ -1,8 +1,8 @@
 return {
 	"dupeiran001/nord.nvim",
-	--dir = "~/Develop/nvim/nord.nvim/", -- DEV: referencing local file
+	-- dir = "~/Develop/nvim/nord.nvim/", -- DEV: referencing local file
 	lazy = false,
-	priority = 1000,
+	priority = 10,
 	init = function()
 		vim.cmd([[colorscheme nord]])
 	end,
@@ -36,6 +36,7 @@ return {
 		on_colors = function(colors) end,
 
 		cache = true, -- When set to true, the theme will be cached for better performance
+		-- cache = false, -- Dev: disable local cache when developing
 
 		---@type table<string, boolean|{enabled:boolean}>
 		plugins = {

@@ -15,6 +15,7 @@ return {
 		{ "<leader>fb", "<cmd>FzfLua buffers<cr>", desc = "Buffers" },
 		{ "<leader>fgc", "<cmd>FzfLua git_commits<cr>", desc = "Git Commits" },
 		{ "<leader>fgb", "<cmd>FzfLua git_branches<cr>", desc = "Git Branches" },
+		{ "<leader>fgs", "<cmd>FzfLua git_status<cr>", desc = "Git Status" },
 		{ "<leader>fo", "<cmd>FzfLua oldfiles<cr>", desc = "Recent files" },
 		{ "<leader>fr", "<cmd>FzfLua resume<cr>", desc = "Resume" },
 		{ "<leader>fB", "<cmd>FzfLua builtin<cr>", desc = "Builtin" },
