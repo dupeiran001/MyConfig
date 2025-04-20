@@ -17,7 +17,7 @@ return {
 		},
 		indent = {
 			enable = true,
-			use_treesitter = true,
+			use_treesitter = false,
 			delay = 0,
 		},
 		line_num = {

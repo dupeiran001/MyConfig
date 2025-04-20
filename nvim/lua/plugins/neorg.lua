@@ -26,7 +26,7 @@ return {
 							},
 						},
 					},
-					init_open_folds = "never",
+					init_open_folds = "auto",
 				},
 			},
 			["core.esupports.metagen"] = {

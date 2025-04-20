@@ -35,6 +35,7 @@ vim.opt.sidescrolloff = 8
 vim.opt.guifont = "FiraCode Nerd Font:h17" -- the font used in graphical neovim applications
 vim.opt.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,terminal"
 vim.opt.foldlevelstart = 0
+vim.opt.foldlevel = 0
 
 -- vim.opt.shortmess:append { "c" }
 
