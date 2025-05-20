@@ -8,6 +8,7 @@ return {
 	ft = "norg",
 	cmd = "Neorg",
 	version = "*", -- Pin Neorg to the latest stable release
+	init = function() end,
 	opts = {
 		load = {
 			["core.defaults"] = {},
@@ -17,12 +18,12 @@ return {
 					icons = {
 						heading = {
 							highlights = {
-								"@neorg.headings.n.1.prefix",
-								"@neorg.headings.n.2.prefix",
-								"@neorg.headings.n.3.prefix",
-								"@neorg.headings.n.4.prefix",
-								"@neorg.headings.n.5.prefix",
-								"@neorg.headings.n.6.prefix",
+								"@neorg.headings.1.prefix.norg",
+								"@neorg.headings.2.prefix.norg",
+								"@neorg.headings.3.prefix.norg",
+								"@neorg.headings.4.prefix.norg",
+								"@neorg.headings.5.prefix.norg",
+								"@neorg.headings.6.prefix.norg",
 							},
 						},
 					},
