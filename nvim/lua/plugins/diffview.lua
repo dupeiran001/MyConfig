@@ -4,6 +4,15 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		"nvim-tree/nvim-web-devicons",
 	},
+	cmd = {
+		"DiffviewClose",
+		"DiffviewOpen",
+		"DiffviewFileHistory",
+		"DiffviewFocusFiles",
+		"DiffviewLog",
+		"DiffviewRefresh",
+		"DiffviewToggleFiles",
+	},
 	keys = {
 		{
 			"<leader>dd",

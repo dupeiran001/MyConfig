@@ -100,6 +100,7 @@ return {
           --{ action = "ene | startinsert",                              desc = " New File",        icon = " ", key = "n" },
           { action = 'FzfLua oldfiles', desc = " Recent Files", icon = " ", key = "r" },
           { action = 'FzfLua grep_project', desc = " Find Text", icon = " ", key = "c" },
+          { action = 'DiffviewOpen', desc = " Diffview", icon = " ", key = "d" },
           { action = function() _G.fzf_marks() end, desc = " Find Mark", icon = " ", key = "m" },
           { action = 'FzfLua files cwd=~/.config', desc = " Config", icon = " ", key = "C" },
           { action = 'lua require("persistence").load()', desc = " Restore Session", icon = " ", key = "s" },
