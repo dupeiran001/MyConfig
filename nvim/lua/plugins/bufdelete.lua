@@ -1,4 +1,5 @@
 return {
 	"famiu/bufdelete.nvim",
-	lazy = false,
+	lazy = true,
+	event = "CmdlineEnter",
 }
