@@ -83,8 +83,9 @@ COMPLETION_WAITING_DOTS="true"
 plugins=(
 	  git
   	rust
-    kubectl
-    minikube
+    git-auto-fetch    # auto fetch repo in background
+    alias-finder      # automatically suggest alias
+    command-not-found # suggest package to install
 	)
 
 source ~/.config/resources/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh

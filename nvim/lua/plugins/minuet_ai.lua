@@ -14,7 +14,7 @@ return {
     -- of 512, serves as an good starting point to estimate your computing
     -- power. Once you have a reliable estimate of your local computing power,
     -- you should adjust the context window to a larger value.
-    context_window = 512,
+    context_window = 4096,
     request_timeout = 10,
     provider_options = {
       openai_fim_compatible = {
@@ -26,7 +26,8 @@ return {
         --model = 'qwen2.5-coder:32b',
         --model = 'qwen2.5-coder:14b',
         --model = 'qwen2.5-coder:7b',
-        model = 'qwen2.5-coder:3b',
+        --model = 'qwen2.5-coder:3b',
+        model = 'deepseek-coder-v2:16b',
         optional = {
           max_tokens = 200,
           top_p = 0.9,

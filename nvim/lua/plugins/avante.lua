@@ -22,6 +22,7 @@ return {
       ollama = {
         endpoint = 'http://llm.a322b:11434',
         model = 'qwen2.5-coder:32b',
+        -- model = 'deepseek-coder-v2:16b',
       },
     },
   },
