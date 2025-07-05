@@ -97,6 +97,7 @@ source $ZSH/oh-my-zsh.sh
 KEYTIMEOUT=1
 
 eval "$(starship init zsh)"
+enable-fzf-tab
 
 bindkey -v
 
