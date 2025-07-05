@@ -1,3 +1,4 @@
+-- Configuration for avante.nvim plugin
 return {
   "yetone/avante.nvim",
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
@@ -21,22 +22,25 @@ return {
     providers = {
       ollama = {
         endpoint = 'http://llm.a322b:11434',
-        model = 'qwen2.5-coder:32b',
+        --model = 'qwen2.5-coder:32b',
         -- model = 'deepseek-coder-v2:16b',
+        model = 'devstral:24b'
       },
     },
+    mode = "agentic",
+    --mode = "legacy",
+    file_selector = {
+      provider = "fzf",
+    }
   },
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     --- The below dependencies are optional,
-    "echasnovski/mini.pick",         -- for file_selector provider mini.pick
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp",              -- autocompletion for avante commands and mentions
-    "ibhagwan/fzf-lua",              -- for file_selector provider fzf
-    "stevearc/dressing.nvim",        -- for input provider dressing
-    "folke/snacks.nvim",             -- for input provider snacks
-    "nvim-tree/nvim-web-devicons",   -- or echasnovski/mini.icons
+    "ibhagwan/fzf-lua",            -- for file_selector provider fzf
+    "stevearc/dressing.nvim",      -- for input provider dressing
+    "folke/snacks.nvim",           -- for input provider snacks
+    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
     {
       -- support for image pasting
       "HakonHarnes/img-clip.nvim",
