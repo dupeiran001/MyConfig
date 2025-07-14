@@ -3,6 +3,7 @@ return {
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
     "nvim-tree/nvim-web-devicons",
+    "ibhagwan/fzf-lua",
   },
   cmd = {
     "DiffviewClose",
@@ -17,27 +18,14 @@ return {
     {
       "<leader>dd",
       function()
-        local is_diff = function()
-          local current_tab = vim.api.nvim_get_current_tabpage()
-          local windows_in_tab = vim.api.nvim_tabpage_list_wins(current_tab)
-
-          if #windows_in_tab == 0 then
-            return false -- No windows in the tab
-          end
-
-          for _, win_id in ipairs(windows_in_tab) do
-            if vim.wo[win_id].diff then
-              --if not vim.api.nvim_win_get_option(win_id, "diff") then
-              return true -- Found a window not in diff mode
-            end
-          end
-          return false
-        end
-
-        if is_diff() then
-          vim.cmd("DiffviewClose")
+        local lib = require 'diffview.lib'
+        local view = lib.get_current_view()
+        if view then
+          -- Current tabpage is a Diffview; close it
+          vim.cmd(":DiffviewClose")
         else
-          vim.cmd("DiffviewOpen")
+          -- No open Diffview exists: open a new one
+          vim.cmd(":DiffviewOpen")
         end
       end,
       desc = "Toggle Diffview",
