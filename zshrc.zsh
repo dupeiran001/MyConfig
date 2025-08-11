@@ -155,6 +155,11 @@ alias proxy="export https_proxy=http://127.0.0.1:45678 http_proxy=http://127.0.0
 # hugo completion
 source $HOME/.config/hugo.zsh
 
+# Load local nvim environment variables if they exist
+if [ -f $HOME/.config/.local.sh ]; then
+  source ~/.config/.local.sh
+fi
+
 # show prompt at the bottom
 #alias clear='clear && print ${(pl:$LINES::\n:):-}'
 #print ${(pl:$LINES::\n:):-}

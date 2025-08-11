@@ -2,6 +2,9 @@
 /*
 !/.gitignore
 !/git.gitconfig
+!/recipients.txt
+!/.local.sh.age
+!/scripts
 !/nvim
 !/README.md
 !/sing-box.json
@@ -28,3 +31,5 @@ lazy-lock.json
 atuin/history.db
 atuin/history.db-shm
 atuin/history.db-wal
+
+.local.sh

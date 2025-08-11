@@ -1,8 +1,8 @@
 -- Configuration for avante.nvim plugin
 return {
   "yetone/avante.nvim",
-  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-  -- ⚠️ must add this setting! ! !
+  -- Build from source: run `make BUILD_FROM_SOURCE=true`
+  -- ⚠️ This setting is required!
   build = function()
     -- conditionally use the correct build system for the current OS
     if vim.fn.has("win32") == 1 then
@@ -12,19 +12,20 @@ return {
     end
   end,
   event = "VeryLazy",
-  version = false, -- Never set this value to "*"! Never!
+  version = false, -- Do not set this value to "*"
   ---@module 'avante'
   ---@type avante.Config
   opts = {
-    -- add any opts here
-    -- for example
+    -- Add any additional options here
+    -- Example configuration
     provider = "ollama",
     providers = {
       ollama = {
         endpoint = 'http://llm.a322b:11434',
         --model = 'qwen2.5-coder:32b',
         -- model = 'deepseek-coder-v2:16b',
-        model = 'devstral:24b'
+        --model = 'devstral:24b'
+        model = 'gpt-oss:120b'
       },
     },
     mode = "agentic",
@@ -36,13 +37,13 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
-    --- The below dependencies are optional,
+    -- The following dependencies are optional:
     "ibhagwan/fzf-lua",            -- for file_selector provider fzf
     "stevearc/dressing.nvim",      -- for input provider dressing
     "folke/snacks.nvim",           -- for input provider snacks
     "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
     {
-      -- support for image pasting
+      -- Support for image pasting
       "HakonHarnes/img-clip.nvim",
       event = "VeryLazy",
       opts = {
@@ -59,7 +60,7 @@ return {
       },
     },
     {
-      -- Make sure to set this up properly if you have lazy=true
+      -- Ensure proper setup when lazy=true
       'MeanderingProgrammer/render-markdown.nvim',
       opts = {
         file_types = { "markdown", "Avante" },
