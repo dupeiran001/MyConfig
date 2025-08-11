@@ -41,4 +41,5 @@ else
   echo "  # Step 3: Try your push again"
   echo "  git push"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  exit 1fi
+  exit 1
+fi
