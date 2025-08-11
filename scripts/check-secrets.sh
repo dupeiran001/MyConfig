@@ -5,6 +5,7 @@
 SECRETS_DIR=$(git rev-parse --show-toplevel)
 ENCRYPTED_FILE="$SECRETS_DIR/.local.sh.age"
 DECRYPTED_FILE="$SECRETS_DIR/.local.sh"
+RECIPIENTS_FILE="$SECRETS_DIR/recipients.txt"
 
 # --- Main Logic ---
 # If there's no local decrypted file, there's nothing to check.
