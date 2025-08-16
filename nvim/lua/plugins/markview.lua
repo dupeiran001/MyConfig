@@ -1,7 +1,7 @@
 return {
   "OXY2DEV/markview.nvim",
   lazy = true,
-  ft = { "markdown", "html", "latex", "typst", "yaml", "codecompanion" },
+  ft = { "markdown", "html", "latex", "typst", "yaml", "codecompanion", "Avante" },
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
     "nvim-tree/nvim-web-devicons",
@@ -24,7 +24,6 @@ return {
       filetypes = { "md", "rmd", "quarto" },
       --ignore_buftypes = { "nofile" },
       ignore_buftypes = {},
-      ignore_previews = {},
 
       modes = { "n", "no", "c" },
       hybrid_modes = {},
