@@ -15,7 +15,7 @@ vimcmd_symbol = "[❮](cyan)"
 
 [fill]
 symbol = ""
-style = "bold #9290C3"
+style = "bold #b48ead"
 
 
 [line_break]
