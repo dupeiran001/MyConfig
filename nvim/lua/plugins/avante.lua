@@ -18,14 +18,14 @@ return {
   opts = {
     -- Add any additional options here
     -- Example configuration
-    provider = "gemini",
+    provider = "ollama",
     providers = {
       ollama = {
         endpoint = "http://llm.a322b:11434",
         --model = 'qwen2.5-coder:32b',
         -- model = 'deepseek-coder-v2:16b',
-        --model = 'devstral:24b'
-        model = "gpt-oss:120b",
+        model = 'devstral:24b'
+        --model = "gpt-oss:120b",
       },
       gemini = {
         model = "gemini-2.5-pro",
@@ -41,9 +41,9 @@ return {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     -- The following dependencies are optional:
-    "ibhagwan/fzf-lua",          -- for file_selector provider fzf
-    "stevearc/dressing.nvim",    -- for input provider dressing
-    "folke/snacks.nvim",         -- for input provider snacks
+    "ibhagwan/fzf-lua",            -- for file_selector provider fzf
+    "stevearc/dressing.nvim",      -- for input provider dressing
+    "folke/snacks.nvim",           -- for input provider snacks
     "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
     {
       -- Support for image pasting
