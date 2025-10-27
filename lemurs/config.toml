@@ -80,7 +80,7 @@ shell_login_flag = "short"
 # - environment: Initially focus on the environment selector
 # - username: Initially focus on the username field
 # - password: Initially focus on the password field
-focus_behaviour = "default"
+focus_behaviour = "username"
 
 # General settings for background style
 [background]
@@ -189,7 +189,7 @@ toggle_hint_modifiers = ""
 
 # Show an option for the TTY shell when logging in as one of the environments. 
 # NOTE: it is always shown when no viable options are found. 
-include_tty_shell = false
+include_tty_shell = true
 
 # Remember the selected environment after logging in for the next time
 remember = true
@@ -198,12 +198,12 @@ remember = true
 show_movers = true
 
 # Mover's color and modifiers whilst the selector is unfocused
-mover_color = "dark gray" 
+mover_color = "dark gray"
 mover_modifiers = ""
 
 # Mover's color and modifiers whilst the selector is focused
 mover_color_focused = "orange"
-mover_modifiers_focused = "bold" 
+mover_modifiers_focused = "bold"
 
 # The characters used to display the movers. Suggestions are:
 # -  "<"  ">"

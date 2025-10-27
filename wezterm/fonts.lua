@@ -9,7 +9,8 @@ if wezterm.target_triple == "x86_64-unknown-linux-gnu" then
     -- Here we explicitly ask for the 'Regular' weight.
     -- You can change 'Regular' to 'Light' or another weight
     -- you found with the fc-list command.
-    { family = "Cascadia Code", weight = "Regular" },
+    { family = "CaskaydiaCove NF", weight = "Regular" },
+    { family = "Cascadia Code",    weight = "Regular" },
 
     -- The rest of the fallbacks can remain simple strings
     "Cascadia Code",
