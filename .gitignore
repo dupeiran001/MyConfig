@@ -23,6 +23,8 @@
 !hugo.zsh
 !/awesome
 !/bat
+!/emacs
+!/doom
 
 .DS_Store
 lazy-lock.json
