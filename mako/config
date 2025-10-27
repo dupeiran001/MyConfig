@@ -1,0 +1,141 @@
+# mako configuration file
+# Location: ~/.config/mako/config
+# For a full list of options, see 'man 5 mako'
+
+## ---------------------
+## GLOBAL CONFIGURATION
+## ---------------------
+
+# Sets how many expired notifications to keep in history.
+# 0 disables history.
+max-history=5
+
+# Sort notifications by time (newest first).
+# You can also sort by priority: +/-priority
+sort=-time
+
+# Set the default timeout for notifications in milliseconds.
+# 0 means notifications persist until dismissed.
+default-timeout=5000
+
+# If set to 1, mako will ignore app-specified timeouts
+# and use 'default-timeout' instead.
+ignore-timeout=0
+
+# Maximum number of visible notifications.
+# Older notifications will be hidden.
+# -1 means all notifications are visible.
+max-visible=5
+
+## ---------------------
+## BINDING OPTIONS
+## ---------------------
+
+# Actions to perform on mouse clicks.
+#
+# Supported actions:
+#   none
+#   dismiss
+#   dismiss-all
+#   dismiss-group
+#   invoke-default-action
+#   exec <command>
+#
+on-button-left=invoke-default-action
+on-button-right=dismiss
+on-button-middle=dismiss-all
+
+# Tapping on a touch device
+on-touch=dismiss
+
+# Example: Play a sound on new notification
+# on-notify=exec mpv /usr/share/sounds/freedesktop/stereo/message.oga
+
+# Example: Use makoctl and dmenu for an action menu
+# on-button-middle=exec makoctl menu -n "$id" dmenu -p 'Select action: '
+
+## ---------------------
+## STYLE OPTIONS
+## ---------------------
+
+# Font format is a Pango font description.
+font=sans-serif 10
+
+# Colors are in #RRGGBB or #RRGGBBAA format.
+background-color=#4c566a
+text-color=#E5E9F0
+border-color=#81A1C1
+progress-color=over #8FBCBB
+
+# Width and height of the notification popup.
+width=300
+height=100
+
+# Margin, padding, and border.
+# These can be a single value (all sides) or
+# comma-separated (top,right,bottom,left).
+margin=10
+padding=5
+border-size=2
+
+# Set to a value > 0 for rounded corners.
+border-radius=5
+
+# Icon settings
+icons=1
+max-icon-size=64
+icon-border-radius=3
+
+# Enable/disable Pango markup for formatting.
+markup=1
+
+# Format for the notification text.
+# %s - summary (title)
+# %b - body
+# %a - app-name
+# %g - number in group
+# Default for grouped: (%g) <b>%s</b>\n%b
+format=<b>%a</b>\n<b>%s</b>\n%b
+
+# Anchor position on screen.
+# Supported: top-right, top-center, top-left,
+#            bottom-right, bottom-center, bottom-left,
+#            center-right, center-left, center
+anchor=top-right
+
+# Layer to draw notifications on.
+# Supported: background, bottom, top, overlay
+layer=top
+
+## ---------------------
+## CRITERIA (Style Overrides)
+## ---------------------
+# Criteria sections apply styles to matching notifications.
+
+# Make critical notifications stand out and persist
+[urgency=critical]
+background-color=#BF616A
+text-color=#E5E9F0
+border-color=#BF616A
+border-size=3
+default-timeout=0
+
+# Style for notifications that are grouped
+[grouped]
+format=(%g) <b>%s</b>\n%b
+border-color=#B48EAD
+
+# Style for the "N more..." placeholder
+[hidden]
+format=%h more...
+padding=10
+border-size=1
+
+# Example: "Do Not Disturb" mode
+# You can toggle this mode with 'makoctl mode -a do-not-disturb'
+[mode=do-not-disturb]
+invisible=1
+
+# Example: Make Firefox notifications wider
+# [app-name=firefox]
+# width=400

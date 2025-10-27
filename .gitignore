@@ -7,11 +7,10 @@
 !/scripts
 !/nvim
 !/README.md
-!/sing-box.json
-!/sway
 !/waybar
-!/wofi
 !/zshrc.zsh
+!/mako
+!/niri
 !/zathura
 !/atuin
 !/resources
@@ -20,9 +19,7 @@
 !/gitui
 !/zellij
 !hugo.zsh
-!/mynvim
 !/awesome
-!/rofi
 !/bat
 
 .DS_Store
