@@ -91,6 +91,7 @@ plugins=(
 source ~/.config/resources/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 source ~/.config/resources/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
 source ~/.config/resources/fzf-tab/fzf-tab.plugin.zsh
+source ~/.config/resources/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source $ZSH/oh-my-zsh.sh
 

@@ -7,3 +7,6 @@
 [submodule "resources/fzf-tab"]
 	path = resources/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab
+[submodule "resources/zsh-vi-mode"]
+	path = resources/zsh-vi-mode
+	url = https://github.com/jeffreytse/zsh-vi-mode
