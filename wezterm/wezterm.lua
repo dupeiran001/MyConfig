@@ -20,5 +20,8 @@ TableMerge(config, scrollback_config)
 local keybindings_config = require("keybinding")
 TableMerge(config, keybindings_config)
 
+local general_config = require("general")
+TableMerge(config, general_config)
+
 config.color_scheme = "OneNord"
 return config

@@ -19,13 +19,15 @@
 
   "modules-center": [
     "custom/paddc",
-    "custom/left2",
+    "custom/avg-cpu-freq",
+    "custom/left1",
     "custom/cpuinfo",       // temperature
 
     "custom/left3",
     "memory",               // memory
 
     "custom/left4",
+    "custom/tlp",
     "custom/cpu",           // cpu
     "custom/leftin1",
 
@@ -43,7 +45,8 @@
     "custom/wifi",          // wi-fi
     "bluetooth",            // bluetooth
     "custom/update",        // system update
-    "custom/right5"
+    "custom/right5",
+    "custom/power-draw"
   ],
 
   "modules-right": [
@@ -197,7 +200,12 @@
     }
   },
 
-
+  "custom/avg-cpu-freq": {
+    "exec": "~/.config/waybar/scripts/avg-cpu-freq.sh",
+    "return-type": "json",
+    "tooltip": true,
+    "interval": 2
+  },
 
   "custom/cpuinfo": {
     "exec": "~/.config/waybar/scripts/cpu-temp.sh",
@@ -324,6 +332,21 @@
     "signal": 20, // I'm not sure what this does
     "min-length": 1,
     "max-length": 1
+  },
+
+  "custom/tlp": {
+    "exec": "~/.config/waybar/scripts/tlp-status.sh",
+    "return-type": "json",
+    "tooltip": true,
+    "interval": 5,
+    "on-click": "~/.config/waybar/scripts/tlp-menu.sh"
+  },
+
+  "custom/power-draw": {
+    "exec": "~/.config/waybar/scripts/power-draw.sh",
+    "return-type": "json",
+    "tooltip": true,
+    "interval": 2
   },
 
   "custom/media": {

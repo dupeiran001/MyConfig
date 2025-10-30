@@ -1,47 +1,53 @@
-/* 
+/*
   bg - background
   fg - foreground
   br - border
 */
 
-/* Maen Colors */
+/* Nord Colors */
 
-@define-color main-fg         #cdd6f4;
-@define-color main-bg         #11111b;
-@define-color main-br         #cdd6f4;
+@define-color main-fg         #eceff4;
+@define-color main-bg         #2e3440;
+@define-color main-br         #88c0d0;
 
-@define-color active-bg       #9399b2;
-@define-color active-fg       #11111b;
+@define-color active-bg       #4c566a;
+@define-color active-fg       #2e3440;
 
-@define-color hover-bg        #313244;
-@define-color hover-fg        rgba(205, 214, 244, 0.75);
+@define-color hover-bg        #434c5e;
+@define-color hover-fg        #e5e9f0;
 
 @define-color white           #ffffff;
 @define-color black           #000000;
 
 /* Module Colors */
 
-@define-color module-fg       #f5e0dc;
-@define-color workspaces      #181825;
+@define-color module-fg       #d8dee9;
+@define-color workspaces      #3b4252;
 
-@define-color cpuinfo         #181825;
-@define-color memory          #1e1e2e;
-@define-color cpu             #313244;
-@define-color distro-fg       #000000;
-@define-color distro-bg       #9399b2;
-@define-color time            #313244;
-@define-color date            #1e1e2e;
-@define-color tray            #181825;
+@define-color cpuinfo         #3b4252;
+@define-color memory          #434c5e;
+@define-color cpu             #4c566a;
+@define-color distro-fg       #2e3440;
+@define-color distro-bg       #8fbcbb;
+@define-color time            #4c566a;
+@define-color date            #434c5e;
+@define-color tray            #3b4252;
 
-@define-color pulseaudio      #181825;
-@define-color backlight       #1e1e2e;
-@define-color battery         #313244;
-@define-color power           #9399b2;
+@define-color pulseaudio      #3b4252;
+@define-color backlight       #434c5e;
+@define-color battery         #4c566a;
+@define-color power           #8fbcbb;
 
 /* State Colors */
 
-@define-color good            #f5e0dc;
-@define-color warning         #f9e2af;
-@define-color critical        #f38ba8;
-@define-color full            #a6e3a1;
-@define-color charging        #cdd6f4;
+@define-color good            #d8dee9;
+@define-color warning         #ebcb8b;
+@define-color critical        #bf616a;
+@define-color full            #a3be8c;
+@define-color charging        #8fbcbb;
+
+@define-color temp-green      #a3be8c;
+@define-color temp-blue       #88c0d0;
+@define-color temp-yellow     #ebcb8b;
+@define-color temp-orange     #d08770;
+@define-color temp-red        #bf616a;

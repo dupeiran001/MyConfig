@@ -1,5 +1,5 @@
 * {
-  font-family: "JetBrainsMono Nerd Font";
+  font-family: "CaskaydiaCove Nerd Font";
   font-weight: bold;
   font-size: 11px;
   min-height: 0;
@@ -17,8 +17,7 @@ window#waybar {
 
 window#waybar > box {
   background-color: transparent;
-  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 1);
-  margin: 2px;
+  margin: 1px;
 }
 
 /* === Tooltip === */
@@ -55,7 +54,7 @@ tooltip label {
 #workspaces button.active {
   color: @active-fg;
   background: @active-bg;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.4);
   margin: 2px;
   padding: 0 6px;
@@ -66,6 +65,7 @@ tooltip label {
 #custom-ws,
 #workspaces,
 #window,
+#custom-avg-cpu-freq,
 #custom-cpuinfo,
 #memory,
 #custom-cpu,
@@ -73,6 +73,7 @@ tooltip label {
 #custom-wifi,
 #bluetooth,
 #custom-update,
+#custom-power-draw,
 #custom-media,
 #pulseaudio,
 #custom-backlight,
@@ -82,7 +83,7 @@ tooltip label {
   color: @module-fg;
   margin-bottom: 0;
   padding: 0 4px;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
 }
 
 #custom-left1,
@@ -94,7 +95,7 @@ tooltip label {
 #custom-left7,
 #custom-left8 {
   font-size: 11pt;
-  text-shadow: -2px 0 2px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
 }
 
 #custom-right1,
@@ -104,7 +105,7 @@ tooltip label {
 #custom-right5 {
   font-size: 11pt;
   padding-right: 3px;
-  text-shadow: 2px 0 2px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
 }
 
 /* === Modules === */
@@ -117,34 +118,44 @@ tooltip label {
 
 /* == Workspaces == */
 
-#custom-left1 {
-  color: @workspaces;
-  background: @main-bg;
-  padding-left: 2px;
-}
 #workspaces {
-  background: @workspaces;
+  background: @tray;
 }
 #custom-right1 {
-  color: @workspaces;
+  color: @tray;
   background: @main-bg;
-  text-shadow: 3px 0 2px rgba(0, 0, 0, 0.4);
+  text-shadow: none;
 }
 
 /* == Temperature == */
 
-#custom-paddc {
-  padding-right: 22px;
-}
-#custom-left2 {
+#custom-left1 {
   color: @cpuinfo;
   background: @main-bg;
   padding-left: 3px;
+}
+#custom-paddc {
+  padding-right: 22px;
 }
 #custom-cpuinfo {
   background: @cpuinfo;
   padding-left: 1px;
   padding-right: 0;
+}
+#custom-cpuinfo.green {
+  color: @temp-green;
+}
+#custom-cpuinfo.blue {
+  color: @temp-blue;
+}
+#custom-cpuinfo.yellow {
+  color: @temp-yellow;
+}
+#custom-cpuinfo.orange {
+  color: @temp-orange;
+}
+#custom-cpuinfo.red {
+  color: @temp-red;
 }
 
 /* == Memory == */
@@ -178,7 +189,7 @@ tooltip label {
 }
 #custom-leftin1 {
   color: @cpu;
-  font-size: 12.2pt;
+  font-size: 14.2pt;
   margin-bottom: -2px;
 }
 
@@ -187,7 +198,7 @@ tooltip label {
 #custom-left5 {
   color: @distro-bg;
   background: @main-bg;
-  text-shadow: -2px 0 2px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
   padding-left: 3px;
 }
 #idle_inhibitor {
@@ -198,7 +209,7 @@ tooltip label {
   margin-bottom: -2px;
   padding-right: 0;
   padding-left: 3px;
-  text-shadow: 0 0 1.5px rgba(0, 0, 0, 1);
+  text-shadow: none;
 }
 #custom-right2 {
   color: @distro-bg;
@@ -209,7 +220,7 @@ tooltip label {
 
 #custom-rightin1 {
   color: @time;
-  font-size: 12.2pt;
+  font-size: 15.2pt;
   margin-bottom: -2px;
 }
 #clock.time {
@@ -267,6 +278,18 @@ tooltip label {
   text-shadow: none;
   box-shadow: none;
 }
+
+#custom-tlp {
+  padding-right: 8px;
+  background: @cpu;
+  color: @module-fg;
+}
+#custom-tlp:hover {
+  color: @hover-fg;
+  text-shadow: none;
+  box-shadow: none;
+}
+
 #custom-right5 {
   color: @tray;
   background: @main-bg;
@@ -344,19 +367,43 @@ tooltip label {
 #custom-leftin2 {
   color: @battery;
   background: @main-bg;
-  font-size: 12.2pt;
+  font-size: 15.2pt;
   margin-bottom: -2px;
 }
 #custom-power {
   color: @main-bg;
   background: @power;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
   box-shadow: 1px 0 2px 1px rgba(0, 0, 0, 0.6);
   border-radius: 10px;
   margin: 2px 4px 2px 0;
   padding-right: 6px;
   padding-left: 9px;
 }
+#custom-tlp.performance {
+  color: #bf616a;
+}
+
+#custom-tlp.balanced {
+  color: #ebcb8b;
+}
+
+#custom-tlp.powersaver {
+  color: #a3be8c;
+}
+
+#custom-tlp.performance {
+  color: #bf616a;
+}
+
+#custom-tlp.balanced {
+  color: #ebcb8b;
+}
+
+#custom-tlp.powersaver {
+  color: #a3be8c;
+}
+
 #custom-power:hover {
   color: @hover-fg;
   background: @hover-bg;

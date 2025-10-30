@@ -38,24 +38,57 @@ get_temperature_icon() {
 }
 
 # Main script execution
+
 cpu_frequency=$(get_cpu_frequency)
+
 read -r temp_info < <(get_cpu_temperature)
+
 temp=$(echo "$temp_info" | awk '{print $1}')   # Celsius
+
 temp_f=$(echo "$temp_info" | awk '{print $2}') # Fahrenheit
 
+
+
 # Determine the temperature icon
+
 thermo_icon=$(get_temperature_icon "$temp")
 
-# Set color based on temperature
-if [ "$temp" -ge 80 ]; then
-  # If temperature is >= 80%, set color to #f38ba8
-  text_output="<span color='#f38ba8'>${thermo_icon} ${temp}°C</span>"
+
+
+# Determine the temperature class
+
+if [ "$temp" -ge 88 ]; then
+
+  class="red"
+
+elif [ "$temp" -ge 75 ]; then
+
+  class="orange"
+
+elif [ "$temp" -ge 62 ]; then
+
+  class="yellow"
+
+elif [ "$temp" -ge 49 ]; then
+
+  class="blue"
+
 else
-  # Default color
-  text_output="${thermo_icon} ${temp}°C"
+
+  class="green"
+
 fi
+
+
+
+text_output="${thermo_icon} ${temp}°C"
 
 tooltip="Temperature: ${temp_f}°F\nClock Speed: ${cpu_frequency}"
 
+
+
 # Module and tooltip
-echo "{\"text\": \"$text_output\", \"tooltip\": \"$tooltip\"}"
+
+echo "{\"text\": \"$text_output\", \"tooltip\": \"$tooltip\", \"class\": \"$class\"}"
+
+
