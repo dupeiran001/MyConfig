@@ -273,14 +273,14 @@ spawn-at-startup "waybar"
 // This will run mako as a notification manager at backend
 spawn-at-startup "mako"
 
-spawn-at-startup "nohup swaybg -i ~/wallpaper.png -m fill &"
+spawn-sh-at-startup "swaybg -i \"$(find ~/Pictures/wallpaper/ -type f | shuf -n 1)\" -m fill"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
-    // skip-at-startup
+    skip-at-startup
 }
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
