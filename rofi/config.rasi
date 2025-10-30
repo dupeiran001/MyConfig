@@ -6,4 +6,5 @@ configuration {
     kb-row-down: "Control+j,Down";
     kb-remove-to-eol: ""; /* Unbind Control+k from remove-to-eol */
     show-icons: true;
+    case-sensitive: false;
 }
