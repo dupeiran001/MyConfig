@@ -384,16 +384,10 @@ tooltip label {
   padding-right: 6px;
   padding-left: 9px;
 }
-#custom-tlp.performance {
-  color: #bf616a;
-}
 
-#custom-tlp.balanced {
-  color: #ebcb8b;
-}
 
-#custom-tlp.powersaver {
-  color: #a3be8c;
+#custom-tlp.max_performance {
+  color: #d08770;
 }
 
 #custom-tlp.performance {

@@ -42,20 +42,17 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	return {
 		{ Attribute = { Intensity = "Bold" } },
 		{ Attribute = { Italic = false } },
-		{ Foreground = { Color = background_shape } },
-		{ Background = { Color = background } },
+		{ Foreground = { Color = background_shape } },		{ Background = { Color = background } },
 		{ Text = " " },
 		{ Foreground = { Color = highlight } },
 		{ Background = { Color = background_shape } },
 		{ Text = idx },
 		{ Foreground = { Color = icon_color } },
 		{ Text = icon },
-		{ Foreground = { Color = foreground } },
-		{ Background = { Color = background_shape } },
+		{ Foreground = { Color = foreground } },		{ Background = { Color = background_shape } },
 		{ Text = " " },
 		{ Text = title },
-		{ Foreground = { Color = background_shape } },
-		{ Background = { Color = background } },
+		{ Foreground = { Color = background_shape } },		{ Background = { Color = background } },
 		{ Text = "" },
 	}
 end)

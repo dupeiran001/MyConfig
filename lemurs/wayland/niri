@@ -1,2 +1,4 @@
 #! /bin/sh
+pkill -f niri
+unset NIRI_SOCKET
 exec niri

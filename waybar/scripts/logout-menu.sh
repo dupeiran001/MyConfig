@@ -10,7 +10,7 @@ selected_option=$(echo -e "$actions" | rofi -dmenu -i -theme "/home/dpr/.config/
 # Perform actions based on the selected option
 case "$selected_option" in
 *Lock)
-  hyprlock
+  swaylock
   ;;
 *Shutdown)
   systemctl poweroff
@@ -19,12 +19,12 @@ case "$selected_option" in
   systemctl reboot
   ;;
 *Suspend)
-  systemctl suspend
+  swaylock -f && sleep 1 && systemctl suspend
   ;;
 *Hibernate)
-  systemctl hibernate
+  swaylock -f && sleep 1 && systemctl hibernate
   ;;
 *Logout)
-  hyprctl dispatch exit 0
+  niri msg action quit
   ;;
 esac

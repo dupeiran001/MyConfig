@@ -26,6 +26,8 @@
 !/bat
 !/emacs
 !/doom
+!/swaylock
+!/tlp
 
 .DS_Store
 lazy-lock.json

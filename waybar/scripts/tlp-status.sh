@@ -8,6 +8,11 @@ else
 fi
 
 case "$PROFILE" in
+    "max_performance")
+        ICON="󱓞" # rocket icon
+        TOOLTIP="Max Performance"
+        CLASS="max_performance"
+        ;;
     "performance")
         ICON="󰚥" # zap icon
         TOOLTIP="Performance"

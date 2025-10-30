@@ -2,7 +2,8 @@
 
 configuration {
     kb-accept-entry: "Return";
-    kb-row-up: "Control+k";
-    kb-row-down: "Control+j";
+    kb-row-up: "Control+k,Up";
+    kb-row-down: "Control+j,Down";
     kb-remove-to-eol: ""; /* Unbind Control+k from remove-to-eol */
+    show-icons: true;
 }
