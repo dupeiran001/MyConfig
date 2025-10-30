@@ -11,9 +11,12 @@ if wezterm.target_triple == "x86_64-unknown-linux-gnu" then
     -- you found with the fc-list command.
     { family = "CaskaydiaCove NF", weight = "Regular" },
     { family = "Cascadia Code",    weight = "Regular" },
+    "Symbols Nerd Font",
 
     -- The rest of the fallbacks can remain simple strings
     "Cascadia Code",
+    "FiraCode Nerd Font",
+    "Noto Color Emoji",
     "KanjiStrokeOrders"
   })
   M.font_size = 12

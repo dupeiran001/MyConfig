@@ -165,3 +165,5 @@ fi
 #alias clear='clear && print ${(pl:$LINES::\n:):-}'
 #print ${(pl:$LINES::\n:):-}
 
+# Set Qt apps to follow the GTK theme
+export QT_QPA_PLATFORMTHEME="gnome"
