@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Audio Input Selector
+Comment=Choose the default audio input device
+Exec=/home/dpr/.config/waybar/scripts/audio-input.sh
+Icon=audio-input-microphone
+Terminal=false
+Categories=Utility;Settings;AudioVideo;

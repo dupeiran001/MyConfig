@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Logout Menu
+Comment=Lock, logout, reboot, or shutdown
+Exec=/home/dpr/.config/waybar/scripts/logout-menu.sh
+Icon=system-log-out
+Terminal=false
+Categories=Utility;System;

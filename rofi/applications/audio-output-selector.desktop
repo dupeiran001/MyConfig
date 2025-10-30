@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Audio Output Selector
+Comment=Choose the default audio output device
+Exec=/home/dpr/.config/waybar/scripts/audio-output.sh
+Icon=audio-headphones
+Terminal=false
+Categories=Utility;Settings;AudioVideo;

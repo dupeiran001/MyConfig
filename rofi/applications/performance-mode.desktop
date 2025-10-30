@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Power Profile Menu
+Comment=Switch power profiles using TLP
+Exec=/home/dpr/.config/waybar/scripts/tlp-menu.sh
+Icon=power-profile-performance-symbolic
+Terminal=false
+Categories=Utility;Settings;

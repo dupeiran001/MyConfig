@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Bluetooth Menu
+Comment=Manage Bluetooth devices
+Exec=/home/dpr/.config/waybar/scripts/bluetooth-menu.sh
+Icon=bluetooth
+Terminal=false
+Categories=Utility;

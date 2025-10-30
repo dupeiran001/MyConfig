@@ -1,0 +1,8 @@
+@theme "nord.rasi"
+
+configuration {
+    kb-accept-entry: "Return";
+    kb-row-up: "Control+k";
+    kb-row-down: "Control+j";
+    kb-remove-to-eol: ""; /* Unbind Control+k from remove-to-eol */
+}

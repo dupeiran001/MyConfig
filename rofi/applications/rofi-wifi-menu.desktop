@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Wi-Fi Menu
+Comment=Manage Wi-Fi connections
+Exec=/home/dpr/.config/waybar/scripts/wifi-menu.sh
+Icon=network-wireless
+Terminal=false
+Categories=Utility;
