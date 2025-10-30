@@ -94,7 +94,7 @@ tooltip label {
 #custom-left6,
 #custom-left7,
 #custom-left8 {
-  font-size: 11pt;
+  font-size: 14pt;
   text-shadow: none;
 }
 
@@ -103,7 +103,7 @@ tooltip label {
 #custom-right3,
 #custom-right4,
 #custom-right5 {
-  font-size: 11pt;
+  font-size: 14pt;
   padding-right: 3px;
   text-shadow: none;
 }
@@ -186,11 +186,15 @@ tooltip label {
 }
 #custom-cpu {
   background: @cpu;
+  padding-right: 0px;
+  margin-right: 0px;
 }
 #custom-leftin1 {
   color: @cpu;
-  font-size: 14.2pt;
+  font-size: 15.2pt;
   margin-bottom: -2px;
+  padding-left: 0px;
+  margin-left: 0px;
 }
 
 /* == Distro Icon == */
