@@ -3,19 +3,44 @@
 # See `man 5 swaylock` for a full list of options.
 
 # Set a dark background color
-color=121212
+color=2E3440
 
 # Ring color when idle
-ring-color=3b4252
+ring-color=88C0D0
 
 # Ring color when verifying
-ring-verifying-color=88c0d0
+ring-verifying-color=88C0D0
 
 # Ring color on invalid password
-ring-invalid-color=bf616a
+ring-invalid-color=BF616A
 
 # Text color
-text-color=eceff4
+text-color=ECEFF4
+text-ver-color=88C0D0
+text-wrong-color=BF616A
+
+# Key highlight color
+key-hl-color=A3BE8C
+
+# Backspace highlight color
+bs-hl-color=EBCB8B
+
+# Inside color
+inside-color=434C5E
+inside-ver-color=88C0D0
+inside-wrong-color=BF616A
+
+# Line color
+line-color=4C566A
+line-ver-color=88C0D0
+line-wrong-color=BF616A
+line-clear-color=4C566A
+
+# Ring clear color
+ring-clear-color=4C566A
+
+# Text clear color
+text-clear-color=ECEFF4
 
 # Disable the unlock indicator
 # no-unlock-indicator
