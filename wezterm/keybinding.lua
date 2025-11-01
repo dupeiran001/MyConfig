@@ -5,6 +5,16 @@ local act = wezterm.action
 
 M.keys = {
 	{
+		key = "c",
+		mods = "CTRL|SHIFT",
+		action = act.CopyTo("Clipboard"),
+	},
+	{
+		key = "v",
+		mods = "CTRL|SHIFT",
+		action = act.PasteFrom("Clipboard"),
+	},
+	{
 		key = "x",
 		mods = "ALT",
 		action = act.CloseCurrentTab({ confirm = false }),

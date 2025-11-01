@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e # Exit immediately if a command exits with a non-zero status.
 
 # Check release
 if [ ! -f /etc/arch-release ]; then
@@ -11,7 +12,8 @@ pkg_installed() {
     return 0
   elif pacman -Qi "flatpak" &>/dev/null && flatpak info "${pkg}" &>/dev/null; then
     return 0
-  elif command -v "${pkg}" &>/dev/null; then
+  elif command -v "${pkg}" &>/dev/null;
+  then
     return 0
   else
     return 1
@@ -19,9 +21,11 @@ pkg_installed() {
 }
 
 get_aur_helper() {
-  if pkg_installed yay; then
+  if pkg_installed yay;
+  then
     aur_helper="yay"
-  elif pkg_installed paru; then
+  elif pkg_installed paru;
+  then
     aur_helper="paru"
   fi
 }
@@ -44,15 +48,22 @@ if [ "$1" == "up" ]; then
 fi
 
 # Check for AUR updates
-aur_updates=$(${aur_helper} -Qua | wc -l)
+if [ -n "$aur_helper" ]; then
+    aur_updates=$(${aur_helper} -Qua 2>/dev/null | wc -l)
+else
+    aur_updates=0
+fi
+
+# Check for official updates
 official_updates=$(
   (while pgrep -x checkupdates >/dev/null; do sleep 1; done)
-  checkupdates | wc -l
+  checkupdates 2>/dev/null | wc -l
 )
 
 # Check for Flatpak updates
-if pkg_installed flatpak; then
-  flatpak_updates=$(flatpak remote-ls --updates | wc -l)
+if pkg_installed flatpak;
+then
+  flatpak_updates=$(flatpak remote-ls --updates 2>/dev/null | wc -l)
 else
   flatpak_updates=0
 fi
@@ -68,5 +79,5 @@ tooltip="Official:   $official_updates\nAUR ($aur_helper):  $aur_updates\nFlatpa
 if [ $total_updates -eq 0 ]; then
   echo "{\"text\":\"󰸟\", \"tooltip\":\"Packages are up to date\"}"
 else
-  echo "{\"text\":\"󰞒\", \"tooltip\":\"${tooltip}\"}"
+  echo "{\"text\":\"󰞒\", \"tooltip\":\"${tooltip}\"}"}
 fi

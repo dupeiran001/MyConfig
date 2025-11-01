@@ -408,3 +408,41 @@ tooltip label {
   text-shadow: none;
   box-shadow: none;
 }
+
+#custom-wireguard {
+  padding-left: 5px;
+  padding-right: 8px;
+  background: @pulseaudio;
+}
+
+#custom-wireguard.gray {
+  color: #4c566a; /* Nord0 */
+}
+
+#custom-wireguard.yellow {
+  color: #ebcb8b; /* Nord Yellow */
+}
+
+#custom-wireguard.green {
+  color: #a3be8c; /* Nord Green */
+}
+
+#custom-wireguard.red {
+  color: #bf616a; /* Nord Red */
+}
+
+#custom-wireguard.gray {
+    color: #4c566a; /* nord0 */
+}
+
+#custom-wireguard.yellow {
+    color: #ebcb8b; /* nord8 */
+}
+
+#custom-wireguard.green {
+    color: #a3be8c; /* nord14 */
+}
+
+#custom-wireguard.red {
+    color: #bf616a; /* nord11 */
+}

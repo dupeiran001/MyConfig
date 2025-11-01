@@ -3,7 +3,7 @@ local M = {}
 local wezterm = require("wezterm")
 
 local function is_niri()
-  return os.getenv('NIRI)SOCKET') ~= nil
+  return os.getenv('NIRI_SOCKET') ~= nil
 end
 
 if is_niri() then

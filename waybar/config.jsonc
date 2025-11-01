@@ -53,6 +53,7 @@
     "custom/media",         // media info
 
     "custom/left6",
+    "custom/wireguard",
     "pulseaudio",           // output device
 
     "custom/left7",
@@ -66,6 +67,16 @@
   ],
 
   // === Modules ===
+
+  "custom/wireguard": {
+    "exec": "~/.config/waybar/scripts/wireguard-status.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "~/.config/waybar/scripts/wireguard-status.sh click left",
+    "on-click-right": "~/.config/waybar/scripts/wireguard-status.sh click right",
+    "interval": 1
+  },
 
   "custom/ws": {
     "format": "  ",
