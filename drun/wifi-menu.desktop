@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Select WiFi Network
+Exec=/home/dpr/.config/waybar/scripts/wifi-menu.sh
+Type=Application
+Terminal=false
+Icon=network-wireless
+Categories=System;Network;

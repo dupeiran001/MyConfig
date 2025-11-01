@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Bluetooth Menu
+Exec=/home/dpr/.config/waybar/scripts/bluetooth-menu.sh
+Type=Application
+Terminal=false
+Icon=bluetooth
+Categories=System;Network;

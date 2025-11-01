@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Select Audio Output
+Exec=/home/dpr/.config/waybar/scripts/audio-output.sh
+Type=Application
+Terminal=false
+Icon=audio-speakers
+Categories=System;AudioVideo;Audio;

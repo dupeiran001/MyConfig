@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Select TLP Profile
+Exec=/home/dpr/.config/waybar/scripts/tlp-menu.sh
+Type=Application
+Terminal=false
+Icon=power-profile-switcher-performance
+Categories=System;Settings;

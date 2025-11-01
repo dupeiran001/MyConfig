@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Select Audio Input
+Exec=/home/dpr/.config/waybar/scripts/audio-input.sh
+Type=Application
+Terminal=false
+Icon=audio-input-microphone
+Categories=System;AudioVideo;Audio;

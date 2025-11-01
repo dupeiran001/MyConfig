@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Power Menu
+Exec=/home/dpr/.config/waybar/scripts/logout-menu.sh
+Type=Application
+Terminal=false
+Icon=system-log-out
+Categories=System;
