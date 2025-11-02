@@ -130,7 +130,6 @@ export ARCHFLAGS="-arch x86_64"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-eval "$(atuin init zsh --disable-up-arrow)"
 
 export RANGER_LOAD_DEFAULT_RC=false
 
@@ -138,6 +137,9 @@ export RANGER_LOAD_DEFAULT_RC=false
 export PUB_HOSTED_URL="https://mirrors.tuna.tsinghua.edu.cn/dart-pub"
 export FLUTTER_STORAGE_BASE_URL="https://mirrors.tuna.tsinghua.edu.cn/flutter"
 export NO_PROXY="pub.flutter-io.cn, mirrors.tuna.tsinghua.edu.cn, storage.flutter-io.cn, localhost, 127.0.0.1, ::1"
+
+eval "$(atuin init zsh --disable-up-arrow)"
+
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home
 
