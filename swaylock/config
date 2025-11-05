@@ -2,45 +2,34 @@
 #
 # See `man 5 swaylock` for a full list of options.
 
-# Set a dark background color
+font=Fira Code
+image=$(find ~/Pictures/wallpaper/ -type f | shuf -n 1)
 color=2E3440
-
-# Ring color when idle
 ring-color=88C0D0
-
-# Ring color when verifying
-ring-verifying-color=88C0D0
-
-# Ring color on invalid password
-ring-invalid-color=BF616A
-
-# Text color
-text-color=ECEFF4
-text-ver-color=88C0D0
-text-wrong-color=BF616A
-
-# Key highlight color
+ring-ver-color=88C0D0
+ring-wrong-color=BF616A
+ring-clear-color=4C566A
+ring-caps-lock-color=EBCB8B
+text-color=EBCB8B
+text-ver-color=ECEFF4
+text-wrong-color=ECEFF4
+text-clear-color=ECEFF4
+text-caps-lock-color=EBCB8B
 key-hl-color=A3BE8C
-
-# Backspace highlight color
 bs-hl-color=EBCB8B
-
-# Inside color
+caps-lock-bs-hl-color=EBCB8B
+caps-lock-key-hl-color=EBCB8B
 inside-color=434C5E
 inside-ver-color=88C0D0
 inside-wrong-color=BF616A
-
-# Line color
+inside-clear-color=434C5E
+inside-caps-lock-color=EBCB8B
 line-color=4C566A
 line-ver-color=88C0D0
 line-wrong-color=BF616A
 line-clear-color=4C566A
-
-# Ring clear color
-ring-clear-color=4C566A
-
-# Text clear color
-text-clear-color=ECEFF4
-
-# Disable the unlock indicator
-# no-unlock-indicator
+line-caps-lock-color=4C566A
+separator-color=4C566A
+layout-bg-color=434C5E
+layout-border-color=4C566A
+layout-text-color=ECEFF4

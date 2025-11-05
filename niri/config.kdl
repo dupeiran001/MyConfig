@@ -264,6 +264,9 @@ spawn-at-startup "waybar"
 // This will run mako as a notification manager at backend
 spawn-at-startup "mako"
 
+// Start the xdg-desktop-portal-wlr service for screen sharing.
+spawn-sh-at-startup "/usr/lib/xdg-desktop-portal-wlr"
+
 spawn-sh-at-startup "swaybg -i \"$(find ~/Pictures/wallpaper/ -type f | shuf -n 1)\" -m fill"
 
 // This will run clipman as a clipboard manager at backend
@@ -364,7 +367,7 @@ binds {
     Mod+T hotkey-overlay-title="Open a Terminal: wezterm" { spawn "wezterm"; }
     Mod+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
         Mod+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" {
-        spawn-sh "swaylock --font \"Fira Code\" --image \"$(find ~/Pictures/wallpaper/ -type f | shuf -n 1)\" --color 2E3440 --ring-color 88C0D0 --ring-ver-color 88C0D0 --ring-wrong-color BF616A --ring-clear-color 4C566A --ring-caps-lock-color EBCB8B --text-color EBCB8B --text-ver-color ECEFF4 --text-wrong-color ECEFF4 --text-clear-color ECEFF4 --text-caps-lock-color EBCB8B --key-hl-color A3BE8C --bs-hl-color EBCB8B --caps-lock-bs-hl-color EBCB8B --caps-lock-key-hl-color EBCB8B --inside-color 434C5E --inside-ver-color 88C0D0 --inside-wrong-color BF616A --inside-clear-color 434C5E --inside-caps-lock-color EBCB8B --line-color 4C566A --line-ver-color 88C0D0 --line-wrong-color BF616A --line-clear-color 4C566A --line-caps-lock-color 4C566A --separator-color 4C566A --layout-bg-color 434C5E --layout-border-color 4C566A --layout-text-color ECEFF4";
+        spawn "swaylock";
     }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -614,3 +617,4 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 }
+

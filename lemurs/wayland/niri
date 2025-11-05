@@ -1,4 +1,12 @@
-#! /bin/sh
-pkill -f niri
-unset NIRI_SOCKET
-exec niri
+#!/bin/sh
+# Check if a niri process is already running.
+if pgrep -x niri > /dev/null
+then
+    # If niri is running (e.g., after hibernation), do nothing and exit successfully.
+    # This effectively "attaches" to the existing session by leaving it alone.
+    exit 0
+else
+    # If niri is not running (e.g., on a fresh boot), start a new session.
+    unset NIRI_SOCKET
+    exec niri
+fi

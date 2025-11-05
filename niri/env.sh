@@ -1,0 +1,2 @@
+export XDG_CURRENT_DESKTOP=niri
+export XDG_SESSION_DESKTOP=niri

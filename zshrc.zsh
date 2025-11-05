@@ -169,3 +169,7 @@ fi
 
 # Set Qt apps to follow the GTK theme
 export QT_QPA_PLATFORMTHEME="gnome"
+
+if [ -f ~/.config/niri/env.sh ]; then
+  . ~/.config/niri/env.sh
+fi

@@ -10,7 +10,7 @@ selected_option=$(echo -e "$actions" | rofi -dmenu -i -theme "/home/dpr/.config/
 # Perform actions based on the selected option
 case "$selected_option" in
 *Lock)
-  swaylock
+  /home/dpr/.config/waybar/scripts/sway-lock
   ;;
 *Shutdown)
   systemctl poweroff
@@ -19,10 +19,10 @@ case "$selected_option" in
   systemctl reboot
   ;;
 *Suspend)
-  swaylock -f && sleep 1 && systemctl suspend
+  systemctl suspend
   ;;
 *Hibernate)
-  swaylock -f && sleep 1 && systemctl hibernate
+  systemctl hibernate
   ;;
 *Logout)
   niri msg action quit
