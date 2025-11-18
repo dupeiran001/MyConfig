@@ -270,7 +270,7 @@ spawn-sh-at-startup "/usr/lib/xdg-desktop-portal-wlr"
 spawn-sh-at-startup "swaybg -i \"$(find ~/Pictures/wallpaper/ -type f | shuf -n 1)\" -m fill"
 
 // This will run clipman as a clipboard manager at backend
-spawn-sh-at-startup "sleep 1 && wl-paste --watch clipman store"
+// spawn-sh-at-startup "sleep 1 && wl-paste --watch clipman store"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
