@@ -5,13 +5,13 @@ local wezterm = require("wezterm")
 -- wezTerm has a nerd font fallback, so use a non-patched version here.
 if wezterm.target_triple == "x86_64-unknown-linux-gnu" then
   M.font = wezterm.font_with_fallback({
-    { family = "FiraCode Nerd Font", weight = "Regular" },
     -- Here we explicitly ask for the 'Regular' weight.
     -- You can change 'Regular' to 'Light' or another weight
     -- you found with the fc-list command.
-    { family = "Fira Code",    weight = "Regular" },
-    { family = "CaskaydiaCove NF", weight = "Regular" },
-    { family = "Cascadia Code",    weight = "Regular" },
+    { family = "CaskaydiaCove NF",   weight = "Regular" },
+    { family = "Cascadia Code",      weight = "Regular" },
+    { family = "FiraCode Nerd Font", weight = "Regular" },
+    { family = "Fira Code",          weight = "Regular" },
     "Symbols Nerd Font",
 
     -- The rest of the fallbacks can remain simple strings
@@ -48,3 +48,4 @@ end
 M.enable_kitty_graphics = true
 
 return M
+
