@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get list of source descriptions, pipe to rofi
-CHOSEN_DESC=$(pactl list sources | grep -ie "Description:" | awk -F ': ' '{print $2}' | sort | rofi -dmenu -p "Select Input:")
+CHOSEN_DESC=$(pactl list sources | grep -ie "Description:" | awk -F ': ' '{print $2}' | sort | rofi -dmenu -i -p "Select Input:")
 
 # If user pressed Esc, CHOSEN_DESC will be empty. Exit.
 if [ -z "$CHOSEN_DESC" ]; then

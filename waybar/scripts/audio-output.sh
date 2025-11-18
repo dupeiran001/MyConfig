@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get list of sink descriptions, pipe to rofi
-CHOSEN_DESC=$(pactl list sinks | grep -ie "Description:" | awk -F ': ' '{print $2}' | sort | rofi -dmenu -p "Select Output:")
+CHOSEN_DESC=$(pactl list sinks | grep -ie "Description:" | awk -F ': ' '{print $2}' | sort | rofi -dmenu -i -p "Select Output:")
 
 # If user pressed Esc, CHOSEN_DESC will be empty. Exit.
 if [ -z "$CHOSEN_DESC" ]; then

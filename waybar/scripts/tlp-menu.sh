@@ -2,7 +2,7 @@
 # tlp-menu.sh - Rofi menu for TLP profile selection
 
 OPTIONS="Max Performance\nPerformance\nBalanced\nPower Saving"
-CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu -p "Select TLP Profile")
+CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu -i -p "Select TLP Profile")
 
 case "$CHOICE" in
     "Max Performance")
