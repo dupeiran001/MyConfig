@@ -2,18 +2,55 @@
 # power-draw.sh — Battery, CPU Package (sum across sockets), PSYS (if present)
 # Fast: no sleep. Uses cached snapshot in /tmp to compute Δenergy/Δtime.
 
-set -euo pipefail
+set -uo pipefail
 
 # ---------- config ----------
 BAT_DIR="/sys/class/power_supply/BAT0"
 POWERCAP="/sys/class/powercap"
 CACHE="/tmp/power-draw.${SUDO_UID:-$UID}.cache"
+LOG="/tmp/power-draw-debug.${SUDO_UID:-$UID}.log"
+LOG_ENABLED="${POWER_DRAW_LOG:-false}"
 JSON_ICON_BATT=""
 JSON_ICON_CHRG=""
 
+# ---------- debug logging ----------
+log_debug() {
+  [[ "${LOG_ENABLED}" == "false" ]] && return 0
+  local ts
+  ts=$(date -Iseconds 2>/dev/null || date)
+  { printf "%s %s\n" "$ts" "$*"; } >>"$LOG" 2>/dev/null || true
+}
+trap 'log_debug "exit=$? last_cmd=${BASH_COMMAND:-}"' EXIT
+
 # ---------- re-exec as root if needed (for /sys/class/powercap on some distros) ----------
 if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-  exec sudo -E bash "$0"
+  need_sudo=false
+  found_rapl=0
+  readable_rapl=0
+  for dom in "$POWERCAP"/intel-rapl:*; do
+    [[ -d "$dom" ]] || continue
+    found_rapl=1
+    if [[ -r "$dom/energy_uj" ]]; then
+      readable_rapl=1
+      break
+    fi
+  done
+  if (( found_rapl && ! readable_rapl )); then
+    need_sudo=true
+  fi
+
+  tty_str=$( (tty 2>/dev/null || echo none) | tr -d '\n')
+  log_debug "euid=${EUID:-$(id -u)} uid=${UID:-$(id -u)} sudo_uid=${SUDO_UID:-} tty=${tty_str} need_sudo=${need_sudo}"
+
+  if $need_sudo; then
+    if sudo -n -E bash "$0"; then
+      log_debug "sudo path succeeded"
+      exit 0
+    else
+      rc=$?
+      log_debug "sudo path failed rc=${rc}; continuing without sudo"
+    fi
+  fi
 fi
 
 # ---------- helpers ----------
@@ -65,18 +102,42 @@ collect_paths() {
 
 read_energy_and_max() {
   # args: path -> echo "energy_uj max_energy_uj"
-  local p="$1" e m
+  local p="$1" e=0 m=4294967296
+  local energy_status="absent" max_status="absent" rc=0
+
   if [[ -f "$p/energy_uj" ]]; then
-    e=$(<"$p/energy_uj")
-  else
-    e=0
+    energy_status="present"
+    if [[ -r "$p/energy_uj" ]]; then
+      if e=$(<"$p/energy_uj"); then
+        energy_status="ok"
+      else
+        energy_status="read_error"
+        rc=1
+      fi
+    else
+      energy_status="perm_denied"
+      rc=1
+    fi
   fi
+
   if [[ -f "$p/max_energy_range_uj" ]]; then
-    m=$(<"$p/max_energy_range_uj")
-  else
-    m=4294967296
+    max_status="present"
+    if [[ -r "$p/max_energy_range_uj" ]]; then
+      if m=$(<"$p/max_energy_range_uj"); then
+        max_status="ok"
+      else
+        max_status="read_error"
+        rc=1
+      fi
+    else
+      max_status="perm_denied"
+      rc=1
+    fi
   fi
+
+  log_debug "read_energy path=${p} energy=${e} energy_status=${energy_status} max=${m} max_status=${max_status} rc=${rc}"
   echo "$e $m"
+  return 0
 }
 
 # ---------- read previous snapshot (if any) ----------
@@ -98,6 +159,9 @@ fi
 # ---------- collect current snapshot ----------
 collect_paths
 TS=$(now_ns)
+cache_state="absent"
+[[ -f "$CACHE" ]] && cache_state="present"
+  log_debug "run ts=$TS prev_ts=${PREV_TS:-0} cache=${cache_state} pkg_paths=${#PKG_PATHS[@]} psys_paths=${#PSYS_PATHS[@]} uid=${UID:-$(id -u)} euid=${EUID:-$(id -u)} sudo_uid=${SUDO_UID:-}"
 
 # Build current maps and compute deltas
 declare -A CUR_E CUR_M CUR_G
@@ -135,6 +199,7 @@ for p in "${PSYS_PATHS[@]}"; do accumulate_path "psys" "$p"; done
 # ---------- compute watts (if we have a previous timestamp) ----------
 pkg_w="0.00"
 psys_w="0.00"
+dt="n/a"
 if [[ "$PREV_TS" -gt 0 ]]; then
   # dt in seconds with 9 decimal places
   dt=$(awk -v a="$TS" -v b="$PREV_TS" 'BEGIN{printf "%.9f", (a-b)/1e9}')
@@ -151,8 +216,8 @@ fi
   for p in "${!CUR_E[@]}"; do
     printf "%s\t%s\t%s\t%s\n" "${CUR_G[$p]}" "$p" "${CUR_E[$p]}" "${CUR_M[$p]}"
   done | LC_ALL=C sort
-} > "${CACHE}.new"
-mv -f "${CACHE}.new" "$CACHE"
+} > "${CACHE}.new" || log_debug "cache_write_failed"
+mv -f "${CACHE}.new" "$CACHE" 2>/dev/null || log_debug "cache_move_failed"
 
 # ---------- battery + JSON output ----------
 battery_w=$(read_battery_w)
@@ -165,5 +230,5 @@ fi
 # On first run (no previous cache), pkg_w/psys_w will be 0.00 — that’s expected.
 text="${icon} ${battery_w} W | CPU ${pkg_w} W | PSYS ${psys_w} W"
 tooltip="Battery (${status}): ${battery_w} W\nCPU Package: ${pkg_w} W\nPSYS: ${psys_w} W"
+  log_debug "metrics dt=${dt} pkg_uj=${pkg_uj} psys_uj=${psys_uj} pkg_w=${pkg_w} psys_w=${psys_w} battery_w=${battery_w} battery_status=${status}"
 printf '{"text":"%s","tooltip":"%s"}\n' "$text" "$tooltip"
-
