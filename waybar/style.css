@@ -78,6 +78,7 @@ tooltip label {
 #pulseaudio,
 #custom-backlight,
 #battery,
+#custom-capslock,
 #custom-power {
   opacity: 1;
   color: @module-fg;
@@ -364,6 +365,14 @@ tooltip label {
 }
 #battery.charging {
   color: @charging;
+}
+
+/* == Caps Lock == */
+
+#custom-capslock {
+  background: @battery;
+  padding-left: 2px;
+  padding-right: 6px;
 }
 
 /* == Power Button == */

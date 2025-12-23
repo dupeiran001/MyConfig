@@ -23,6 +23,9 @@
 ;;
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
+(setq doom-font (font-spec :family "CaskaydiaCove Nerd Font Mono" :size 13)
+      doom-variable-pitch-font (font-spec :family "CaskaydiaCove Nerd Font" :size 13)
+      doom-big-font (font-spec :family "CaskaydiaCove Nerd Font Mono" :size 18))
 ;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to

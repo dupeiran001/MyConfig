@@ -61,6 +61,7 @@
 
     "custom/left8",
     "battery",              // battery
+    "custom/capslock",      // Caps Lock indicator
 
     "custom/leftin2",
     "custom/power"          // power button
@@ -418,6 +419,11 @@
     "interval": 1,
     "min-length": 6,
     "max-length": 6
+  },
+
+  "custom/capslock": {
+    "exec": "~/.config/waybar/scripts/capslock-status.sh",
+    "interval": 1
   },
 
   "custom/power": {

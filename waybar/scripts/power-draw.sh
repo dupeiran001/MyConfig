@@ -12,6 +12,8 @@ LOG="/tmp/power-draw-debug.${SUDO_UID:-$UID}.log"
 LOG_ENABLED="${POWER_DRAW_LOG:-false}"
 JSON_ICON_BATT=""
 JSON_ICON_CHRG=""
+JSON_ICON_GPU="󰾲"
+GPU_VENDOR_NAMES=("0x10de:NVIDIA" "0x1002:AMD" "0x8086:Intel")
 
 # ---------- debug logging ----------
 log_debug() {
@@ -22,12 +24,20 @@ log_debug() {
 }
 trap 'log_debug "exit=$? last_cmd=${BASH_COMMAND:-}"' EXIT
 
+# If earlier root runs left unwritable cache/log, fall back to user-owned paths
+if [[ -e "$CACHE" && ! -w "$CACHE" ]]; then
+  CACHE="/tmp/power-draw.${UID:-$(id -u)}.user.cache"
+fi
+if [[ -e "$LOG" && ! -w "$LOG" ]]; then
+  LOG="/tmp/power-draw-debug.${UID:-$(id -u)}.user.log"
+fi
+
 # ---------- re-exec as root if needed (for /sys/class/powercap on some distros) ----------
 if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
   need_sudo=false
   found_rapl=0
   readable_rapl=0
-  for dom in "$POWERCAP"/intel-rapl:*; do
+  for dom in "$POWERCAP"/intel-rapl:* "$POWERCAP"/intel-rapl-mmio:*; do
     [[ -d "$dom" ]] || continue
     found_rapl=1
     if [[ -r "$dom/energy_uj" ]]; then
@@ -43,7 +53,7 @@ if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
   log_debug "euid=${EUID:-$(id -u)} uid=${UID:-$(id -u)} sudo_uid=${SUDO_UID:-} tty=${tty_str} need_sudo=${need_sudo}"
 
   if $need_sudo; then
-    if sudo -n -E bash "$0"; then
+    if sudo -n -E bash "$0" 2>/dev/null; then
       log_debug "sudo path succeeded"
       exit 0
     else
@@ -72,11 +82,112 @@ read_battery_w() {
   awk -v uw="$uw" 'BEGIN{printf "%.2f", (uw<0?-uw:uw)/1000000.0}'
 }
 
+find_gpu_power_file() {
+  GPU_POWER_FILE=""
+  GPU_VENDOR_LABEL=""
+  GPU_BUS_ID=""
+  GPU_READ_CMD=""
+  # Pass 1: check PCI devices directly
+  for dev in /sys/bus/pci/devices/*; do
+    [[ -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    # GPU/3D classes start with 0x03
+    [[ "$class" == 0x03* ]] || continue
+    local vname=""
+    for entry in "${GPU_VENDOR_NAMES[@]}"; do
+      if [[ "$entry" == "${vendor}:"* ]]; then
+        vname=${entry#*:}
+        break
+      fi
+    done
+    [[ -n "$vname" ]] || continue
+    GPU_VENDOR_LABEL="$vname"
+    GPU_BUS_ID="${dev##*/}"
+    for hwmon in "$dev"/hwmon/hwmon*; do
+      [[ -d "$hwmon" ]] || continue
+      for f in power1_average power1_input; do
+        if [[ -r "$hwmon/$f" ]]; then
+          GPU_POWER_FILE="$hwmon/$f"
+          log_debug "gpu_detected vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} path=${GPU_POWER_FILE}"
+          return 0
+        fi
+      done
+    done
+    # NVIDIA often lacks hwmon; fall back to nvidia-smi if present
+    if [[ "$vendor" == "0x10de" ]] && command -v nvidia-smi >/dev/null 2>&1; then
+      GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
+      log_debug "gpu_detected vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} using=nvidia-smi bus=${GPU_BUS_ID}"
+      return 0
+    fi
+  done
+  # Pass 2: some drivers expose hwmon without the direct pci->hwmon path; check all hwmon entries
+  for hw in /sys/class/hwmon/hwmon*; do
+    [[ -d "$hw" ]] || continue
+    local devpath
+    devpath=$(readlink -f "$hw/device" 2>/dev/null || true)
+    [[ -n "$devpath" && -f "$devpath/vendor" && -f "$devpath/class" ]] || continue
+    local vendor class vname=""
+    vendor=$(<"$devpath/vendor")
+    class=$(<"$devpath/class")
+    [[ "$class" == 0x03* ]] || continue
+    for entry in "${GPU_VENDOR_NAMES[@]}"; do
+      if [[ "$entry" == "${vendor}:"* ]]; then
+        vname=${entry#*:}
+        break
+      fi
+    done
+    [[ -n "$vname" ]] || continue
+    for f in "$hw"/power1_average "$hw"/power1_input; do
+      if [[ -r "$f" ]]; then
+        GPU_POWER_FILE="$f"
+        GPU_VENDOR_LABEL="$vname"
+        GPU_BUS_ID="${devpath##*/}"
+        log_debug "gpu_detected_hwmon vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} path=${GPU_POWER_FILE}"
+        return 0
+      fi
+    done
+  done
+  # Fall back to NVIDIA userspace query (NVML) if available and a GPU is present
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    if nvidia-smi --list-gpus >/dev/null 2>&1; then
+      GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
+      GPU_VENDOR_LABEL="NVIDIA"
+      log_debug "gpu_fallback_nvml cmd=${GPU_READ_CMD[*]}"
+      return 0
+    fi
+  fi
+  log_debug "gpu_not_found"
+}
+
+read_gpu_w() {
+  if [[ -n "${GPU_POWER_FILE:-}" ]]; then
+    local uw
+    if uw=$(<"$GPU_POWER_FILE"); then
+      awk -v uw="$uw" 'BEGIN{printf "%.2f", uw/1000000.0}'
+      return 0
+    fi
+    log_debug "gpu_read_failed path=${GPU_POWER_FILE}"
+  elif [[ -n "${GPU_READ_CMD[*]:-}" ]]; then
+    local val
+    if val=$("${GPU_READ_CMD[@]}" 2>/dev/null | head -n1); then
+      # nvidia-smi returns watts already
+      val=${val%% *}
+      awk -v w="$val" 'BEGIN{if(w!="") printf "%.2f", w; else print "0.00"}'
+      return 0
+    fi
+    log_debug "gpu_read_failed cmd=${GPU_READ_CMD[*]}"
+  fi
+  echo "0.00"
+  return 1
+}
+
 collect_paths() {
   # Builds two lists: PKG_PATHS (top-level package domains), PSYS_PATHS (psys/platform as top-level or subdomain)
   PKG_PATHS=()
   PSYS_PATHS=()
-  for dom in "$POWERCAP"/intel-rapl:*; do
+  for dom in "$POWERCAP"/intel-rapl:* "$POWERCAP"/intel-rapl-mmio:*; do
     [[ -d "$dom" ]] || continue
     local dname=""
     [[ -f "$dom/name" ]] && dname=$(<"$dom/name")
@@ -167,11 +278,19 @@ cache_state="absent"
 declare -A CUR_E CUR_M CUR_G
 pkg_uj=0
 psys_uj=0
+pkg_present=false
+psys_present=false
 
 # helper to accumulate one path into a group
 accumulate_path() {
   local group="$1" path="$2"
   local e m pe pm d
+  if [[ ! -r "$path/energy_uj" ]]; then
+    log_debug "skip_unreadable path=${path}/energy_uj"
+    return 0
+  fi
+  [[ "$group" == "pkg" ]] && pkg_present=true
+  [[ "$group" == "psys" ]] && psys_present=true
   read -r e m < <(read_energy_and_max "$path")
   CUR_E["$path"]="$e"
   CUR_M["$path"]="$m"
@@ -210,6 +329,15 @@ if [[ "$PREV_TS" -gt 0 ]]; then
   fi
 fi
 
+# ---------- dGPU power (if present) ----------
+find_gpu_power_file
+gpu_present=false
+gpu_w="0.00"
+if [[ -n "${GPU_POWER_FILE:-}" || -n "${GPU_READ_CMD[*]:-}" ]]; then
+  gpu_present=true
+  gpu_w=$(read_gpu_w)
+fi
+
 # ---------- write current snapshot atomically for next run ----------
 {
   echo "$TS"
@@ -220,15 +348,49 @@ fi
 mv -f "${CACHE}.new" "$CACHE" 2>/dev/null || log_debug "cache_move_failed"
 
 # ---------- battery + JSON output ----------
-battery_w=$(read_battery_w)
+has_battery=false
+[[ -d "$BAT_DIR" ]] && has_battery=true
+
+battery_w="0.00"
 status="Unknown"; icon="$JSON_ICON_BATT"
-if [[ -f "$BAT_DIR/status" ]]; then
-  status=$(<"$BAT_DIR/status")
-  [[ "$status" == "Charging" ]] && icon="$JSON_ICON_CHRG" || icon="$JSON_ICON_BATT"
+if $has_battery; then
+  battery_w=$(read_battery_w)
+  if [[ -f "$BAT_DIR/status" ]]; then
+    status=$(<"$BAT_DIR/status")
+    [[ "$status" == "Charging" ]] && icon="$JSON_ICON_CHRG" || icon="$JSON_ICON_BATT"
+  fi
 fi
 
+psys_effective_w="$psys_w"
+psys_label="PSYS"
+if $has_battery && $gpu_present && $psys_present; then
+  if awk -v v="$psys_w" 'BEGIN{exit (v==0?0:1)}'; then
+    psys_effective_w="$gpu_w"
+    psys_label="GPU"
+  fi
+fi
+
+# Decide what to show in the first segment
+text_prefix=""
+tooltip_prefix=""
+if $has_battery; then
+  text_prefix="${icon} ${battery_w} W"
+  tooltip_prefix="Battery (${status}): ${battery_w} W"
+elif $gpu_present; then
+  text_prefix="${JSON_ICON_GPU} ${GPU_VENDOR_LABEL:-GPU} ${gpu_w} W"
+  tooltip_prefix="${GPU_VENDOR_LABEL:-GPU}: ${gpu_w} W"
+else
+  text_prefix="Battery n/a"
+  tooltip_prefix="Battery: not present"
+fi
+
+pkg_display="$pkg_w"
+[[ "$pkg_display" == "0.00" && $pkg_present == false ]] && pkg_display="N/A"
+psys_display="$psys_effective_w"
+[[ $psys_present == false ]] && psys_display="N/A"
+
 # On first run (no previous cache), pkg_w/psys_w will be 0.00 — that’s expected.
-text="${icon} ${battery_w} W | CPU ${pkg_w} W | PSYS ${psys_w} W"
-tooltip="Battery (${status}): ${battery_w} W\nCPU Package: ${pkg_w} W\nPSYS: ${psys_w} W"
-  log_debug "metrics dt=${dt} pkg_uj=${pkg_uj} psys_uj=${psys_uj} pkg_w=${pkg_w} psys_w=${psys_w} battery_w=${battery_w} battery_status=${status}"
+text="${text_prefix} | CPU ${pkg_display} W | ${psys_label} ${psys_display} W"
+tooltip="${tooltip_prefix}\nCPU Package: ${pkg_display} W\n${psys_label}: ${psys_display} W"
+log_debug "metrics dt=${dt} pkg_uj=${pkg_uj} psys_uj=${psys_uj} pkg_w=${pkg_w} pkg_present=${pkg_present} psys_w=${psys_w} psys_present=${psys_present} psys_effective_w=${psys_effective_w} battery_w=${battery_w} battery_status=${status} gpu_present=${gpu_present} gpu_w=${gpu_w} gpu_path=${GPU_POWER_FILE:-none}"
 printf '{"text":"%s","tooltip":"%s"}\n' "$text" "$tooltip"
