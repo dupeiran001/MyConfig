@@ -20,7 +20,8 @@ return {
     { "<leader>fr",  function() require('neoclip.fzf')() end, desc = "Fzf neoclip history" },
     { "<leader>fR",  "<cmd>FzfLua resume<cr>",                desc = "Resume" },
     { "<leader>fB",  "<cmd>FzfLua builtin<cr>",               desc = "Builtin" },
-    { "<leader>ft",  "<cmd>TodoFzfLua<cr>",                   desc = "Todos" },
+    { "<leader>ft",  "<cmd>FzfLua tabs<cr>",                  desc = "Tabs" },
+    { "<leader>fT",  "<cmd>TodoFzfLua<cr>",                   desc = "Todos" },
     { "<leader>fd",  "<cmd>FzfLua lsp_document_symbols<cr>",  desc = "Document Symbols" },
     { "<leader>fw",  "<cmd>FzfLua lsp_workspace_symbols<cr>", desc = "Workspace Symbols" },
     {
