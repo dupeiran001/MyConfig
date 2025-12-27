@@ -10,6 +10,6 @@
 [submodule "resources/zsh-vi-mode"]
 	path = resources/zsh-vi-mode
 	url = https://github.com/jeffreytse/zsh-vi-mode
-[submodule "emacs"]
-	path = emacs
+[submodule "emacs/doom"]
+	path = emacs/doom
 	url = https://github.com/doomemacs/doomemacs.git

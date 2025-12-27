@@ -25,10 +25,6 @@
 !hugo.zsh
 !/awesome
 !/bat
-!/emacs
-/emacs/*
-!/emacs/doom
-!/emacs/*.desktop
 !/swaylock
 !/tlp
 !/drun
@@ -43,10 +39,15 @@
 .#*
 \#*#
 
+!/emacs
+/emacs/*
+!/emacs/doom
+!/emacs/doom_generated
+!/emacs/scratch
+!/emacs/*.desktop
 !/emacs/doom/**
 !/emacs/doom_generated/**
-!/emacs/scratch/
-!/emacs/scratch/init.el
+!/emacs/scratch/**
 
 .DS_Store
 lazy-lock.json

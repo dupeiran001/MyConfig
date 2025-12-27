@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Doom Emacs
+Comment=Edit text with Doom Emacs
+Icon=emacs
+Exec=env DOOMDIR=/home/dpr/.config/emacs/doom_generated emacs --init-directory=/home/dpr/.config/emacs/doom
+TryExec=emacs
+Terminal=false
+Categories=Development;TextEditor;

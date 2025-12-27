@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Emacs Scratch
+Comment=Emacs with scratch config
+Icon=emacs
+Exec=emacs --init-directory=/home/dpr/.config/emacs/scratch
+TryExec=emacs
+Terminal=false
+Categories=Development;TextEditor;
