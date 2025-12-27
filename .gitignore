@@ -1,6 +1,7 @@
 
 /*
 !/.gitignore
+!/.gitmodules
 !/git.gitconfig
 !/recipients.txt
 !/.local.sh.age
@@ -25,11 +26,27 @@
 !/awesome
 !/bat
 !/emacs
-!/emacs_scratch
-!/doom
+/emacs/*
+!/emacs/doom
+!/emacs/*.desktop
 !/swaylock
 !/tlp
 !/drun
+
+# Temp files
+*~
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+.#*
+\#*#
+
+!/emacs/doom/**
+!/emacs/doom_generated/**
+!/emacs/scratch/
+!/emacs/scratch/init.el
 
 .DS_Store
 lazy-lock.json

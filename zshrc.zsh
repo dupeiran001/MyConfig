@@ -170,6 +170,9 @@ fi
 # Set Qt apps to follow the GTK theme
 export QT_QPA_PLATFORMTHEME="gnome"
 
+# Doom Emacs config directory
+export DOOMDIR="$HOME/.config/emacs/doom_generated"
+
 if [ -f ~/.config/niri/env.sh ]; then
   . ~/.config/niri/env.sh
 fi
