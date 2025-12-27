@@ -46,8 +46,12 @@
 !/emacs/scratch
 !/emacs/*.desktop
 !/emacs/doom/**
-!/emacs/doom_generated/**
-!/emacs/scratch/**
+/emacs/doom_generated/*
+!/emacs/doom_generated/init.el
+!/emacs/doom_generated/config.el
+!/emacs/doom_generated/packages.el
+/emacs/scratch/*
+!/emacs/scratch/init.el
 
 .DS_Store
 lazy-lock.json
