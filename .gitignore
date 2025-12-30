@@ -50,8 +50,13 @@
 !/emacs/doom_generated/init.el
 !/emacs/doom_generated/config.el
 !/emacs/doom_generated/packages.el
-/emacs/scratch/*
+/emacs/scratch/var/
 !/emacs/scratch/init.el
+!/emacs/scratch/pre-init.el
+!/emacs/scratch/post-init.el
+!/emacs/scratch/early-init.el
+!/emacs/scratch/pre-early-init.el
+!/emacs/scratch/post-early-init.el
 
 .DS_Store
 lazy-lock.json
