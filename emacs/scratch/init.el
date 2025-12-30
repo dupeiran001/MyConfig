@@ -11,7 +11,7 @@
 (setq visible-bell t)
 
 
-(set-face-attribute 'default nil :font "CascadiaCode" :height 120)
+(set-face-attribute 'default nil :font "CaskaydiaCove Nerd Font" :height 120)
 
 (load-theme 'tango-dark)
 
@@ -69,3 +69,19 @@
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+     default))
+ '(package-selected-packages
+   '(command-log-mode counsel diminish doom-modeline evil nord-theme)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
