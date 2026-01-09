@@ -447,11 +447,11 @@
   :config
   (evil-collection-init))
 
-;; Give Emacs tab-bar a style similar to Vim's
 (use-package vim-tab-bar
   :ensure t
   :commands vim-tab-bar-mode
   :hook (after-init . vim-tab-bar-mode))
+
 
 ;; The evil-surround package simplifies handling surrounding characters, such as
 ;; parentheses, brackets, quotes, etc. It provides key bindings to easily add,
@@ -657,7 +657,6 @@
              treemacs-bookmark
              treemacs-find-file
              treemacs-find-tag)
-
   :bind
   (:map evil-normal-state-map
         ("SPC e"   . treemacs))
@@ -705,8 +704,8 @@
         treemacs-project-follow-into-home        nil
         treemacs-show-cursor                     nil
         treemacs-show-hidden-files               t
-        treemacs-silent-filewatch                nil
-        treemacs-silent-refresh                  nil
+        treemacs-silent-filewatch                t
+        treemacs-silent-refresh                  t
         treemacs-sorting                         'alphabetic-asc
         treemacs-select-when-already-in-treemacs 'move-back
         treemacs-space-between-root-nodes        t
@@ -762,7 +761,7 @@
 (use-package treemacs-tab-bar  ; treemacs-tab-bar if you use tab-bar-mode
   :after (treemacs)
   :ensure t
-  :config (treemacs-set-scope-type 'Tabs))
+  :config (treemacs-set-scope-type 'Frames))
 
 ;; The flyspell package is a built-in Emacs minor mode that provides
 ;; on-the-fly spell checking. It highlights misspelled words as you type,
@@ -999,12 +998,6 @@
   (uniquify-separator "•")
   (uniquify-after-kill-buffer-p t))
 
-;; Window dividers separate windows visually. Window dividers are bars that can
-;; be dragged with the mouse, thus allowing you to easily resize adjacent
-;; windows.
-;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Window-Dividers.html
-(add-hook 'after-init-hook #'window-divider-mode)
-
 ;; Constrain vertical cursor movement to lines within the buffer
 (setq dired-movement-style 'bounded-files)
 
@@ -1018,7 +1011,7 @@
                                "\\|\\(?:\\.js\\)?\\.meta\\'"
                                "\\|\\.\\(?:elc|a\\|o\\|pyc\\|pyo\\|swp\\|class\\)\\'"
                                "
-\\|^\\.DS_Store\\'"
+ \\|^\\.DS_Store\\'"
                                "\\|^\\.\\(?:svn\\|git\\)\\'"
                                "\\|^\\.ccls-cache\\'"
                                "\\|^__pycache__\\'"

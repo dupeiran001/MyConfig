@@ -78,6 +78,7 @@ tooltip label {
 #pulseaudio,
 #custom-backlight,
 #battery,
+#custom-fcitx,
 #custom-capslock,
 #custom-power {
   opacity: 1;
@@ -382,6 +383,27 @@ tooltip label {
   background: @battery;
   padding-left: 2px;
   padding-right: 6px;
+}
+
+/* == Input Method == */
+
+#custom-fcitx {
+  background: @battery;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-weight: 700;
+}
+#custom-fcitx.fcitx-cn {
+  color: #b48ead;
+}
+#custom-fcitx.fcitx-en {
+  color: @module-fg;
+}
+#custom-fcitx.fcitx-unknown {
+  color: @warning;
+}
+#custom-fcitx:hover {
+  color: @hover-fg;
 }
 
 /* == Power Button == */

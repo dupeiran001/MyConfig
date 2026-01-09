@@ -274,6 +274,8 @@ spawn-sh-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 // This will run clipman as a clipboard manager at backend
 spawn-sh-at-startup "sleep 1 && wl-paste --watch clipman store"
 
+spawn-at-startup "fcitx5" "-d"
+
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 

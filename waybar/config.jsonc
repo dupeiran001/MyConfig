@@ -61,6 +61,7 @@
 
     "custom/left8",
     "battery",              // battery
+    "custom/fcitx",         // input method
     "custom/capslock",      // Caps Lock indicator
 
     "custom/leftin2",
@@ -413,6 +414,15 @@
   "custom/capslock": {
     "exec": "~/.config/waybar/scripts/capslock-status.sh",
     "interval": 1
+  },
+
+  "custom/fcitx": {
+    "exec": "~/.config/waybar/scripts/fcitx-status.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "interval": 1,
+    "on-click": ""
   },
 
   "custom/power": {
