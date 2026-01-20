@@ -6,10 +6,119 @@ UID_SAFE="${SUDO_UID:-$UID}"
 CACHE_RAW="/tmp/turbostat-waybar.${UID_SAFE}.raw"
 PIDFILE="/tmp/turbostat-waybar.${UID_SAFE}.pid"
 DAEMON="$HOME/.config/waybar/scripts/turbostat-daemon.sh"
+IGPU_JSON="/tmp/intel-gpu-top.${UID_SAFE}.json"
+IGPU_PIDFILE="/tmp/intel-gpu-top.${UID_SAFE}.pid"
+IGPU_DAEMON="$HOME/.config/waybar/scripts/intel-gpu-top-daemon.sh"
+IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
 
 start_daemon() {
   [[ -x "$DAEMON" ]] || return 0
   nohup "$DAEMON" >/dev/null 2>&1 &
+}
+
+start_igpu_daemon() {
+  [[ -x "$IGPU_DAEMON" ]] || return 0
+  nohup "$IGPU_DAEMON" >/dev/null 2>&1 &
+}
+
+find_igpu_usage_file() {
+  local dev vendor class
+  for dev in /sys/class/drm/card*/device; do
+    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
+    for f in gpu_busy_percent gt_busy_percent; do
+      if [[ -r "$dev/$f" ]]; then
+        echo "$dev/$f"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+read_igpu_usage() {
+  local f="$1" val
+  if [[ -n "$f" ]] && val=$(<"$f"); then
+    awk -v v="$val" 'BEGIN{if(v=="") print ""; else printf "%d", v+0}'
+    return 0
+  fi
+  return 1
+}
+
+find_igpu_rc6_file() {
+  local card vendor
+  for card in /sys/class/drm/card*; do
+    [[ -d "$card" ]] || continue
+    [[ "$card" == *"-"* ]] && continue
+    if [[ -f "$card/device/vendor" ]]; then
+      vendor=$(<"$card/device/vendor")
+      [[ "$vendor" == "0x8086" ]] || continue
+      if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
+        echo "$card/gt/gt0/rc6_residency_ms"
+        return 0
+      fi
+    fi
+  done
+  return 1
+}
+
+read_igpu_usage_rc6() {
+  # Usage ~= 100 - (delta_rc6 / delta_time * 100)
+  local rc6_file="$1" now rc6 prev_ts prev_rc6 dt_ms drc6 busy
+  now=$(date +%s%N 2>/dev/null || printf "0")
+  if ! rc6=$(<"$rc6_file"); then
+    echo ""
+    return 1
+  fi
+  prev_ts=0
+  prev_rc6=0
+  if [[ -f "$IGPU_RC6_CACHE" ]]; then
+    IFS=$'\t' read -r prev_ts prev_rc6 < "$IGPU_RC6_CACHE" || true
+  fi
+  printf "%s\t%s\n" "$now" "$rc6" > "${IGPU_RC6_CACHE}.new" || true
+  mv -f "${IGPU_RC6_CACHE}.new" "$IGPU_RC6_CACHE" 2>/dev/null || true
+  if [[ "$prev_ts" -gt 0 ]]; then
+    dt_ms=$(awk -v a="$now" -v b="$prev_ts" 'BEGIN{printf "%.3f", (a-b)/1e6}')
+    drc6=$(( rc6 - prev_rc6 ))
+    busy=$(awk -v drc6="$drc6" -v dt="$dt_ms" 'BEGIN{if(dt>0){v=100-(drc6/dt*100); if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}else print ""}')
+    echo "$busy"
+    return 0
+  fi
+  echo ""
+  return 0
+}
+
+get_igpu_usage_from_intel_gpu_top() {
+  local json="$IGPU_JSON" rc6 usage
+  [[ -f "$json" ]] || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+
+  rc6=$(jq -r '
+    def numval:
+      if type=="number" then .
+      elif type=="object" then (.value // .percent // .percentage // empty)
+      else empty end;
+    [.. | objects | to_entries[] | select(.key|ascii_downcase|test("rc6")) | .value | numval]
+    | first // empty
+  ' "$json" 2>/dev/null || echo "")
+  if [[ -n "$rc6" ]]; then
+    usage=$(awk -v r="$rc6" 'BEGIN{u=100-r; if(u<0)u=0; if(u>100)u=100; printf "%d", u+0}')
+    echo "$usage"
+    return 0
+  fi
+
+  usage=$(jq -r '
+    def numval:
+      if type=="number" then .
+      elif type=="object" then (.value // .percent // .percentage // empty)
+      else empty end;
+    [.. | objects | to_entries[] | select(.key|ascii_downcase|test("busy|util")) | .value | numval]
+    | first // empty
+  ' "$json" 2>/dev/null || echo "")
+  [[ -n "$usage" ]] || return 1
+  awk -v v="$usage" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}'
 }
 
 running=false
@@ -20,6 +129,16 @@ if [[ -f "$PIDFILE" ]]; then
 fi
 if ! $running; then
   start_daemon
+fi
+
+igpu_running=false
+if [[ -f "$IGPU_PIDFILE" ]]; then
+  if pid=$(cat "$IGPU_PIDFILE" 2>/dev/null) && kill -0 "$pid" 2>/dev/null; then
+    igpu_running=true
+  fi
+fi
+if ! $igpu_running; then
+  start_igpu_daemon
 fi
 
 have_core_type=false
@@ -48,6 +167,19 @@ calc_avg_khz() {
   local avg=$((total / count))
   awk "BEGIN {printf \"%.2f\", $avg / 1000000}"
 }
+
+igpu_usage=""
+if igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
+  :
+elif igpu_file=$(find_igpu_usage_file); then
+  igpu_usage=$(read_igpu_usage "$igpu_file" || true)
+elif rc6_file=$(find_igpu_rc6_file); then
+  igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
+fi
+igpu_suffix=""
+if [[ -n "$igpu_usage" ]]; then
+  igpu_suffix=" | iGPU ${igpu_usage}%"
+fi
 
 if $have_core_type; then
   p_core_freqs=()
@@ -88,7 +220,7 @@ if $have_core_type; then
     tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
   done
 
-  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz"
+  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
   printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
   exit 0
 fi
@@ -138,7 +270,7 @@ if [ ${#all_max_freqs[@]} -ge 2 ]; then
     tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
   done
 
-  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz"
+  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
   printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
   exit 0
 fi
@@ -150,6 +282,6 @@ for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
   all_freqs+=("$current_khz")
 done
 avg_all=$(calc_avg_khz "${all_freqs[@]}")
-text="Avg: ${avg_all} GHz"
+text="Avg: ${avg_all} GHz${igpu_suffix}"
 tooltip="Average core frequency"
 printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"

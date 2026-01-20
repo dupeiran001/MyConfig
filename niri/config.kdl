@@ -264,6 +264,9 @@ spawn-at-startup "waybar"
 // Cache turbostat data for Waybar widgets.
 spawn-sh-at-startup "nohup ~/.config/waybar/scripts/turbostat-daemon.sh >/dev/null 2>&1 &"
 
+// Cache intel_gpu_top JSON for Waybar widgets.
+spawn-sh-at-startup "nohup ~/.config/waybar/scripts/intel-gpu-top-daemon.sh >/dev/null 2>&1 &"
+
 // This will run mako as a notification manager at backend
 spawn-at-startup "mako"
 
