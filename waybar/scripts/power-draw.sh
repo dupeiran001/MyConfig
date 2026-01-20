@@ -14,6 +14,10 @@ JSON_ICON_BATT=""
 JSON_ICON_CHRG=""
 JSON_ICON_GPU="󰾲"
 GPU_VENDOR_NAMES=("0x10de:NVIDIA" "0x1002:AMD" "0x8086:Intel")
+IGPU_USAGE_FILE=""
+IGPU_POWER_PRESENT=false
+IGPU_RC6_FILE=""
+IGPU_RC6_CACHE="/tmp/igpu-rc6.${SUDO_UID:-$UID}.cache"
 
 # ---------- debug logging ----------
 log_debug() {
@@ -30,6 +34,9 @@ if [[ -e "$CACHE" && ! -w "$CACHE" ]]; then
 fi
 if [[ -e "$LOG" && ! -w "$LOG" ]]; then
   LOG="/tmp/power-draw-debug.${UID:-$(id -u)}.user.log"
+fi
+if [[ -e "$IGPU_RC6_CACHE" && ! -w "$IGPU_RC6_CACHE" ]]; then
+  IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID:-$(id -u)}.user.cache"
 fi
 
 # ---------- re-exec as root if needed (for /sys/class/powercap on some distros) ----------
@@ -183,10 +190,88 @@ read_gpu_w() {
   return 1
 }
 
+find_igpu_usage_file() {
+  IGPU_USAGE_FILE=""
+  # Intel iGPU usage is often exposed via gpu_busy_percent or gt_busy_percent.
+  for dev in /sys/class/drm/card*/device; do
+    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
+    for f in gpu_busy_percent gt_busy_percent; do
+      if [[ -r "$dev/$f" ]]; then
+        IGPU_USAGE_FILE="$dev/$f"
+        log_debug "igpu_usage_detected vendor=${vendor} class=${class} path=${IGPU_USAGE_FILE}"
+        return 0
+      fi
+    done
+  done
+  log_debug "igpu_usage_not_found"
+}
+
+read_igpu_usage() {
+  local val
+  if val=$(<"$IGPU_USAGE_FILE"); then
+    awk -v v="$val" 'BEGIN{if(v=="") print "0"; else printf "%d", v+0}'
+    return 0
+  fi
+  log_debug "igpu_usage_read_failed path=${IGPU_USAGE_FILE}"
+  echo "0"
+  return 1
+}
+
+find_igpu_rc6_file() {
+  IGPU_RC6_FILE=""
+  for card in /sys/class/drm/card*; do
+    [[ -d "$card" ]] || continue
+    [[ "$card" == *"-"* ]] && continue
+    if [[ -f "$card/device/vendor" ]]; then
+      local vendor
+      vendor=$(<"$card/device/vendor")
+      [[ "$vendor" == "0x8086" ]] || continue
+      if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
+        IGPU_RC6_FILE="$card/gt/gt0/rc6_residency_ms"
+        log_debug "igpu_rc6_detected vendor=${vendor} path=${IGPU_RC6_FILE}"
+        return 0
+      fi
+    fi
+  done
+  log_debug "igpu_rc6_not_found"
+}
+
+read_igpu_usage_rc6() {
+  # Usage ~= 100 - (delta_rc6 / delta_time * 100)
+  local now rc6 prev_ts prev_rc6 dt_ms drc6 busy
+  now=$(now_ns)
+  if ! rc6=$(<"$IGPU_RC6_FILE"); then
+    log_debug "igpu_rc6_read_failed path=${IGPU_RC6_FILE}"
+    echo "0"
+    return 1
+  fi
+  prev_ts=0
+  prev_rc6=0
+  if [[ -f "$IGPU_RC6_CACHE" ]]; then
+    IFS=$'\t' read -r prev_ts prev_rc6 < "$IGPU_RC6_CACHE" || true
+  fi
+  printf "%s\t%s\n" "$now" "$rc6" > "${IGPU_RC6_CACHE}.new" || true
+  mv -f "${IGPU_RC6_CACHE}.new" "$IGPU_RC6_CACHE" 2>/dev/null || true
+  if [[ "$prev_ts" -gt 0 ]]; then
+    dt_ms=$(awk -v a="$now" -v b="$prev_ts" 'BEGIN{printf "%.3f", (a-b)/1e6}')
+    drc6=$(( rc6 - prev_rc6 ))
+    busy=$(awk -v drc6="$drc6" -v dt="$dt_ms" 'BEGIN{if(dt>0){v=100-(drc6/dt*100); if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}else print "0"}')
+    echo "$busy"
+    return 0
+  fi
+  echo "0"
+  return 0
+}
+
 collect_paths() {
   # Builds two lists: PKG_PATHS (top-level package domains), PSYS_PATHS (psys/platform as top-level or subdomain)
   PKG_PATHS=()
   PSYS_PATHS=()
+  IGPU_PATHS=()
   for dom in "$POWERCAP"/intel-rapl:* "$POWERCAP"/intel-rapl-mmio:*; do
     [[ -d "$dom" ]] || continue
     local dname=""
@@ -206,6 +291,10 @@ collect_paths() {
       [[ -f "$sub/name" ]] && sname=$(<"$sub/name")
       if [[ "$sname" == psys* || "$sname" == platform* || "$sname" == "platform" ]]; then
         PSYS_PATHS+=("$sub")
+      fi
+      # iGPU power domain (name often "gpu" or "gfx")
+      if [[ "$sname" == gpu* || "$sname" == gfx* ]]; then
+        IGPU_PATHS+=("$sub")
       fi
     done
   done
@@ -278,8 +367,10 @@ cache_state="absent"
 declare -A CUR_E CUR_M CUR_G
 pkg_uj=0
 psys_uj=0
+igpu_uj=0
 pkg_present=false
 psys_present=false
+igpu_power_present=false
 
 # helper to accumulate one path into a group
 accumulate_path() {
@@ -306,18 +397,22 @@ accumulate_path() {
     d=$(( e - pe ))  # µJ
     if [[ "$group" == "pkg" ]]; then
       pkg_uj=$(( pkg_uj + d ))
-    else
+    elif [[ "$group" == "psys" ]]; then
       psys_uj=$(( psys_uj + d ))
+    else
+      igpu_uj=$(( igpu_uj + d ))
     fi
   fi
 }
 
 for p in "${PKG_PATHS[@]}"; do accumulate_path "pkg"  "$p"; done
 for p in "${PSYS_PATHS[@]}"; do accumulate_path "psys" "$p"; done
+for p in "${IGPU_PATHS[@]}"; do accumulate_path "igpu" "$p"; done
 
 # ---------- compute watts (if we have a previous timestamp) ----------
 pkg_w="0.00"
 psys_w="0.00"
+igpu_w="0.00"
 dt="n/a"
 if [[ "$PREV_TS" -gt 0 ]]; then
   # dt in seconds with 9 decimal places
@@ -326,6 +421,9 @@ if [[ "$PREV_TS" -gt 0 ]]; then
   pkg_w=$(awk -v de="$pkg_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
   if ((${#PSYS_PATHS[@]})); then
     psys_w=$(awk -v de="$psys_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+  fi
+  if ((${#IGPU_PATHS[@]})); then
+    igpu_w=$(awk -v de="$igpu_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
   fi
 fi
 
@@ -336,6 +434,27 @@ gpu_w="0.00"
 if [[ -n "${GPU_POWER_FILE:-}" || -n "${GPU_READ_CMD[*]:-}" ]]; then
   gpu_present=true
   gpu_w=$(read_gpu_w)
+fi
+
+# ---------- iGPU usage (Intel) if no dGPU power ----------
+igpu_present=false
+igpu_usage="0"
+if ! $gpu_present; then
+  find_igpu_usage_file
+  if [[ -n "$IGPU_USAGE_FILE" ]]; then
+    igpu_present=true
+    igpu_usage=$(read_igpu_usage)
+  else
+    find_igpu_rc6_file
+    if [[ -n "$IGPU_RC6_FILE" ]]; then
+      igpu_present=true
+      igpu_usage=$(read_igpu_usage_rc6)
+    fi
+  fi
+fi
+IGPU_POWER_PRESENT=false
+if ((${#IGPU_PATHS[@]})); then
+  igpu_power_present=true
 fi
 
 # ---------- write current snapshot atomically for next run ----------
@@ -379,6 +498,12 @@ if $has_battery; then
 elif $gpu_present; then
   text_prefix="${JSON_ICON_GPU} ${GPU_VENDOR_LABEL:-GPU} ${gpu_w} W"
   tooltip_prefix="${GPU_VENDOR_LABEL:-GPU}: ${gpu_w} W"
+elif $igpu_power_present; then
+  text_prefix="iGPU ${igpu_w} W"
+  tooltip_prefix="iGPU Power: ${igpu_w} W"
+elif $igpu_present; then
+  text_prefix="iGPU ${igpu_usage}%"
+  tooltip_prefix="iGPU Usage: ${igpu_usage}%"
 else
   text_prefix="Battery n/a"
   tooltip_prefix="Battery: not present"
