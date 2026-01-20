@@ -10,6 +10,7 @@ POWERCAP="/sys/class/powercap"
 CACHE="/tmp/power-draw.${SUDO_UID:-$UID}.cache"
 LOG="/tmp/power-draw-debug.${SUDO_UID:-$UID}.log"
 LOG_ENABLED="${POWER_DRAW_LOG:-false}"
+TSTAT_SUMMARY="/tmp/turbostat-waybar.${SUDO_UID:-$UID}.summary"
 JSON_ICON_BATT=""
 JSON_ICON_CHRG=""
 JSON_ICON_GPU="󰾲"
@@ -510,6 +511,12 @@ else
 fi
 
 pkg_display="$pkg_w"
+if [[ -f "$TSTAT_SUMMARY" ]]; then
+  t_pkg=$(awk -F= '/^pkg=/{print $2}' "$TSTAT_SUMMARY" 2>/dev/null || echo "")
+  if [[ -n "$t_pkg" ]]; then
+    pkg_display="$t_pkg"
+  fi
+fi
 [[ "$pkg_display" == "0.00" && $pkg_present == false ]] && pkg_display="N/A"
 psys_display="$psys_effective_w"
 [[ $psys_present == false ]] && psys_display="N/A"

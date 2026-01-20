@@ -261,6 +261,9 @@ layout {
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "waybar"
 
+// Cache turbostat data for Waybar widgets.
+spawn-sh-at-startup "nohup ~/.config/waybar/scripts/turbostat-daemon.sh >/dev/null 2>&1 &"
+
 // This will run mako as a notification manager at backend
 spawn-at-startup "mako"
 
@@ -273,6 +276,8 @@ spawn-sh-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 // This will run clipman as a clipboard manager at backend
 spawn-sh-at-startup "sleep 1 && wl-paste --watch clipman store"
+
+spawn-at-startup "fcitx5" "-d"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
@@ -619,4 +624,3 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 }
-
