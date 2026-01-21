@@ -10,6 +10,7 @@ IGPU_JSON="/tmp/intel-gpu-top.${UID_SAFE}.json"
 IGPU_PIDFILE="/tmp/intel-gpu-top.${UID_SAFE}.pid"
 IGPU_DAEMON="$HOME/.config/waybar/scripts/intel-gpu-top-daemon.sh"
 IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
+IGPU_JSON_CACHE="/tmp/intel-gpu-top.${UID_SAFE}.cache"
 
 start_daemon() {
   [[ -x "$DAEMON" ]] || return 0
@@ -91,34 +92,105 @@ read_igpu_usage_rc6() {
 }
 
 get_igpu_usage_from_intel_gpu_top() {
-  local json="$IGPU_JSON" rc6 usage
+  local json="$IGPU_JSON" rc6 render busy cache_label cache_val
   [[ -f "$json" ]] || return 1
-  command -v jq >/dev/null 2>&1 || return 1
 
-  rc6=$(jq -r '
-    def numval:
-      if type=="number" then .
-      elif type=="object" then (.value // .percent // .percentage // empty)
-      else empty end;
-    [.. | objects | to_entries[] | select(.key|ascii_downcase|test("rc6")) | .value | numval]
-    | first // empty
-  ' "$json" 2>/dev/null || echo "")
-  if [[ -n "$rc6" ]]; then
-    usage=$(awk -v r="$rc6" 'BEGIN{u=100-r; if(u<0)u=0; if(u>100)u=100; printf "%d", u+0}')
-    echo "$usage"
+  json_find_num() {
+    local pattern="$1"
+    if command -v jq >/dev/null 2>&1; then
+      jq -r '
+        def numval:
+          if type=="number" then .
+          elif type=="object" then (.value // .percent // .percentage // empty)
+          else empty end;
+        [.. | objects | to_entries[] | select(.key|ascii_downcase|test($pat)) | .value | numval]
+        | first // empty
+      ' --arg pat "$pattern" "$json" 2>/dev/null || echo ""
+      return 0
+    fi
+    if command -v python3 >/dev/null 2>&1; then
+      python3 - "$json" "$pattern" <<'PY' 2>/dev/null || true
+import json
+import re
+import sys
+
+path = sys.argv[1]
+pat = re.compile(sys.argv[2], re.IGNORECASE)
+
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+def numval(val):
+    if isinstance(val, (int, float)):
+        return val
+    if isinstance(val, dict):
+        for k in ("value", "percent", "percentage"):
+            v = val.get(k)
+            if isinstance(v, (int, float)):
+                return v
+    return None
+
+def walk(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if pat.search(str(k)):
+                nv = numval(v)
+                if nv is not None:
+                    return nv
+            nv = walk(v)
+            if nv is not None:
+                return nv
+    elif isinstance(obj, list):
+        for v in obj:
+            nv = walk(v)
+            if nv is not None:
+                return nv
+    return None
+
+nv = walk(data)
+if nv is not None:
+    print(nv)
+PY
+      return 0
+    fi
+    echo ""
+    return 0
+  }
+
+  if [[ -f "$IGPU_JSON_CACHE" ]]; then
+    IFS=$'\t' read -r cache_label cache_val < "$IGPU_JSON_CACHE" || true
+    IGPU_LABEL="$cache_label"
+    echo "$cache_val"
     return 0
   fi
 
-  usage=$(jq -r '
-    def numval:
-      if type=="number" then .
-      elif type=="object" then (.value // .percent // .percentage // empty)
-      else empty end;
-    [.. | objects | to_entries[] | select(.key|ascii_downcase|test("busy|util")) | .value | numval]
-    | first // empty
-  ' "$json" 2>/dev/null || echo "")
-  [[ -n "$usage" ]] || return 1
-  awk -v v="$usage" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}'
+  busy=$(json_find_num "busy|util")
+  if [[ -n "$busy" ]]; then
+    IGPU_LABEL="iGPU"
+    busy=$(awk -v v="$busy" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
+    printf "%s\t%s\n" "$IGPU_LABEL" "$busy" > "${IGPU_JSON_CACHE}.new" || true
+    mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
+    echo "$busy"
+    return 0
+  fi
+
+  render=$(json_find_num "render|rcs")
+  if [[ -n "$render" ]]; then
+    IGPU_LABEL="Render"
+    render=$(awk -v v="$render" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
+    printf "%s\t%s\n" "$IGPU_LABEL" "$render" > "${IGPU_JSON_CACHE}.new" || true
+    mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
+    echo "$render"
+    return 0
+  fi
+
+  rc6=$(json_find_num "rc6")
+  [[ -n "$rc6" ]] || return 1
+  IGPU_LABEL="RC6"
+  rc6=$(awk -v r="$rc6" 'BEGIN{u=100-r; if(u<0)u=0; if(u>100)u=100; printf "%d", u+0}')
+  printf "%s\t%s\n" "$IGPU_LABEL" "$rc6" > "${IGPU_JSON_CACHE}.new" || true
+  mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
+  echo "$rc6"
 }
 
 running=false
@@ -168,17 +240,20 @@ calc_avg_khz() {
   awk "BEGIN {printf \"%.2f\", $avg / 1000000}"
 }
 
+IGPU_LABEL=""
 igpu_usage=""
 if igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
   :
 elif igpu_file=$(find_igpu_usage_file); then
   igpu_usage=$(read_igpu_usage "$igpu_file" || true)
+  IGPU_LABEL="iGPU"
 elif rc6_file=$(find_igpu_rc6_file); then
   igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
+  IGPU_LABEL="RC6"
 fi
 igpu_suffix=""
 if [[ -n "$igpu_usage" ]]; then
-  igpu_suffix=" | iGPU ${igpu_usage}%"
+  igpu_suffix=" | ${IGPU_LABEL:-iGPU} ${igpu_usage}%"
 fi
 
 if $have_core_type; then
