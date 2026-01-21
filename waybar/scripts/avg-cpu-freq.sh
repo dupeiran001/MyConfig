@@ -10,7 +10,8 @@ IGPU_JSON="/tmp/intel-gpu-top.${UID_SAFE}.json"
 IGPU_PIDFILE="/tmp/intel-gpu-top.${UID_SAFE}.pid"
 IGPU_DAEMON="$HOME/.config/waybar/scripts/intel-gpu-top-daemon.sh"
 IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
-IGPU_JSON_CACHE="/tmp/intel-gpu-top.${UID_SAFE}.cache"
+IGPU_USAGE_PATH_CACHE="/tmp/igpu-usage-path.${UID_SAFE}.cache"
+IGPU_RC6_PATH_CACHE="/tmp/igpu-rc6-path.${UID_SAFE}.cache"
 
 start_daemon() {
   [[ -x "$DAEMON" ]] || return 0
@@ -24,6 +25,14 @@ start_igpu_daemon() {
 
 find_igpu_usage_file() {
   local dev vendor class
+  if [[ -f "$IGPU_USAGE_PATH_CACHE" ]]; then
+    local cached
+    cached=$(<"$IGPU_USAGE_PATH_CACHE")
+    if [[ -n "$cached" && -r "$cached" ]]; then
+      echo "$cached"
+      return 0
+    fi
+  fi
   for dev in /sys/class/drm/card*/device; do
     [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
     vendor=$(<"$dev/vendor")
@@ -31,6 +40,8 @@ find_igpu_usage_file() {
     [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
     for f in gpu_busy_percent gt_busy_percent; do
       if [[ -r "$dev/$f" ]]; then
+        echo "$dev/$f" > "${IGPU_USAGE_PATH_CACHE}.new" || true
+        mv -f "${IGPU_USAGE_PATH_CACHE}.new" "$IGPU_USAGE_PATH_CACHE" 2>/dev/null || true
         echo "$dev/$f"
         return 0
       fi
@@ -50,6 +61,14 @@ read_igpu_usage() {
 
 find_igpu_rc6_file() {
   local card vendor
+  if [[ -f "$IGPU_RC6_PATH_CACHE" ]]; then
+    local cached
+    cached=$(<"$IGPU_RC6_PATH_CACHE")
+    if [[ -n "$cached" && -r "$cached" ]]; then
+      echo "$cached"
+      return 0
+    fi
+  fi
   for card in /sys/class/drm/card*; do
     [[ -d "$card" ]] || continue
     [[ "$card" == *"-"* ]] && continue
@@ -57,6 +76,8 @@ find_igpu_rc6_file() {
       vendor=$(<"$card/device/vendor")
       [[ "$vendor" == "0x8086" ]] || continue
       if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
+        echo "$card/gt/gt0/rc6_residency_ms" > "${IGPU_RC6_PATH_CACHE}.new" || true
+        mv -f "${IGPU_RC6_PATH_CACHE}.new" "$IGPU_RC6_PATH_CACHE" 2>/dev/null || true
         echo "$card/gt/gt0/rc6_residency_ms"
         return 0
       fi
@@ -92,7 +113,7 @@ read_igpu_usage_rc6() {
 }
 
 get_igpu_usage_from_intel_gpu_top() {
-  local json="$IGPU_JSON" rc6 render busy cache_label cache_val
+  local json="$IGPU_JSON" rc6 render busy
   [[ -f "$json" ]] || return 1
 
   json_find_num() {
@@ -157,19 +178,10 @@ PY
     return 0
   }
 
-  if [[ -f "$IGPU_JSON_CACHE" ]]; then
-    IFS=$'\t' read -r cache_label cache_val < "$IGPU_JSON_CACHE" || true
-    IGPU_LABEL="$cache_label"
-    echo "$cache_val"
-    return 0
-  fi
-
   busy=$(json_find_num "busy|util")
   if [[ -n "$busy" ]]; then
     IGPU_LABEL="iGPU"
     busy=$(awk -v v="$busy" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
-    printf "%s\t%s\n" "$IGPU_LABEL" "$busy" > "${IGPU_JSON_CACHE}.new" || true
-    mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
     echo "$busy"
     return 0
   fi
@@ -178,8 +190,6 @@ PY
   if [[ -n "$render" ]]; then
     IGPU_LABEL="Render"
     render=$(awk -v v="$render" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
-    printf "%s\t%s\n" "$IGPU_LABEL" "$render" > "${IGPU_JSON_CACHE}.new" || true
-    mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
     echo "$render"
     return 0
   fi
@@ -188,8 +198,6 @@ PY
   [[ -n "$rc6" ]] || return 1
   IGPU_LABEL="RC6"
   rc6=$(awk -v r="$rc6" 'BEGIN{u=100-r; if(u<0)u=0; if(u>100)u=100; printf "%d", u+0}')
-  printf "%s\t%s\n" "$IGPU_LABEL" "$rc6" > "${IGPU_JSON_CACHE}.new" || true
-  mv -f "${IGPU_JSON_CACHE}.new" "$IGPU_JSON_CACHE" 2>/dev/null || true
   echo "$rc6"
 }
 
