@@ -29,6 +29,7 @@
 !/tlp
 !/drun
 !/fcitx5
+!/environment.d
 
 # Temp files
 *~
