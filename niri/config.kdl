@@ -277,8 +277,8 @@ spawn-sh-at-startup "swaybg -i \"$(find ~/Pictures/wallpaper/ -type f | shuf -n 
 
 spawn-sh-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &"
 
-// This will run clipman as a clipboard manager at backend
-spawn-sh-at-startup "sleep 1 && wl-paste --watch clipman store"
+// Run clipman in non-persist mode to avoid re-serving clipboard content loops.
+spawn-sh-at-startup "sleep 1 && wl-paste -t text --watch clipman store --no-persist"
 
 spawn-at-startup "fcitx5" "-d"
 

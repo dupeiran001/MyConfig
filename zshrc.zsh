@@ -95,6 +95,9 @@ source ~/.config/resources/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source $ZSH/oh-my-zsh.sh
 
+# Disable oh-my-zsh auto-cd behavior.
+unsetopt auto_cd
+
 KEYTIMEOUT=1
 
 eval "$(starship init zsh)"

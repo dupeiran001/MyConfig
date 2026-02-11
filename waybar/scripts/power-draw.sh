@@ -149,9 +149,10 @@ find_gpu_power_file() {
       fi
     done
   done
-  # Fall back to NVIDIA userspace query (NVML) if available and a GPU is present
+  # Fall back to NVIDIA userspace query only when NVIDIA GPU nodes are present.
+  # Avoid spawning `nvidia-smi --list-gpus` on every Waybar poll.
   if command -v nvidia-smi >/dev/null 2>&1; then
-    if nvidia-smi --list-gpus >/dev/null 2>&1; then
+    if [[ -d /proc/driver/nvidia/gpus ]] && compgen -G "/proc/driver/nvidia/gpus/*" >/dev/null; then
       GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
       GPU_VENDOR_LABEL="NVIDIA"
       log_debug "gpu_fallback_nvml cmd=${GPU_READ_CMD[*]}"

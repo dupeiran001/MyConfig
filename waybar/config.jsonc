@@ -77,7 +77,7 @@
     "tooltip": true,
     "on-click": "~/.config/waybar/scripts/wireguard-status.sh click left",
     "on-click-right": "~/.config/waybar/scripts/wireguard-status.sh click right",
-    "interval": 1
+    "interval": 5
   },
 
   "custom/ws": {
@@ -206,7 +206,7 @@
     "exec": "~/.config/waybar/scripts/avg-cpu-freq.sh",
     "return-type": "json",
     "tooltip": true,
-    "interval": 2
+    "interval": 5
   },
 
   "custom/cpuinfo": {
@@ -290,7 +290,7 @@
     "tooltip": true,
     "on-click": "~/.config/waybar/scripts/wifi-menu.sh",
     "on-click-right": "kitty --title '󰤨  Network Manager TUI' bash -c nmtui",
-    "interval": 1,
+    "interval": 3,
     "min-length": 1,
     "max-length": 1
   },
@@ -314,7 +314,7 @@
 
     "on-click": "~/.config/waybar/scripts/bluetooth-menu.sh",
     "on-click-right": "kitty --title '󰂯  Bluetooth TUI' bash -c bluetui",
-    "interval": 1,
+    "interval": 3,
     "min-length": 1,
     "max-length": 1
   },
@@ -343,7 +343,7 @@
     "exec": "~/.config/waybar/scripts/power-draw.sh",
     "return-type": "json",
     "tooltip": true,
-    "interval": 2
+    "interval": 10
   },
 
   "custom/media": {
@@ -384,7 +384,7 @@
     "tooltip": true,
     "on-scroll-up": "~/.config/waybar/scripts/brightness-control.sh -o i",
     "on-scroll-down": "~/.config/waybar/scripts/brightness-control.sh -o d",
-    "interval": 1,
+    "interval": 2,
     "min-length": 6,
     "max-length": 6
   },
@@ -406,7 +406,7 @@
 
     "tooltip-format": "Discharging: {time}",
     "tooltip-format-charging": "Charging: {time}",
-    "interval": 1,
+    "interval": 10,
     "min-length": 6,
     "max-length": 6
   },

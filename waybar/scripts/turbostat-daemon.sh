@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-INTERVAL="${TURBOSTAT_INTERVAL:-1}"
+INTERVAL="${TURBOSTAT_INTERVAL:-2}"
 UID_SAFE="${SUDO_UID:-$UID}"
 CACHE_JSON="/tmp/turbostat-waybar.${UID_SAFE}.json"
 CACHE_RAW="/tmp/turbostat-waybar.${UID_SAFE}.raw"

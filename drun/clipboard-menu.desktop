@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Clipboard
+Comment=Pick from clipboard history
+Exec=/home/dpr/.config/rofi/scripts/clipboard-menu.sh
+Type=Application
+Terminal=false
+Icon=edit-paste
+Categories=Utility;
+Keywords=clipboard;clipman;copy;paste;

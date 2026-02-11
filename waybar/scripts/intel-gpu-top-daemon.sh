@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-INTERVAL_MS="${IGT_INTERVAL_MS:-1000}"
+INTERVAL_MS="${IGT_INTERVAL_MS:-2000}"
 UID_SAFE="${SUDO_UID:-$UID}"
 CACHE_JSON="/tmp/intel-gpu-top.${UID_SAFE}.json"
 PIDFILE="/tmp/intel-gpu-top.${UID_SAFE}.pid"
