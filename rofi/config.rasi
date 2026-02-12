@@ -1,9 +1,13 @@
-@theme "nord.rasi"
+@theme "adi1090x-drun.rasi"
 
 configuration {
     kb-accept-entry: "Return";
+    kb-mode-previous: "Control+h";
+    kb-mode-next: "Control+l";
+    kb-mode-complete: "";
     kb-row-up: "Control+k,Up";
     kb-row-down: "Control+j,Down";
+    kb-remove-char-back: "BackSpace,Shift+BackSpace";
     kb-remove-to-eol: ""; /* Unbind Control+k from remove-to-eol */
     show-icons: true;
     case-sensitive: false;

@@ -1,0 +1,203 @@
+/**
+ *
+ * Author : Aditya Shakya (adi1090x)
+ * Github : @adi1090x
+ *
+ * Rofi Theme File
+ * Rofi Version: 1.7.3
+ **/
+
+/*****----- Configuration -----*****/
+configuration {
+    modi:                       "drun,run,filebrowser,window";
+    show-icons:                 true;
+    display-drun:               "";
+    display-run:                "";
+    display-filebrowser:        "";
+    display-window:             "";
+    drun-display-format:        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+    window-format:              "{w}   {c}   {t}";
+}
+
+/*****----- Global Properties -----*****/
+* {
+    font:                        "Iosevka Nerd Font 12";
+    nord0:                       #2E3440;
+    nord1:                       #3B4252;
+    nord2:                       #434C5E;
+    nord3:                       #4C566A;
+    nord4:                       #D8DEE9;
+    nord5:                       #E5E9F0;
+    nord6:                       #ECEFF4;
+    nord7:                       #8FBCBB;
+    nord8:                       #88C0D0;
+    nord9:                       #81A1C1;
+    nord10:                      #5E81AC;
+    nord11:                      #BF616A;
+    nord12:                      #D08770;
+    nord13:                      #EBCB8B;
+    nord14:                      #A3BE8C;
+    nord15:                      #B48EAD;
+}
+
+/*****----- Main Window -----*****/
+window {
+    /* properties for window widget */
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       800px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+
+    /* properties for all widgets */
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      2px;
+    border-radius:               20px;
+    border-color:                #81A1C1;
+    cursor:                      "default";
+    background-color:            @nord0;
+}
+
+/*****----- Main Box -----*****/
+mainbox {
+    enabled:                     true;
+    spacing:                     25px;
+    padding:                     24px 50px 24px 50px;
+    background-color:            transparent;
+    children:                    [ "inputbar", "message","listview", "mode-switcher" ];
+}
+
+/*****----- Inputbar -----*****/
+inputbar {
+    enabled:                     true;
+    spacing:                     0px;
+    margin:                      0px 200px;
+    padding:                     5px;
+    border:                      1px;
+    border-radius:               100%;
+    border-color:                @nord3;
+    background-color:            transparent;
+    children:                    [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    padding:                     8px 11px;
+    border-radius:               100%;
+    background-color:            @nord6;
+    text-color:                  @nord0;
+    str:                         "";
+}
+entry {
+    enabled:                     true;
+    padding:                     8px 12px;
+    border:                      0px;
+    background-color:            transparent;
+    text-color:                  @nord6;
+    cursor:                      text;
+    placeholder:                 "Search...";
+    placeholder-color:           inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+/*****----- Listview -----*****/
+listview {
+    enabled:                     true;
+    columns:                     2;
+    lines:                       10;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+
+    spacing:                     10px;
+    background-color:            transparent;
+    cursor:                      "default";
+}
+
+/*****----- Elements -----*****/
+element {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     5px;
+    border:                      0px;
+    border-radius:               100%;
+    border-color:                @nord3;
+    background-color:            transparent;
+    text-color:                  @nord4;
+    cursor:                      pointer;
+}
+element normal.active {
+    background-image:            linear-gradient(to right, #4C566A, #3B4252);
+    text-color:                  @nord14;
+}
+element selected.normal {
+    background-image:            linear-gradient(to right, #4C566A, #3B4252);
+    text-color:                  @nord12;
+}
+element selected.active {
+    background-image:            linear-gradient(to right, #4C566A, #3B4252);
+    text-color:                  @nord11;
+}
+element-icon {
+    background-color:            transparent;
+    size:                        24px;
+    cursor:                      inherit;
+}
+element-text {
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+/*****----- Mode Switcher -----*****/
+mode-switcher{
+    enabled:                     true;
+    expand:                      false;
+    spacing:                     0px;
+    margin:                      0px 200px;
+    padding:                     12px;
+    border-radius:               100%;
+    background-color:            @nord1;
+}
+button {
+    background-color:            inherit;
+    text-color:                  @nord6;
+    cursor:                      pointer;
+}
+button selected {
+    background-color:            inherit;
+    text-color:                  @nord12;
+}
+
+/*****----- Message -----*****/
+error-message {
+    padding:                     20px;
+    background-color:            @nord0;
+    text-color:                  @nord6;
+}
+message {
+    padding:                     0px;
+    background-color:            inherit;
+    text-color:                  @nord12;
+}
+textbox {
+    padding:                     0px;
+    border-radius:               0px;
+    background-color:            inherit;
+    text-color:                  inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
