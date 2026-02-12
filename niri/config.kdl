@@ -259,13 +259,13 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "waybar"
+spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh waybar"
 
 // Cache turbostat data for Waybar widgets.
-spawn-sh-at-startup "nohup ~/.config/waybar/scripts/turbostat-daemon.sh >/dev/null 2>&1 &"
+spawn-sh-at-startup "nohup ~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/turbostat-daemon.sh >/dev/null 2>&1 &"
 
 // Cache intel_gpu_top JSON for Waybar widgets.
-spawn-sh-at-startup "nohup ~/.config/waybar/scripts/intel-gpu-top-daemon.sh >/dev/null 2>&1 &"
+spawn-sh-at-startup "nohup ~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/intel-gpu-top-daemon.sh >/dev/null 2>&1 &"
 
 // This will run mako as a notification manager at backend
 spawn-at-startup "mako"
