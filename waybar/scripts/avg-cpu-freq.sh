@@ -13,6 +13,36 @@ IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
 IGPU_USAGE_PATH_CACHE="/tmp/igpu-usage-path.${UID_SAFE}.cache"
 IGPU_RC6_PATH_CACHE="/tmp/igpu-rc6-path.${UID_SAFE}.cache"
 
+list_intel_gpu_devices() {
+  local dev
+  local preferred=()
+  local fallback=()
+  for dev in /sys/class/drm/card*/device; do
+    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class boot
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
+    boot="0"
+    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
+    if [[ "$boot" == "1" ]]; then
+      preferred+=("$dev")
+    else
+      fallback+=("$dev")
+    fi
+  done
+
+  if ((${#preferred[@]})); then
+    printf "%s\n" "${preferred[@]}"
+    return 0
+  fi
+  if ((${#fallback[@]})); then
+    printf "%s\n" "${fallback[@]}"
+    return 0
+  fi
+  return 1
+}
+
 start_daemon() {
   [[ -x "$DAEMON" ]] || return 0
   nohup "$DAEMON" >/dev/null 2>&1 &
@@ -24,7 +54,7 @@ start_igpu_daemon() {
 }
 
 find_igpu_usage_file() {
-  local dev vendor class
+  local dev
   if [[ -f "$IGPU_USAGE_PATH_CACHE" ]]; then
     local cached
     cached=$(<"$IGPU_USAGE_PATH_CACHE")
@@ -33,11 +63,8 @@ find_igpu_usage_file() {
       return 0
     fi
   fi
-  for dev in /sys/class/drm/card*/device; do
-    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    vendor=$(<"$dev/vendor")
-    class=$(<"$dev/class")
-    [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
+  while read -r dev; do
+    [[ -n "$dev" ]] || continue
     for f in gpu_busy_percent gt_busy_percent; do
       if [[ -r "$dev/$f" ]]; then
         echo "$dev/$f" > "${IGPU_USAGE_PATH_CACHE}.new" || true
@@ -46,7 +73,7 @@ find_igpu_usage_file() {
         return 0
       fi
     done
-  done
+  done < <(list_intel_gpu_devices || true)
   return 1
 }
 
@@ -60,7 +87,7 @@ read_igpu_usage() {
 }
 
 find_igpu_rc6_file() {
-  local card vendor
+  local card dev
   if [[ -f "$IGPU_RC6_PATH_CACHE" ]]; then
     local cached
     cached=$(<"$IGPU_RC6_PATH_CACHE")
@@ -69,20 +96,16 @@ find_igpu_rc6_file() {
       return 0
     fi
   fi
-  for card in /sys/class/drm/card*; do
-    [[ -d "$card" ]] || continue
-    [[ "$card" == *"-"* ]] && continue
-    if [[ -f "$card/device/vendor" ]]; then
-      vendor=$(<"$card/device/vendor")
-      [[ "$vendor" == "0x8086" ]] || continue
-      if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
-        echo "$card/gt/gt0/rc6_residency_ms" > "${IGPU_RC6_PATH_CACHE}.new" || true
-        mv -f "${IGPU_RC6_PATH_CACHE}.new" "$IGPU_RC6_PATH_CACHE" 2>/dev/null || true
-        echo "$card/gt/gt0/rc6_residency_ms"
-        return 0
-      fi
+  while read -r dev; do
+    [[ -n "$dev" ]] || continue
+    card="${dev%/device}"
+    if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
+      echo "$card/gt/gt0/rc6_residency_ms" > "${IGPU_RC6_PATH_CACHE}.new" || true
+      mv -f "${IGPU_RC6_PATH_CACHE}.new" "$IGPU_RC6_PATH_CACHE" 2>/dev/null || true
+      echo "$card/gt/gt0/rc6_residency_ms"
+      return 0
     fi
-  done
+  done < <(list_intel_gpu_devices || true)
   return 1
 }
 
@@ -248,13 +271,38 @@ calc_avg_khz() {
   awk "BEGIN {printf \"%.2f\", $avg / 1000000}"
 }
 
+get_cpu_freq_khz() {
+  local cpu_dir="$1"
+  local cpu_num="$2"
+  local bzy_raw bzy_khz max_khz cur_khz
+  max_khz=$(cat "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || echo 0)
+  cur_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
+
+  if [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
+    bzy_raw="${bzy_by_cpu[$cpu_num]}"
+    bzy_khz=$(awk -v v="$bzy_raw" 'BEGIN{if(v=="" || v<0) print 0; else printf "%.0f", v*1000}')
+    # If Bzy_MHz is clearly out of range for this core, fall back to cpufreq.
+    if [[ "$max_khz" -gt 0 ]]; then
+      if awk -v b="$bzy_khz" -v m="$max_khz" 'BEGIN{exit (b > (m * 1.15) ? 0 : 1)}'; then
+        echo "$cur_khz"
+      else
+        echo "$bzy_khz"
+      fi
+    else
+      echo "$bzy_khz"
+    fi
+  else
+    echo "$cur_khz"
+  fi
+}
+
 IGPU_LABEL=""
 igpu_usage=""
-if igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
-  :
-elif igpu_file=$(find_igpu_usage_file); then
+if igpu_file=$(find_igpu_usage_file); then
   igpu_usage=$(read_igpu_usage "$igpu_file" || true)
   IGPU_LABEL="iGPU"
+elif igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
+  :
 elif rc6_file=$(find_igpu_rc6_file); then
   igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
   IGPU_LABEL="RC6"
@@ -273,12 +321,7 @@ if $have_core_type; then
   for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
     cpu_num=$(basename "$cpu_dir" | sed 's/cpu//')
     core_type=$(cat "$cpu_dir/topology/core_type" 2>/dev/null || echo "")
-    if [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
-      current_mhz="${bzy_by_cpu[$cpu_num]}"
-      current_khz=$((current_mhz * 1000))
-    else
-      current_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
-    fi
+    current_khz=$(get_cpu_freq_khz "$cpu_dir" "$cpu_num")
 
     if [[ "$core_type" == "1" ]]; then
       p_core_freqs+=("$current_khz")
@@ -323,12 +366,7 @@ if [ ${#all_max_freqs[@]} -ge 2 ]; then
   for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
     cpu_num=$(basename "$cpu_dir" | sed 's/cpu//')
     max_freq=$(cat "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || echo 0)
-    if [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
-      current_mhz="${bzy_by_cpu[$cpu_num]}"
-      current_khz=$((current_mhz * 1000))
-    else
-      current_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
-    fi
+    current_khz=$(get_cpu_freq_khz "$cpu_dir" "$cpu_num")
 
     if [ "$max_freq" -eq "$P_CORE_MAX_FREQ" ]; then
       p_core_freqs+=("$current_khz")

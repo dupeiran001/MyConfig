@@ -87,14 +87,33 @@ find_gpu_power_file() {
   GPU_VENDOR_LABEL=""
   GPU_BUS_ID=""
   GPU_READ_CMD=""
+  local has_discrete_gpu=false
+  local dev class boot
+  for dev in /sys/bus/pci/devices/*; do
+    [[ -f "$dev/class" ]] || continue
+    class=$(<"$dev/class")
+    [[ "$class" == 0x03* ]] || continue
+    boot="0"
+    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
+    if [[ "$boot" != "1" ]]; then
+      has_discrete_gpu=true
+      break
+    fi
+  done
+
   # Pass 1: check PCI devices directly
   for dev in /sys/bus/pci/devices/*; do
     [[ -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    local vendor class
+    local vendor class boot
     vendor=$(<"$dev/vendor")
     class=$(<"$dev/class")
     # GPU/3D classes start with 0x03
     [[ "$class" == 0x03* ]] || continue
+    boot="0"
+    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
+    if $has_discrete_gpu && [[ "$boot" == "1" ]]; then
+      continue
+    fi
     local vname=""
     for entry in "${GPU_VENDOR_NAMES[@]}"; do
       if [[ "$entry" == "${vendor}:"* ]]; then
@@ -103,6 +122,13 @@ find_gpu_power_file() {
       fi
     done
     [[ -n "$vname" ]] || continue
+    if [[ "$vendor" == "0x8086" ]]; then
+      if [[ "$boot" == "1" ]]; then
+        vname="Intel iGPU"
+      else
+        vname="Intel Arc"
+      fi
+    fi
     GPU_VENDOR_LABEL="$vname"
     GPU_BUS_ID="${dev##*/}"
     for hwmon in "$dev"/hwmon/hwmon*; do
@@ -128,10 +154,15 @@ find_gpu_power_file() {
     local devpath
     devpath=$(readlink -f "$hw/device" 2>/dev/null || true)
     [[ -n "$devpath" && -f "$devpath/vendor" && -f "$devpath/class" ]] || continue
-    local vendor class vname=""
+    local vendor class vname="" boot
     vendor=$(<"$devpath/vendor")
     class=$(<"$devpath/class")
     [[ "$class" == 0x03* ]] || continue
+    boot="0"
+    [[ -r "$devpath/boot_vga" ]] && boot=$(<"$devpath/boot_vga")
+    if $has_discrete_gpu && [[ "$boot" == "1" ]]; then
+      continue
+    fi
     for entry in "${GPU_VENDOR_NAMES[@]}"; do
       if [[ "$entry" == "${vendor}:"* ]]; then
         vname=${entry#*:}
@@ -139,6 +170,13 @@ find_gpu_power_file() {
       fi
     done
     [[ -n "$vname" ]] || continue
+    if [[ "$vendor" == "0x8086" ]]; then
+      if [[ "$boot" == "1" ]]; then
+        vname="Intel iGPU"
+      else
+        vname="Intel Arc"
+      fi
+    fi
     for f in "$hw"/power1_average "$hw"/power1_input; do
       if [[ -r "$f" ]]; then
         GPU_POWER_FILE="$f"
