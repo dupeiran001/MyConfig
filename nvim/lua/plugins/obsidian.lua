@@ -47,7 +47,7 @@ return {
     },
 
     attachments = {
-      img_folder = "assets/imgs",
+      folder = "assets/imgs",
       img_name_func = function()
         return string.format("Pasted image %s", os.date "%Y%m%d%H%M%S")
       end,
