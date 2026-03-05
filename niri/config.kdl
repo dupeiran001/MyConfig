@@ -110,13 +110,13 @@ output "HDMI-A-3"{
 output "DP-1" {
   mode "2560x1440@59.951"
   scale 1
-  position x=0 y=0
+  position x=5120 y=0
 }
 
 output "DP-2" {
   mode "2560x1440@59.951"
   scale 1
-  position x=5120 y=0
+  position x=0 y=0
 }
 
 
@@ -283,6 +283,9 @@ layout {
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh waybar"
+
+// Keep custom rofi drun entries available in rofi -show drun.
+spawn-sh-at-startup "~/.config/drun/install.sh >/dev/null 2>&1"
 
 // Cache turbostat data for Waybar widgets.
 spawn-sh-at-startup "nohup ~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/turbostat-daemon.sh >/dev/null 2>&1 &"

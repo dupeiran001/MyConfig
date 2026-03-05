@@ -1,7 +1,11 @@
 @theme "adi1090x-drun.rasi"
 
 configuration {
-    kb-accept-entry: "Return";
+    /* Prevent input-method preedit from intercepting core editing keys */
+    imdkit: false;
+
+    kb-cancel: "Escape,Control+g,Control+bracketleft";
+    kb-accept-entry: "Return,KP_Enter";
     kb-mode-previous: "Control+h";
     kb-mode-next: "Control+l";
     kb-mode-complete: "";

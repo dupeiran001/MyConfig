@@ -1,19 +1,18 @@
-#!/bin/bash
-# This script copies desktop files to the local applications directory and updates the desktop database.
+#!/usr/bin/env bash
+# Install custom drun entries for rofi.
 
-# Set the source and destination directories
-SOURCE_DIR="$(dirname "$0")"
-DEST_DIR="$HOME/.local/share/applications"
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEST_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 
-# Create the destination directory if it doesn't exist
 mkdir -p "$DEST_DIR"
 
-# Copy all .desktop files from the source directory to the destination directory
 for file in "$SOURCE_DIR"/*.desktop; do
-  cp "$file" "$DEST_DIR"
+  [ -f "$file" ] || continue
+  install -m 0644 "$file" "$DEST_DIR/$(basename "$file")"
 done
 
-# Refresh the desktop database
-update-desktop-database "$DEST_DIR"
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database "$DEST_DIR" >/dev/null 2>&1 || true
+fi
 
-echo "Desktop entries installed and database updated."
+echo "Installed custom desktop entries to $DEST_DIR"

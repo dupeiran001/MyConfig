@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OBS Studio
+GenericName=Streaming/Recording Software
+Comment=Free and Open Source Streaming/Recording Software
+Exec=env QT_QPA_PLATFORM=xcb LIBVA_DRIVER_NAME=disabled LIBVA_DRIVERS_PATH=/home/dpr/.config/obs-studio/no-libva-drivers obs
+Icon=com.obsproject.Studio
+Terminal=false
+StartupNotify=true
+StartupWMClass=obs
+Categories=AudioVideo;Recorder;
