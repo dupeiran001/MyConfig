@@ -86,117 +86,113 @@ find_gpu_power_file() {
   GPU_POWER_FILE=""
   GPU_VENDOR_LABEL=""
   GPU_BUS_ID=""
-  GPU_READ_CMD=""
-  local has_discrete_gpu=false
-  local dev class boot
-  for dev in /sys/bus/pci/devices/*; do
-    [[ -f "$dev/class" ]] || continue
-    class=$(<"$dev/class")
-    [[ "$class" == 0x03* ]] || continue
-    boot="0"
-    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
-    if [[ "$boot" != "1" ]]; then
-      has_discrete_gpu=true
-      break
-    fi
-  done
+  GPU_READ_CMD=()
 
-  # Pass 1: check PCI devices directly
-  for dev in /sys/bus/pci/devices/*; do
-    [[ -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    local vendor class boot
-    vendor=$(<"$dev/vendor")
-    class=$(<"$dev/class")
-    # GPU/3D classes start with 0x03
-    [[ "$class" == 0x03* ]] || continue
-    boot="0"
-    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
-    if $has_discrete_gpu && [[ "$boot" == "1" ]]; then
-      continue
-    fi
-    local vname=""
-    for entry in "${GPU_VENDOR_NAMES[@]}"; do
-      if [[ "$entry" == "${vendor}:"* ]]; then
-        vname=${entry#*:}
-        break
-      fi
-    done
-    [[ -n "$vname" ]] || continue
-    if [[ "$vendor" == "0x8086" ]]; then
-      if [[ "$boot" == "1" ]]; then
-        vname="Intel iGPU"
-      else
-        vname="Intel Arc"
-      fi
-    fi
-    GPU_VENDOR_LABEL="$vname"
-    GPU_BUS_ID="${dev##*/}"
-    for hwmon in "$dev"/hwmon/hwmon*; do
-      [[ -d "$hwmon" ]] || continue
-      for f in power1_average power1_input; do
-        if [[ -r "$hwmon/$f" ]]; then
-          GPU_POWER_FILE="$hwmon/$f"
-          log_debug "gpu_detected vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} path=${GPU_POWER_FILE}"
+  gpu_power_file_for_device() {
+    local dev="$1" hw f devpath
+    for hw in "$dev"/hwmon/hwmon*; do
+      [[ -d "$hw" ]] || continue
+      for f in "$hw/power1_average" "$hw/power1_input"; do
+        if [[ -r "$f" ]]; then
+          echo "$f"
           return 0
         fi
       done
     done
-    # NVIDIA often lacks hwmon; fall back to nvidia-smi if present
-    if [[ "$vendor" == "0x10de" ]] && command -v nvidia-smi >/dev/null 2>&1; then
-      GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
-      log_debug "gpu_detected vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} using=nvidia-smi bus=${GPU_BUS_ID}"
-      return 0
-    fi
-  done
-  # Pass 2: some drivers expose hwmon without the direct pci->hwmon path; check all hwmon entries
-  for hw in /sys/class/hwmon/hwmon*; do
-    [[ -d "$hw" ]] || continue
-    local devpath
-    devpath=$(readlink -f "$hw/device" 2>/dev/null || true)
-    [[ -n "$devpath" && -f "$devpath/vendor" && -f "$devpath/class" ]] || continue
-    local vendor class vname="" boot
-    vendor=$(<"$devpath/vendor")
-    class=$(<"$devpath/class")
+    # Some drivers expose power only via /sys/class/hwmon symlinks.
+    for hw in /sys/class/hwmon/hwmon*; do
+      [[ -d "$hw" ]] || continue
+      devpath=$(readlink -f "$hw/device" 2>/dev/null || true)
+      [[ "$devpath" == "$dev" ]] || continue
+      for f in "$hw/power1_average" "$hw/power1_input"; do
+        if [[ -r "$f" ]]; then
+          echo "$f"
+          return 0
+        fi
+      done
+    done
+    return 1
+  }
+
+  local best_rank=999
+  local best_boot=-1
+  local best_label="" best_bus="" best_file=""
+  local -a best_cmd=()
+  local dev
+
+  for dev in /sys/bus/pci/devices/*; do
+    [[ -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class boot bus rank label power_file
+    local -a cmd=()
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
     [[ "$class" == 0x03* ]] || continue
+    bus="${dev##*/}"
     boot="0"
-    [[ -r "$devpath/boot_vga" ]] && boot=$(<"$devpath/boot_vga")
-    if $has_discrete_gpu && [[ "$boot" == "1" ]]; then
+    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
+
+    case "$vendor" in
+      0x1002)
+        label="AMD"
+        rank=1
+        ;;
+      0x10de)
+        label="NVIDIA"
+        rank=1
+        ;;
+      0x8086)
+        # Treat integrated Intel GPU as fallback; prefer ARC dGPU.
+        if [[ "$bus" == 0000:00:02.* ]]; then
+          label="Intel iGPU"
+          rank=4
+        else
+          label="ARC"
+          rank=2
+        fi
+        ;;
+      *)
+        continue
+        ;;
+    esac
+
+    power_file=$(gpu_power_file_for_device "$dev" || true)
+    if [[ -n "$power_file" ]]; then
+      :
+    elif [[ "$vendor" == "0x10de" ]] && command -v nvidia-smi >/dev/null 2>&1; then
+      # Prefer hwmon; NVML is fallback.
+      cmd=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
+      (( rank += 1 ))
+    else
       continue
     fi
-    for entry in "${GPU_VENDOR_NAMES[@]}"; do
-      if [[ "$entry" == "${vendor}:"* ]]; then
-        vname=${entry#*:}
-        break
-      fi
-    done
-    [[ -n "$vname" ]] || continue
-    if [[ "$vendor" == "0x8086" ]]; then
-      if [[ "$boot" == "1" ]]; then
-        vname="Intel iGPU"
-      else
-        vname="Intel Arc"
-      fi
+
+    if (( rank < best_rank )) || { (( rank == best_rank )) && (( boot > best_boot )); }; then
+      best_rank=$rank
+      best_boot=$boot
+      best_label="$label"
+      best_bus="$bus"
+      best_file="$power_file"
+      best_cmd=("${cmd[@]}")
     fi
-    for f in "$hw"/power1_average "$hw"/power1_input; do
-      if [[ -r "$f" ]]; then
-        GPU_POWER_FILE="$f"
-        GPU_VENDOR_LABEL="$vname"
-        GPU_BUS_ID="${devpath##*/}"
-        log_debug "gpu_detected_hwmon vendor=${vendor} label=${GPU_VENDOR_LABEL} class=${class} path=${GPU_POWER_FILE}"
-        return 0
-      fi
-    done
   done
-  # Fall back to NVIDIA userspace query only when NVIDIA GPU nodes are present.
-  # Avoid spawning `nvidia-smi --list-gpus` on every Waybar poll.
-  if command -v nvidia-smi >/dev/null 2>&1; then
-    if [[ -d /proc/driver/nvidia/gpus ]] && compgen -G "/proc/driver/nvidia/gpus/*" >/dev/null; then
-      GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
-      GPU_VENDOR_LABEL="NVIDIA"
-      log_debug "gpu_fallback_nvml cmd=${GPU_READ_CMD[*]}"
-      return 0
-    fi
+
+  if [[ -n "$best_label" && ( -n "$best_file" || -n "${best_cmd[*]:-}" ) ]]; then
+    GPU_VENDOR_LABEL="$best_label"
+    GPU_BUS_ID="$best_bus"
+    GPU_POWER_FILE="$best_file"
+    GPU_READ_CMD=("${best_cmd[@]}")
+    log_debug "gpu_selected label=${GPU_VENDOR_LABEL} bus=${GPU_BUS_ID} file=${GPU_POWER_FILE:-none} cmd=${GPU_READ_CMD[*]:-none} rank=${best_rank}"
+    return 0
   fi
+
+  # Last-resort NVIDIA fallback.
+  if command -v nvidia-smi >/dev/null 2>&1 && [[ -d /proc/driver/nvidia/gpus ]] && compgen -G "/proc/driver/nvidia/gpus/*" >/dev/null; then
+    GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
+    GPU_VENDOR_LABEL="NVIDIA"
+    log_debug "gpu_fallback_nvml cmd=${GPU_READ_CMD[*]}"
+    return 0
+  fi
+
   log_debug "gpu_not_found"
 }
 

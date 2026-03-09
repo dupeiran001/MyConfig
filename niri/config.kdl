@@ -107,6 +107,8 @@ output "HDMI-A-3"{
   position x=2560 y=0
 }
 
+
+
 output "DP-1" {
   mode "2560x1440@59.951"
   scale 1
@@ -117,6 +119,26 @@ output "DP-2" {
   mode "2560x1440@59.951"
   scale 1
   position x=0 y=0
+}
+
+// for lab pc hdmi using igpu
+output "HDMI-A-2"{
+  mode "2560x1440@59.951"
+  scale 1.0
+  position x=2560 y=0
+}
+
+// labpc mini dp using w5700
+output "DP-5" {
+  mode "2560x1440@59.951"
+  scale 1
+  position x=0 y=0
+}
+
+output "DP-6" {
+  mode "2560x1440@59.951"
+  scale 1
+  position x=5120 y=0
 }
 
 

@@ -12,6 +12,12 @@ IGPU_DAEMON="$HOME/.config/waybar/scripts/intel-gpu-top-daemon.sh"
 IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
 IGPU_USAGE_PATH_CACHE="/tmp/igpu-usage-path.${UID_SAFE}.cache"
 IGPU_RC6_PATH_CACHE="/tmp/igpu-rc6-path.${UID_SAFE}.cache"
+AMD_GPU_USAGE_PATH_CACHE="/tmp/amd-gpu-usage-path.${UID_SAFE}.cache"
+FREQ_SOURCE_MODE="${AVG_CPU_FREQ_SOURCE:-auto}"  # auto|cpufreq|bzy
+
+if [[ "$FREQ_SOURCE_MODE" != "auto" && "$FREQ_SOURCE_MODE" != "cpufreq" && "$FREQ_SOURCE_MODE" != "bzy" ]]; then
+  FREQ_SOURCE_MODE="auto"
+fi
 
 list_intel_gpu_devices() {
   local dev
@@ -29,6 +35,36 @@ list_intel_gpu_devices() {
       preferred+=("$dev")
     else
       fallback+=("$dev")
+    fi
+  done
+
+  if ((${#preferred[@]})); then
+    printf "%s\n" "${preferred[@]}"
+    return 0
+  fi
+  if ((${#fallback[@]})); then
+    printf "%s\n" "${fallback[@]}"
+    return 0
+  fi
+  return 1
+}
+
+list_amd_gpu_devices() {
+  local dev
+  local preferred=()
+  local fallback=()
+  for dev in /sys/class/drm/card*/device; do
+    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class boot
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    [[ "$vendor" == "0x1002" && "$class" == 0x03* ]] || continue
+    boot="0"
+    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
+    if [[ "$boot" == "1" ]]; then
+      fallback+=("$dev")
+    else
+      preferred+=("$dev")
     fi
   done
 
@@ -81,6 +117,37 @@ read_igpu_usage() {
   local f="$1" val
   if [[ -n "$f" ]] && val=$(<"$f"); then
     awk -v v="$val" 'BEGIN{if(v=="") print ""; else printf "%d", v+0}'
+    return 0
+  fi
+  return 1
+}
+
+find_amd_gpu_usage_file() {
+  local dev
+  if [[ -f "$AMD_GPU_USAGE_PATH_CACHE" ]]; then
+    local cached
+    cached=$(<"$AMD_GPU_USAGE_PATH_CACHE")
+    if [[ -n "$cached" && -r "$cached" ]]; then
+      echo "$cached"
+      return 0
+    fi
+  fi
+  while read -r dev; do
+    [[ -n "$dev" ]] || continue
+    if [[ -r "$dev/gpu_busy_percent" ]]; then
+      echo "$dev/gpu_busy_percent" > "${AMD_GPU_USAGE_PATH_CACHE}.new" || true
+      mv -f "${AMD_GPU_USAGE_PATH_CACHE}.new" "$AMD_GPU_USAGE_PATH_CACHE" 2>/dev/null || true
+      echo "$dev/gpu_busy_percent"
+      return 0
+    fi
+  done < <(list_amd_gpu_devices || true)
+  return 1
+}
+
+read_amd_gpu_usage() {
+  local f="$1" val
+  if [[ -n "$f" ]] && val=$(<"$f"); then
+    awk -v v="$val" 'BEGIN{if(v=="") print ""; if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}'
     return 0
   fi
   return 1
@@ -249,6 +316,17 @@ if [[ -f /sys/devices/system/cpu/cpu0/topology/core_type ]]; then
   have_core_type=true
 fi
 
+use_bzy_freq=false
+if [[ "$FREQ_SOURCE_MODE" == "bzy" ]]; then
+  use_bzy_freq=true
+elif [[ "$FREQ_SOURCE_MODE" == "auto" && "$have_core_type" == "true" ]]; then
+  # On hybrid CPUs, Bzy_MHz generally tracks active-core effective clock better.
+  use_bzy_freq=true
+fi
+
+freq_source_label="cpufreq"
+$use_bzy_freq && freq_source_label="turbostat(Bzy_MHz)"
+
 declare -A bzy_by_cpu
 if [[ -f "$CACHE_RAW" ]]; then
   while read -r cpu busy bzy; do
@@ -278,7 +356,7 @@ get_cpu_freq_khz() {
   max_khz=$(cat "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || echo 0)
   cur_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
 
-  if [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
+  if $use_bzy_freq && [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
     bzy_raw="${bzy_by_cpu[$cpu_num]}"
     bzy_khz=$(awk -v v="$bzy_raw" 'BEGIN{if(v=="" || v<0) print 0; else printf "%.0f", v*1000}')
     # If Bzy_MHz is clearly out of range for this core, fall back to cpufreq.
@@ -298,14 +376,21 @@ get_cpu_freq_khz() {
 
 IGPU_LABEL=""
 igpu_usage=""
-if igpu_file=$(find_igpu_usage_file); then
-  igpu_usage=$(read_igpu_usage "$igpu_file" || true)
-  IGPU_LABEL="iGPU"
-elif igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
-  :
-elif rc6_file=$(find_igpu_rc6_file); then
-  igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
-  IGPU_LABEL="RC6"
+if amd_gpu_file=$(find_amd_gpu_usage_file); then
+  igpu_usage=$(read_amd_gpu_usage "$amd_gpu_file" || true)
+  [[ -n "$igpu_usage" ]] && IGPU_LABEL="Gfx"
+fi
+
+if [[ -z "$igpu_usage" ]]; then
+  if igpu_file=$(find_igpu_usage_file); then
+    igpu_usage=$(read_igpu_usage "$igpu_file" || true)
+    IGPU_LABEL="iGPU"
+  elif igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
+    :
+  elif rc6_file=$(find_igpu_rc6_file); then
+    igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
+    IGPU_LABEL="RC6"
+  fi
 fi
 igpu_suffix=""
 if [[ -n "$igpu_usage" ]]; then
@@ -345,6 +430,7 @@ if $have_core_type; then
     ghz=$(awk "BEGIN {printf \"%.2f\", ${e_core_freqs[$i]} / 1000000}")
     tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
   done
+  tooltip="${tooltip}\nFreq source: ${freq_source_label}"
 
   text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
   printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
@@ -354,7 +440,7 @@ fi
 # Fallback: use cpuinfo_max_freq split when core_type is unavailable
 all_max_freqs=($(cat /sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq 2>/dev/null | sort -un))
 
-if [ ${#all_max_freqs[@]} -ge 2 ]; then
+if [ ${#all_max_freqs[@]} -eq 2 ] && awk -v lo="${all_max_freqs[0]}" -v hi="${all_max_freqs[1]}" 'BEGIN{exit (lo>0 && (hi/lo)>=1.20 ? 0 : 1)}'; then
   P_CORE_MAX_FREQ=${all_max_freqs[1]}
   E_CORE_MAX_FREQ=${all_max_freqs[0]}
 
@@ -390,6 +476,7 @@ if [ ${#all_max_freqs[@]} -ge 2 ]; then
     ghz=$(awk "BEGIN {printf \"%.2f\", ${e_core_freqs[$i]} / 1000000}")
     tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
   done
+  tooltip="${tooltip}\nFreq source: ${freq_source_label}"
 
   text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
   printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
@@ -404,5 +491,5 @@ for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
 done
 avg_all=$(calc_avg_khz "${all_freqs[@]}")
 text="Avg: ${avg_all} GHz${igpu_suffix}"
-tooltip="Average core frequency"
+tooltip="Average core frequency\nFreq source: ${freq_source_label}"
 printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"

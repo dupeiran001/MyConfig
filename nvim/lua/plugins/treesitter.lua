@@ -1,53 +1,86 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	lazy = true,
-	event = { "BufReadPre", "BufNewFile" },
+	branch = "main",
+	build = ":TSUpdate",
+	lazy = false,
 	opts = {
-		-- A list of parser names, or "all" (the listed parsers MUST always be installed)
-		ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "rust", "bash" },
-
-		-- Install parsers synchronously (only applied to `ensure_installed`)
-		sync_install = false,
-
-		-- Automatically install missing parsers when entering buffer
-		-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-		auto_install = true,
-
-		-- List of parsers to ignore installing (or "all")
-		ignore_install = {},
-
-		---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-		-- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
-
-		highlight = {
-			enable = true,
-
-			-- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-			-- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-			-- the name of the parser)
-			-- list of language that will be disabled
-			disable = {},
-			-- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
-			-- disable = function(lang, buf)
-			--     local max_filesize = 100 * 1024 -- 100 KB
-			--     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-			--     if ok and stats and stats.size > max_filesize then
-			--       return true
-			--     end
-			-- end,
-
-			-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-			-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-			-- Using this option may slow down your editor, and you may see some duplicate highlights.
-			-- Instead of true it can also be a list of languages
-			additional_vim_regex_highlighting = false,
-		},
-		indent = {
-			enable = true,
-		},
+		install_dir = vim.fn.stdpath("data") .. "/site",
 	},
 	config = function(_, opts)
-		require("nvim-treesitter.configs").setup(opts)
+		local ts = require("nvim-treesitter")
+		local ensure_installed = {
+			"c",
+			"lua",
+			"vim",
+			"vimdoc",
+			"query",
+			"markdown",
+			"markdown_inline",
+			"rust",
+			"bash",
+			"regex",
+			"norg",
+			"norg_meta",
+		}
+
+		local function register_neorg_parsers()
+			local parser_configs = require("nvim-treesitter.parsers")
+			parser_configs.norg = {
+				install_info = {
+					url = "https://github.com/nvim-neorg/tree-sitter-norg",
+					files = { "src/parser.c", "src/scanner.cc" },
+					revision = "6348056b999f06c2c7f43bb0a5aa7cfde5302712",
+					use_makefile = true,
+				},
+			}
+			parser_configs.norg_meta = {
+				install_info = {
+					url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
+					files = { "src/parser.c" },
+					revision = "a479d1ca05848d0b51dd25bc9f71a17e0108b240",
+					use_makefile = true,
+				},
+			}
+		end
+
+		local group = vim.api.nvim_create_augroup("UserTreesitterConfig", { clear = true })
+		vim.api.nvim_create_autocmd("User", {
+			group = group,
+			pattern = "TSUpdate",
+			callback = register_neorg_parsers,
+		})
+		register_neorg_parsers()
+
+		ts.setup(opts)
+
+		if vim.fn.executable("tree-sitter") == 1 then
+			local installed = ts.get_installed("parsers")
+			local missing = {}
+			for _, lang in ipairs(ensure_installed) do
+				if not vim.tbl_contains(installed, lang) then
+					table.insert(missing, lang)
+				end
+			end
+			if #missing > 0 then
+				ts.install(missing)
+			end
+		end
+
+		local ft_group = vim.api.nvim_create_augroup("UserTreesitterFileType", { clear = true })
+		vim.api.nvim_create_autocmd("FileType", {
+			group = ft_group,
+			callback = function(args)
+				local bufnr = args.buf
+				if vim.bo[bufnr].buftype ~= "" then
+					return
+				end
+
+				local ok = pcall(vim.treesitter.start, bufnr)
+				if ok then
+					vim.bo[bufnr].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				end
+			end,
+		})
 	end,
 	init = function()
 		vim.opt.smartindent = true -- make indenting smarter again

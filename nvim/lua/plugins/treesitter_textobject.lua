@@ -1,49 +1,35 @@
 return {
 	"nvim-treesitter/nvim-treesitter-textobjects",
+	branch = "main",
 	lazy = true,
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = "nvim-treesitter/nvim-treesitter",
 	opts = {
-		textobjects = {
-			select = {
-				enable = true,
-
-				-- Automatically jump forward to textobj, similar to targets.vim
-				lookahead = true,
-
-				keymaps = {
-					-- You can use the capture groups defined in textobjects.scm
-					["af"] = "@function.outer",
-					["if"] = "@function.inner",
-					["ac"] = "@class.outer",
-					["ic"] = "@class.inner",
-				},
-				-- You can choose the select mode (default is charwise 'v')
-				--
-				-- Can also be a function which gets passed a table with the keys
-				-- * query_string: eg '@function.inner'
-				-- * method: eg 'v' or 'o'
-				-- and should return the mode ('v', 'V', or '<c-v>') or a table
-				-- mapping query_strings to modes.
-				selection_modes = {
-					["@parameter.outer"] = "v", -- charwise
-					["@function.outer"] = "V", -- linewise
-					["@class.outer"] = "<c-v>", -- blockwise
-				},
-				-- If you set this to `true` (default is `false`) then any textobject is
-				-- extended to include preceding or succeeding whitespace. Succeeding
-				-- whitespace has priority in order to act similarly to eg the built-in
-				-- `ap`.
-				--
-				-- Can also be a function which gets passed a table with the keys
-				-- * query_string: eg '@function.inner'
-				-- * selection_mode: eg 'v'
-				-- and should return true or false
-				include_surrounding_whitespace = true,
+		select = {
+			lookahead = true,
+			selection_modes = {
+				["@parameter.outer"] = "v", -- charwise
+				["@function.outer"] = "V", -- linewise
+				["@class.outer"] = "<c-v>", -- blockwise
 			},
+			include_surrounding_whitespace = true,
 		},
 	},
 	config = function(_, opts)
-		require("nvim-treesitter.configs").setup(opts)
+		require("nvim-treesitter-textobjects").setup(opts)
+
+		local select = require("nvim-treesitter-textobjects.select")
+		local keymaps = {
+			af = "@function.outer",
+			["if"] = "@function.inner",
+			ac = "@class.outer",
+			ic = "@class.inner",
+		}
+
+		for lhs, query in pairs(keymaps) do
+			vim.keymap.set({ "x", "o" }, lhs, function()
+				select.select_textobject(query, "textobjects")
+			end, { desc = "Treesitter textobject" })
+		end
 	end,
 }

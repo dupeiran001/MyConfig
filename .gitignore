@@ -68,3 +68,10 @@ atuin/history.db-shm
 atuin/history.db-wal
 
 .local.sh
+
+# Fcitx runtime/cache/temp artifacts
+fcitx/dbus/
+fcitx5/conf/cached_layouts
+fcitx5/conf/*.conf_[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]
+fcitx5/config_[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]
+fcitx5/profile_[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]
