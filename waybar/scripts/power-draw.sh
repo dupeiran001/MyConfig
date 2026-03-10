@@ -84,45 +84,76 @@ read_battery_w() {
 
 find_gpu_power_file() {
   GPU_POWER_FILE=""
+  GPU_ENERGY_FILE=""
+  GPU_IS_DGPU="false"
   GPU_VENDOR_LABEL=""
   GPU_BUS_ID=""
   GPU_READ_CMD=()
 
-  gpu_power_file_for_device() {
-    local dev="$1" hw f devpath
+  gpu_hwmons_for_device() {
+    local dev="$1" hw devpath
     for hw in "$dev"/hwmon/hwmon*; do
       [[ -d "$hw" ]] || continue
-      for f in "$hw/power1_average" "$hw/power1_input"; do
-        if [[ -r "$f" ]]; then
-          echo "$f"
-          return 0
-        fi
-      done
+      echo "$hw"
     done
-    # Some drivers expose power only via /sys/class/hwmon symlinks.
+    # Some drivers expose sensors only via /sys/class/hwmon symlinks.
     for hw in /sys/class/hwmon/hwmon*; do
       [[ -d "$hw" ]] || continue
       devpath=$(readlink -f "$hw/device" 2>/dev/null || true)
       [[ "$devpath" == "$dev" ]] || continue
-      for f in "$hw/power1_average" "$hw/power1_input"; do
+      echo "$hw"
+    done
+  }
+
+  gpu_power_file_for_device() {
+    local dev="$1" hw f
+    while IFS= read -r hw; do
+      for f in "$hw"/power*_average "$hw"/power*_input; do
         if [[ -r "$f" ]]; then
           echo "$f"
           return 0
         fi
       done
-    done
+    done < <(gpu_hwmons_for_device "$dev")
+    return 1
+  }
+
+  gpu_energy_file_for_device() {
+    local dev="$1" hw f base label label_lc best_any=""
+    while IFS= read -r hw; do
+      for f in "$hw"/energy*_input; do
+        if [[ -r "$f" ]]; then
+          base="${f%_input}"
+          label=""
+          [[ -r "${base}_label" ]] && label=$(<"${base}_label")
+          label_lc="${label,,}"
+          # Prefer board/package rails when labels are provided.
+          case "$label_lc" in
+            card|pkg|package|gpu|gfx|total)
+              echo "$f"
+              return 0
+              ;;
+          esac
+          [[ -z "$best_any" ]] && best_any="$f"
+        fi
+      done
+    done < <(gpu_hwmons_for_device "$dev")
+    if [[ -n "$best_any" ]]; then
+      echo "$best_any"
+      return 0
+    fi
     return 1
   }
 
   local best_rank=999
   local best_boot=-1
-  local best_label="" best_bus="" best_file=""
+  local best_label="" best_bus="" best_file="" best_energy="" best_is_dgpu="false"
   local -a best_cmd=()
   local dev
 
   for dev in /sys/bus/pci/devices/*; do
     [[ -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    local vendor class boot bus rank label power_file
+    local vendor class boot bus rank label power_file energy_file is_dgpu
     local -a cmd=()
     vendor=$(<"$dev/vendor")
     class=$(<"$dev/class")
@@ -135,19 +166,23 @@ find_gpu_power_file() {
       0x1002)
         label="AMD"
         rank=1
+        is_dgpu=true
         ;;
       0x10de)
         label="NVIDIA"
         rank=1
+        is_dgpu=true
         ;;
       0x8086)
         # Treat integrated Intel GPU as fallback; prefer ARC dGPU.
         if [[ "$bus" == 0000:00:02.* ]]; then
           label="Intel iGPU"
           rank=4
+          is_dgpu=false
         else
           label="ARC"
           rank=2
+          is_dgpu=true
         fi
         ;;
       *)
@@ -156,8 +191,18 @@ find_gpu_power_file() {
     esac
 
     power_file=$(gpu_power_file_for_device "$dev" || true)
+    energy_file=""
     if [[ -n "$power_file" ]]; then
       :
+    else
+      energy_file=$(gpu_energy_file_for_device "$dev" || true)
+    fi
+
+    if [[ -n "$power_file" ]]; then
+      :
+    elif [[ -n "$energy_file" ]]; then
+      # Slightly lower confidence than direct power input.
+      (( rank += 1 ))
     elif [[ "$vendor" == "0x10de" ]] && command -v nvidia-smi >/dev/null 2>&1; then
       # Prefer hwmon; NVML is fallback.
       cmd=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
@@ -172,16 +217,20 @@ find_gpu_power_file() {
       best_label="$label"
       best_bus="$bus"
       best_file="$power_file"
+      best_energy="$energy_file"
+      best_is_dgpu="$is_dgpu"
       best_cmd=("${cmd[@]}")
     fi
   done
 
-  if [[ -n "$best_label" && ( -n "$best_file" || -n "${best_cmd[*]:-}" ) ]]; then
+  if [[ -n "$best_label" && ( -n "$best_file" || -n "$best_energy" || -n "${best_cmd[*]:-}" ) ]]; then
     GPU_VENDOR_LABEL="$best_label"
     GPU_BUS_ID="$best_bus"
     GPU_POWER_FILE="$best_file"
+    GPU_ENERGY_FILE="$best_energy"
+    GPU_IS_DGPU="$best_is_dgpu"
     GPU_READ_CMD=("${best_cmd[@]}")
-    log_debug "gpu_selected label=${GPU_VENDOR_LABEL} bus=${GPU_BUS_ID} file=${GPU_POWER_FILE:-none} cmd=${GPU_READ_CMD[*]:-none} rank=${best_rank}"
+    log_debug "gpu_selected label=${GPU_VENDOR_LABEL} bus=${GPU_BUS_ID} dgpu=${GPU_IS_DGPU} file=${GPU_POWER_FILE:-none} energy=${GPU_ENERGY_FILE:-none} cmd=${GPU_READ_CMD[*]:-none} rank=${best_rank}"
     return 0
   fi
 
@@ -189,6 +238,7 @@ find_gpu_power_file() {
   if command -v nvidia-smi >/dev/null 2>&1 && [[ -d /proc/driver/nvidia/gpus ]] && compgen -G "/proc/driver/nvidia/gpus/*" >/dev/null; then
     GPU_READ_CMD=(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits -i 0)
     GPU_VENDOR_LABEL="NVIDIA"
+    GPU_IS_DGPU="true"
     log_debug "gpu_fallback_nvml cmd=${GPU_READ_CMD[*]}"
     return 0
   fi
@@ -197,24 +247,43 @@ find_gpu_power_file() {
 }
 
 read_gpu_w() {
+  GPU_W="0.00"
   if [[ -n "${GPU_POWER_FILE:-}" ]]; then
     local uw
     if uw=$(<"$GPU_POWER_FILE"); then
-      awk -v uw="$uw" 'BEGIN{printf "%.2f", uw/1000000.0}'
+      GPU_W=$(awk -v uw="$uw" 'BEGIN{printf "%.2f", uw/1000000.0}')
       return 0
     fi
     log_debug "gpu_read_failed path=${GPU_POWER_FILE}"
+  elif [[ -n "${GPU_ENERGY_FILE:-}" ]]; then
+    local e pe de
+    if e=$(<"$GPU_ENERGY_FILE"); then
+      # Persist this sensor in the shared cache so next run can compute delta watts.
+      CUR_E["$GPU_ENERGY_FILE"]="$e"
+      CUR_M["$GPU_ENERGY_FILE"]="18446744073709551615"
+      CUR_G["$GPU_ENERGY_FILE"]="gpu"
+      if [[ "$PREV_TS" -gt 0 && -n "${PREV_E[$GPU_ENERGY_FILE]:-}" && "$dt" != "n/a" ]]; then
+        pe="${PREV_E[$GPU_ENERGY_FILE]}"
+        de=$(( e - pe ))
+        (( de < 0 )) && de=0
+        GPU_W=$(awk -v de="$de" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+      else
+        GPU_W="0.00"
+      fi
+      return 0
+    fi
+    log_debug "gpu_read_failed energy_path=${GPU_ENERGY_FILE}"
   elif [[ -n "${GPU_READ_CMD[*]:-}" ]]; then
     local val
     if val=$("${GPU_READ_CMD[@]}" 2>/dev/null | head -n1); then
       # nvidia-smi returns watts already
       val=${val%% *}
-      awk -v w="$val" 'BEGIN{if(w!="") printf "%.2f", w; else print "0.00"}'
+      GPU_W=$(awk -v w="$val" 'BEGIN{if(w!="") printf "%.2f", w; else print "0.00"}')
       return 0
     fi
     log_debug "gpu_read_failed cmd=${GPU_READ_CMD[*]}"
   fi
-  echo "0.00"
+  GPU_W="0.00"
   return 1
 }
 
@@ -382,9 +451,10 @@ fi
 find_gpu_power_file
 gpu_present=false
 gpu_w="0.00"
-if [[ -n "${GPU_POWER_FILE:-}" || -n "${GPU_READ_CMD[*]:-}" ]]; then
+if [[ -n "${GPU_POWER_FILE:-}" || -n "${GPU_ENERGY_FILE:-}" || -n "${GPU_READ_CMD[*]:-}" ]]; then
   gpu_present=true
-  gpu_w=$(read_gpu_w)
+  read_gpu_w
+  gpu_w="${GPU_W:-0.00}"
 fi
 
 if ((${#IGPU_PATHS[@]})); then
@@ -429,12 +499,15 @@ tooltip_prefix=""
 if $has_battery; then
   text_prefix="${icon} ${battery_w} W"
   tooltip_prefix="Battery (${status}): ${battery_w} W"
-elif $gpu_present; then
+elif [[ "${GPU_IS_DGPU:-false}" == "true" ]] && $gpu_present; then
   text_prefix="${JSON_ICON_GPU} ${GPU_VENDOR_LABEL:-GPU} ${gpu_w} W"
   tooltip_prefix="${GPU_VENDOR_LABEL:-GPU}: ${gpu_w} W"
 elif $igpu_power_present; then
   text_prefix="iGPU ${igpu_w} W"
   tooltip_prefix="iGPU Power: ${igpu_w} W"
+elif $gpu_present; then
+  text_prefix="Gfx ${gpu_w} W"
+  tooltip_prefix="${GPU_VENDOR_LABEL:-Gfx}: ${gpu_w} W"
 else
   t_gfx=""
   if [[ -f "$TSTAT_SUMMARY" ]]; then
@@ -463,5 +536,5 @@ psys_display="$psys_effective_w"
 # On first run (no previous cache), pkg_w/psys_w will be 0.00 — that’s expected.
 text="${text_prefix} | CPU ${pkg_display} W | ${psys_label} ${psys_display} W"
 tooltip="${tooltip_prefix}\nCPU Package: ${pkg_display} W\n${psys_label}: ${psys_display} W"
-log_debug "metrics dt=${dt} pkg_uj=${pkg_uj} psys_uj=${psys_uj} pkg_w=${pkg_w} pkg_present=${pkg_present} psys_w=${psys_w} psys_present=${psys_present} psys_effective_w=${psys_effective_w} battery_w=${battery_w} battery_status=${status} gpu_present=${gpu_present} gpu_w=${gpu_w} gpu_path=${GPU_POWER_FILE:-none}"
+log_debug "metrics dt=${dt} pkg_uj=${pkg_uj} psys_uj=${psys_uj} pkg_w=${pkg_w} pkg_present=${pkg_present} psys_w=${psys_w} psys_present=${psys_present} psys_effective_w=${psys_effective_w} battery_w=${battery_w} battery_status=${status} gpu_present=${gpu_present} gpu_w=${gpu_w} gpu_path=${GPU_POWER_FILE:-none} gpu_energy_path=${GPU_ENERGY_FILE:-none}"
 printf '{"text":"%s","tooltip":"%s"}\n' "$text" "$tooltip"
