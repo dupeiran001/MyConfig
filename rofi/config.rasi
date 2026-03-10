@@ -14,5 +14,6 @@ configuration {
     kb-remove-char-back: "BackSpace,Shift+BackSpace";
     kb-remove-to-eol: ""; /* Unbind Control+k from remove-to-eol */
     show-icons: true;
+    sorting-method: "fzf";
     case-sensitive: false;
 }

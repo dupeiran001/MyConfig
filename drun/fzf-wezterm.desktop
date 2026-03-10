@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=FZF (WezTerm)
+Comment=Open fzf in WezTerm
+Exec=wezterm -e fzf
+Path=/home/dpr
+Type=Application
+Terminal=false
+Icon=utilities-terminal
+Categories=Utility;
+Keywords=fzf;search;terminal;
