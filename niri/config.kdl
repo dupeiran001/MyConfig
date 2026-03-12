@@ -330,6 +330,12 @@ spawn-sh-at-startup "sleep 1 && wl-paste -t text --watch clipman store --no-pers
 
 spawn-at-startup "fcitx5" "-d"
 
+// Environment variables
+environment {
+    // for dolphin open with
+    XDG_MENU_PREFIX "plasma-"
+}
+
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
