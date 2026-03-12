@@ -89,15 +89,6 @@ output "DP-3" {
     position x=0 y=0
 }
 
-// Samsung monitor (DP-4)
-// Setting to 1440p to get ~60Hz, as 4K@60Hz is not available.
-// This should fix the lag.
-output "DP-4" {
-    //mode "2560x1440@59.951"
-    scale 1.0
-    position x=2560 y=0
-}
-
 
 // for lab pc output from B580
 // for samsung 4k hdmi
@@ -122,9 +113,9 @@ output "DP-2" {
 }
 
 // for lab pc hdmi using igpu
-output "HDMI-A-2"{
-  mode "2560x1440@59.951"
-  scale 1.0
+output "DP-4"{
+  mode "3840x2160@60"
+  scale 1.5
   position x=2560 y=0
 }
 
