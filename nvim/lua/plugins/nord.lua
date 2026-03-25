@@ -29,7 +29,9 @@ return {
 
 		--- You can override specific highlights to use other groups or a hex color
 		--- function will be called with a Highlights and ColorScheme table
-		on_highlights = function(highlights, colors) end,
+		on_highlights = function(highlights, colors)
+			highlights.LspInlayHint = { fg = "#616E88", bg = "#3B4252", italic = true }
+		end,
 
 		--- You can override specific color groups to use other groups or a hex color
 		--- function will be called with a ColorScheme table

@@ -25,6 +25,13 @@ return {
 				},
 				opts = { skip = true },
 			},
+			{
+				filter = {
+					event = "notify",
+					find = "osc52",
+				},
+				opts = { skip = true },
+			},
 		},
 		views = {
 			cmdline_popup = {
