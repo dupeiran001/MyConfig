@@ -9,7 +9,7 @@ animations {
     }
 
     window-open {
-        duration-ms 260
+        duration-ms 180
         // close to a polished macOS-style ease-out feel
         curve "cubic-bezier" 0.22 1.0 0.36 1.0
 
@@ -128,7 +128,7 @@ animations {
 
     overview-open-close {
         // Overview should feel smooth and premium, not springy/bouncy.
-        spring damping-ratio=1.0 stiffness=620 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
     }
 
     recent-windows-close {
