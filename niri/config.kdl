@@ -34,7 +34,7 @@ input {
     // All commented-out settings here are examples, not defaults.
     touchpad {
         // off
-        tap
+        // tap
         // dwt
         // dwtp
         // drag false
@@ -81,9 +81,9 @@ input {
 
 // Built-in display
 output "eDP-1" {
-    mode "1920x1200@60.026"
-    scale 1.25
-    position x=5120 y=0
+    mode "2880x1864@59.999"
+    scale 1.5
+    position x=0 y=0
 }
 
 
@@ -310,7 +310,7 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh waybar"
+spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/launch-waybar.sh"
 
 // Keep custom rofi drun entries available in rofi -show drun.
 spawn-sh-at-startup "~/.config/drun/install.sh >/dev/null 2>&1"

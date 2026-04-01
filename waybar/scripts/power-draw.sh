@@ -5,7 +5,14 @@
 set -uo pipefail
 
 # ---------- config ----------
-BAT_DIR="/sys/class/power_supply/BAT0"
+# Detect battery path: prefer BAT0, fall back to macsmc-battery (Apple Silicon)
+if [[ -d "/sys/class/power_supply/BAT0" ]]; then
+  BAT_DIR="/sys/class/power_supply/BAT0"
+elif [[ -d "/sys/class/power_supply/macsmc-battery" ]]; then
+  BAT_DIR="/sys/class/power_supply/macsmc-battery"
+else
+  BAT_DIR=""
+fi
 POWERCAP="/sys/class/powercap"
 CACHE="/tmp/power-draw.${SUDO_UID:-$UID}.cache"
 LOG="/tmp/power-draw-debug.${SUDO_UID:-$UID}.log"
@@ -79,7 +86,7 @@ read_battery_w() {
       uw=$(( (iuw * vuv) / 1000000 ))
     fi
   fi
-  awk -v uw="$uw" 'BEGIN{printf "%.2f", (uw<0?-uw:uw)/1000000.0}'
+  awk -v uw="$uw" 'BEGIN{printf "%4.1f", (uw<0?-uw:uw)/1000000.0}'
 }
 
 find_gpu_power_file() {
@@ -247,11 +254,11 @@ find_gpu_power_file() {
 }
 
 read_gpu_w() {
-  GPU_W="0.00"
+  GPU_W=" 0.0"
   if [[ -n "${GPU_POWER_FILE:-}" ]]; then
     local uw
     if uw=$(<"$GPU_POWER_FILE"); then
-      GPU_W=$(awk -v uw="$uw" 'BEGIN{printf "%.2f", uw/1000000.0}')
+      GPU_W=$(awk -v uw="$uw" 'BEGIN{printf "%4.1f", uw/1000000.0}')
       return 0
     fi
     log_debug "gpu_read_failed path=${GPU_POWER_FILE}"
@@ -266,9 +273,9 @@ read_gpu_w() {
         pe="${PREV_E[$GPU_ENERGY_FILE]}"
         de=$(( e - pe ))
         (( de < 0 )) && de=0
-        GPU_W=$(awk -v de="$de" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+        GPU_W=$(awk -v de="$de" -v dt="$dt" 'BEGIN{if(dt>0) printf "%4.1f", (de/1e6)/dt; else print " 0.0"}')
       else
-        GPU_W="0.00"
+        GPU_W=" 0.0"
       fi
       return 0
     fi
@@ -278,12 +285,12 @@ read_gpu_w() {
     if val=$("${GPU_READ_CMD[@]}" 2>/dev/null | head -n1); then
       # nvidia-smi returns watts already
       val=${val%% *}
-      GPU_W=$(awk -v w="$val" 'BEGIN{if(w!="") printf "%.2f", w; else print "0.00"}')
+      GPU_W=$(awk -v w="$val" 'BEGIN{if(w!="") printf "%4.1f", w; else print " 0.0"}')
       return 0
     fi
     log_debug "gpu_read_failed cmd=${GPU_READ_CMD[*]}"
   fi
-  GPU_W="0.00"
+  GPU_W=" 0.0"
   return 1
 }
 
@@ -430,31 +437,31 @@ for p in "${PSYS_PATHS[@]}"; do accumulate_path "psys" "$p"; done
 for p in "${IGPU_PATHS[@]}"; do accumulate_path "igpu" "$p"; done
 
 # ---------- compute watts (if we have a previous timestamp) ----------
-pkg_w="0.00"
-psys_w="0.00"
-igpu_w="0.00"
+pkg_w=" 0.0"
+psys_w=" 0.0"
+igpu_w=" 0.0"
 dt="n/a"
 if [[ "$PREV_TS" -gt 0 ]]; then
   # dt in seconds with 9 decimal places
   dt=$(awk -v a="$TS" -v b="$PREV_TS" 'BEGIN{printf "%.9f", (a-b)/1e9}')
   # µJ / s = µW → /1e6 = W
-  pkg_w=$(awk -v de="$pkg_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+  pkg_w=$(awk -v de="$pkg_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%4.1f", (de/1e6)/dt; else print " 0.0"}')
   if ((${#PSYS_PATHS[@]})); then
-    psys_w=$(awk -v de="$psys_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+    psys_w=$(awk -v de="$psys_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%4.1f", (de/1e6)/dt; else print " 0.0"}')
   fi
   if ((${#IGPU_PATHS[@]})); then
-    igpu_w=$(awk -v de="$igpu_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", (de/1e6)/dt; else print "0.00"}')
+    igpu_w=$(awk -v de="$igpu_uj" -v dt="$dt" 'BEGIN{if(dt>0) printf "%4.1f", (de/1e6)/dt; else print " 0.0"}')
   fi
 fi
 
 # ---------- dGPU power (if present) ----------
 find_gpu_power_file
 gpu_present=false
-gpu_w="0.00"
+gpu_w=" 0.0"
 if [[ -n "${GPU_POWER_FILE:-}" || -n "${GPU_ENERGY_FILE:-}" || -n "${GPU_READ_CMD[*]:-}" ]]; then
   gpu_present=true
   read_gpu_w
-  gpu_w="${GPU_W:-0.00}"
+  gpu_w="${GPU_W:- 0.0}"
 fi
 
 if ((${#IGPU_PATHS[@]})); then
@@ -472,9 +479,9 @@ mv -f "${CACHE}.new" "$CACHE" 2>/dev/null || log_debug "cache_move_failed"
 
 # ---------- battery + JSON output ----------
 has_battery=false
-[[ -d "$BAT_DIR" ]] && has_battery=true
+[[ -n "$BAT_DIR" && -d "$BAT_DIR" ]] && has_battery=true
 
-battery_w="0.00"
+battery_w=" 0.0"
 status="Unknown"; icon="$JSON_ICON_BATT"
 if $has_battery; then
   battery_w=$(read_battery_w)
@@ -522,6 +529,30 @@ else
   fi
 fi
 
+# ---------- Apple Silicon fallback via macsmc_hwmon sensors ----------
+if [[ $pkg_present == false || $psys_present == false ]]; then
+  _macsmc_cache=""
+  _read_macsmc() {
+    [[ -z "$_macsmc_cache" ]] && _macsmc_cache=$(sensors 2>/dev/null)
+    echo "$_macsmc_cache"
+  }
+  if [[ $pkg_present == false ]]; then
+    _soc_w=$(_read_macsmc | awk '/Heatpipe Power:/{printf "%4.1f", $3}')
+    if [[ -n "$_soc_w" && "$_soc_w" != " 0.0" ]]; then
+      pkg_w="$_soc_w"
+      pkg_present=true
+    fi
+  fi
+  if [[ $psys_present == false ]]; then
+    _sys_w=$(_read_macsmc | awk '/Total System Power:/{printf "%4.1f", $4}')
+    if [[ -n "$_sys_w" && "$_sys_w" != " 0.0" ]]; then
+      psys_effective_w="$_sys_w"
+      psys_present=true
+      psys_label="SYS"
+    fi
+  fi
+fi
+
 pkg_display="$pkg_w"
 if [[ -f "$TSTAT_SUMMARY" ]]; then
   t_pkg=$(awk -F= '/^pkg=/{print $2}' "$TSTAT_SUMMARY" 2>/dev/null || echo "")
@@ -529,9 +560,9 @@ if [[ -f "$TSTAT_SUMMARY" ]]; then
     pkg_display="$t_pkg"
   fi
 fi
-[[ "$pkg_display" == "0.00" && $pkg_present == false ]] && pkg_display="N/A"
+[[ "$pkg_display" == " 0.0" && $pkg_present == false ]] && pkg_display=" N/A"
 psys_display="$psys_effective_w"
-[[ $psys_present == false ]] && psys_display="N/A"
+[[ $psys_present == false ]] && psys_display=" N/A"
 
 # On first run (no previous cache), pkg_w/psys_w will be 0.00 — that’s expected.
 text="${text_prefix} | CPU ${pkg_display} W | ${psys_label} ${psys_display} W"

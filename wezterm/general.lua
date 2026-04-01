@@ -7,7 +7,7 @@ local function is_niri()
 end
 
 if is_niri() then
-  M.window_decorations = "RESIZE"
+  M.window_decorations = "NONE"
 end
 
 return M

@@ -1,8 +1,8 @@
 {
+  "include": ["~/.config/waybar/generated.jsonc"],
   "layer": "top",
   "position": "top",
-   "height": 24, // Uncomment to set a fixed height
-  // Note: The layout may break if height is greater than 24
+  // height is set dynamically in generated.jsonc
   "mode": "dock",
   "reload_style_on_change": true,
   "gtk-layer-shell": true,
@@ -32,7 +32,7 @@
     "custom/leftin1",
 
     "custom/left5",
-    "idle_inhibitor",       // distro icon
+    "custom/distro",        // distro icon or notch spacer
     "custom/right2",
 
     "custom/rightin1",
@@ -206,7 +206,10 @@
     "exec": "~/.config/waybar/scripts/avg-cpu-freq.sh",
     "return-type": "json",
     "tooltip": true,
-    "interval": 5
+    "interval": 5,
+    "min-length": 29,
+    "max-length": 29,
+    "align": 1.0
   },
 
   "custom/cpuinfo": {
@@ -243,13 +246,12 @@
     "max-length": 6
   },
 
-  "idle_inhibitor": {
-    "format": " ",
-    "tooltip": true,
-    "tooltip-format-activated": "Presentation Mode",
-    "tooltip-format-deactivated": "Idle Mode",
-    "start-activated": false,
-    "timeout": 5
+  "custom/distro": {
+    "exec": "~/.config/waybar/scripts/distro-icon.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false,
+    "interval": "once"
   },
 
   "clock#time": {
@@ -343,7 +345,10 @@
     "exec": "~/.config/waybar/scripts/power-draw.sh",
     "return-type": "json",
     "tooltip": true,
-    "interval": 10
+    "interval": 10,
+    "min-length": 34,
+    "max-length": 34,
+    "align": 0.0
   },
 
   "custom/media": {
@@ -462,8 +467,11 @@
     "tooltip": false
   },
   "custom/left5": {
-    "format": "",
-    "tooltip": false
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false,
+    "interval": "once"
   },
   "custom/left6": {
     "format": "",
@@ -485,8 +493,11 @@
     "tooltip": false
   },
   "custom/right2": {
-    "format": "",
-    "tooltip": false
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false,
+    "interval": "once"
   },
   "custom/right3": {
     "format": "",
@@ -504,8 +515,11 @@
   // == Left Inverse ==
 
   "custom/leftin1": {
-    "format": "",
-    "tooltip": false
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false,
+    "interval": "once"
   },
   "custom/leftin2": {
     "format": "",
@@ -515,7 +529,10 @@
   // == Right Inverse ==
 
   "custom/rightin1": {
-    "format": "",
-    "tooltip": false
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": false,
+    "interval": "once"
   }
 }

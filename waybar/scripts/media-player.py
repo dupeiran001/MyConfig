@@ -14,6 +14,12 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 
+# Skip media display on Apple Silicon (saves space on notch bar)
+if os.path.exists("/proc/cmdline"):
+  with open("/proc/cmdline") as f:
+    if "appledrm.show_notch=1" in f.read():
+      sys.exit(0)
+
 def signal_handler(sig, frame):
   # Handle termination signals gracefully.
   logger.info("Received signal to stop, exiting")

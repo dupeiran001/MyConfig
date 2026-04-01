@@ -14,6 +14,16 @@ get_cpu_temperature() {
   if [[ -z "$temp" ]]; then
     temp=$(sensors | awk '/Tctl/ {print $2}' | tr -d '+°C')
   fi
+  # Apple Silicon: use SoC heatpipe temp from macsmc
+  if [[ -z "$temp" ]]; then
+    temp=$(sensors | awk '/Charge Regulator Temp/ {print $4}' | tr -d '+°C')
+  fi
+  if [[ -z "$temp" ]]; then
+    # fallback to thermal zone
+    local tz
+    tz=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null)
+    [[ -n "$tz" ]] && temp=$(awk -v t="$tz" 'BEGIN{printf "%.0f", t/1000}')
+  fi
   if [[ -z "$temp" ]]; then
     temp="N/A"
   else

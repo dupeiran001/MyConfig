@@ -10,25 +10,31 @@ CACHE_SUMMARY="/tmp/turbostat-waybar.${UID_SAFE}.summary"
 PIDFILE="/tmp/turbostat-waybar.${UID_SAFE}.pid"
 DAEMON="$HOME/.config/waybar/scripts/turbostat-daemon.sh"
 
-start_daemon() {
-  [[ -x "$DAEMON" ]] || return 0
-  nohup "$DAEMON" >/dev/null 2>&1 &
-}
+# Only attempt turbostat on machines where it exists
+if command -v turbostat >/dev/null 2>&1; then
+  start_daemon() {
+    [[ -x "$DAEMON" ]] || return 0
+    nohup "$DAEMON" >/dev/null 2>&1 &
+  }
 
-running=false
-if [[ -f "$PIDFILE" ]]; then
-  if pid=$(cat "$PIDFILE" 2>/dev/null) && kill -0 "$pid" 2>/dev/null; then
-    running=true
+  running=false
+  if [[ -f "$PIDFILE" ]]; then
+    if pid=$(cat "$PIDFILE" 2>/dev/null) && kill -0 "$pid" 2>/dev/null; then
+      running=true
+    fi
+  fi
+  if ! $running; then
+    start_daemon
   fi
 fi
-if ! $running; then
-  start_daemon
-fi
 
-# Prefer turbostat Busy% if available, else fall back to vmstat
+# Prefer turbostat Busy% if available, else fall back to /proc/loadavg, then vmstat
 load=""
 if [[ -f "$CACHE_SUMMARY" ]]; then
   load=$(awk -F= '/^busy=/{print $2}' "$CACHE_SUMMARY" 2>/dev/null || echo "")
+fi
+if [[ -z "$load" ]]; then
+  load=$(awk -v n="$(nproc)" '{printf "%.1f", ($1/n)*100}' /proc/loadavg 2>/dev/null)
 fi
 if [[ -z "$load" ]]; then
   load=$(vmstat 1 2 | tail -1 | awk '{print 100 - $15}')
