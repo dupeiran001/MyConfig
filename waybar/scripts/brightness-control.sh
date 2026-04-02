@@ -10,6 +10,18 @@ Valid actions are:
 EOF
 }
 
+# Sync keyboard backlight linearly with screen brightness (min ~5%)
+sync_kbd_backlight() {
+  if [ -e /sys/class/leds/kbd_backlight ]; then
+    local screen_pct
+    screen_pct=$(brightnessctl -m | head -n1 | awk -F',' '{gsub(/%/,"",$4); print $4}')
+    local kbd_min=12  # barely visible
+    local kbd_max=255
+    local kbd_val=$(( kbd_min + (kbd_max - kbd_min) * screen_pct / 100 ))
+    brightnessctl --device=kbd_backlight set "$kbd_val" >/dev/null 2>&1
+  fi
+}
+
 # Send a notification with brightness info
 send_notification() {
   brightness=$(brightnessctl info | grep -oP "(?<=\()\d+(?=%)")
@@ -36,7 +48,7 @@ while getopts o: opt; do
       else
         brightnessctl set +2%
       fi
-      send_notification
+      sync_kbd_backlight
       ;;
     d) # Decrease brightness
       if [[ $brightness -le 1 ]]; then
@@ -46,7 +58,7 @@ while getopts o: opt; do
       else
         brightnessctl set 2%-
       fi
-      send_notification
+      sync_kbd_backlight
       ;;
     *)
       print_error

@@ -104,8 +104,6 @@ shift $((OPTIND - 1))
 case "${1}" in
 i) action_volume i ;;
 d) action_volume d ;;
-m) pactl set-sink-mute @DEFAULT_SINK@ toggle && notify_mute && exit 0 ;;
+m) pactl set-sink-mute @DEFAULT_SINK@ toggle && exit 0 ;;
 *) print_error ;;
 esac
-
-send_notification

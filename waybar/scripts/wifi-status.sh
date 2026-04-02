@@ -95,10 +95,11 @@ else
   phy_mode=""
   signal=$(echo "$wifi_info" | awk -F: '{print $3}')
 
-  active_device=$(nmcli -t -f DEVICE,STATE device status |
+  active_device=$(nmcli -t -f DEVICE,TYPE,STATE device status |
     grep -w "connected" |
-    grep -v -E "^(dummy|lo:)" |
-    awk -F: '{print $1}')
+    grep ":wifi:" |
+    awk -F: '{print $1}' |
+    head -n1)
 
   if [ -n "$active_device" ]; then
     output=$(nmcli -e no -g ip4.address,ip4.gateway,general.hwaddr device show "$active_device")

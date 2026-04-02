@@ -19,7 +19,7 @@ case "$im" in
     echo '{"text":"中","tooltip":"Rime","class":"fcitx-cn"}'
     ;;
   keyboard*)
-    echo '{"text":"EN","tooltip":"English","class":"fcitx-en"}'
+    echo '{"text":"󰀬","tooltip":"English","class":"fcitx-en"}'
     ;;
   "")
     echo '{"text":"?","tooltip":"No input method","class":"fcitx-unknown"}'

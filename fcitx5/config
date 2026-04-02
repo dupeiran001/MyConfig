@@ -8,7 +8,7 @@ EnumerateForwardKeys=
 # Enumerate Input Method Backward
 EnumerateBackwardKeys=
 # Skip first input method while enumerating
-EnumerateSkipFirst=True
+EnumerateSkipFirst=False
 # Time limit in milliseconds for triggering modifier key shortcuts
 ModifierOnlyKeyTimeout=250
 
@@ -46,9 +46,9 @@ ModifierOnlyKeyTimeout=250
 # Active By Default
 ActiveByDefault=True
 # Reset state on Focus In
-resetStateWhenFocusIn=Program
+resetStateWhenFocusIn=All
 # Share Input State
-ShareInputState=Program
+ShareInputState=No
 # Show preedit in application
 PreeditEnabledByDefault=True
 # Show Input Method Information when switch input method

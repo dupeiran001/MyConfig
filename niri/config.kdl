@@ -35,15 +35,16 @@ input {
     touchpad {
         // off
         // tap
-        // dwt
-        // dwtp
-        // drag false
+        dwt       // disable while typing
+        dwtp      // disable while trackpointing
+        drag false  // no tap-and-drag to avoid accidental drags
         // drag-lock
         natural-scroll
         accel-speed 0.1
         // accel-profile "flat"
         // scroll-method "two-finger"
         // disabled-on-external-mouse
+        click-method "clickfinger"  // ignore edge zones, use finger count for buttons
     }
 
     mouse {
@@ -340,6 +341,11 @@ spawn-at-startup "fcitx5" "-d"
 environment {
     // for dolphin open with
     XDG_MENU_PREFIX "plasma-"
+
+    // fcitx5 input method
+    XMODIFIERS "@im=fcitx"
+    GTK_IM_MODULE "fcitx"
+    QT_IM_MODULE "fcitx"
 }
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
@@ -387,7 +393,8 @@ window-rule {
     // since this is the default config, and we want no false positives.
     // You can get away with just app-id="wezterm" if you want.
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 1.0; }
 }
 
 // Open the Firefox picture-in-picture player as floating by default.
@@ -416,6 +423,10 @@ window-rule {
 window-rule {
     geometry-corner-radius 3
     clip-to-geometry true
+}
+
+switch-events {
+    lid-close { spawn "bash" "-c" "swaylock -f; sleep 1; systemctl suspend"; }
 }
 
 binds {
@@ -456,8 +467,8 @@ binds {
     // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
     // but you need to manually put each argument in separate "" quotes.
-    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/brightness-control.sh -o i"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "~/.config/waybar/scripts/brightness-control.sh -o d"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,

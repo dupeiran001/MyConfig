@@ -12,11 +12,11 @@ get_cpu_frequency() {
 get_cpu_temperature() {
   temp=$(sensors | awk '/Package id 0/ {print $4}' | awk -F '[+.]' '{print $2}')
   if [[ -z "$temp" ]]; then
-    temp=$(sensors | awk '/Tctl/ {print $2}' | tr -d '+°C')
+    temp=$(sensors | awk '/Tctl/ {print $2}' | tr -d '+°C' | awk -F. '{print $1}')
   fi
   # Apple Silicon: use SoC heatpipe temp from macsmc
   if [[ -z "$temp" ]]; then
-    temp=$(sensors | awk '/Charge Regulator Temp/ {print $4}' | tr -d '+°C')
+    temp=$(sensors | awk '/Charge Regulator Temp/ {print $4}' | tr -d '+°C' | awk -F. '{print $1}')
   fi
   if [[ -z "$temp" ]]; then
     # fallback to thermal zone

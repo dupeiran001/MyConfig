@@ -2,7 +2,12 @@
 
 set -uo pipefail
 
+# === Platform detection cache ===
+# All expensive detection (core topology, GPU, daemons) runs once at init.
+# Subsequent calls only read sysfs frequencies and format output.
+
 UID_SAFE="${SUDO_UID:-$UID}"
+INIT_CACHE="/tmp/avg-cpu-freq-init.${UID_SAFE}.cache"
 CACHE_RAW="/tmp/turbostat-waybar.${UID_SAFE}.raw"
 PIDFILE="/tmp/turbostat-waybar.${UID_SAFE}.pid"
 DAEMON="$HOME/.config/waybar/scripts/turbostat-daemon.sh"
@@ -10,486 +15,290 @@ IGPU_JSON="/tmp/intel-gpu-top.${UID_SAFE}.json"
 IGPU_PIDFILE="/tmp/intel-gpu-top.${UID_SAFE}.pid"
 IGPU_DAEMON="$HOME/.config/waybar/scripts/intel-gpu-top-daemon.sh"
 IGPU_RC6_CACHE="/tmp/igpu-rc6.${UID_SAFE}.cache"
-IGPU_USAGE_PATH_CACHE="/tmp/igpu-usage-path.${UID_SAFE}.cache"
-IGPU_RC6_PATH_CACHE="/tmp/igpu-rc6-path.${UID_SAFE}.cache"
-AMD_GPU_USAGE_PATH_CACHE="/tmp/amd-gpu-usage-path.${UID_SAFE}.cache"
-FREQ_SOURCE_MODE="${AVG_CPU_FREQ_SOURCE:-auto}"  # auto|cpufreq|bzy
+FREQ_SOURCE_MODE="${AVG_CPU_FREQ_SOURCE:-auto}"
 
 if [[ "$FREQ_SOURCE_MODE" != "auto" && "$FREQ_SOURCE_MODE" != "cpufreq" && "$FREQ_SOURCE_MODE" != "bzy" ]]; then
   FREQ_SOURCE_MODE="auto"
 fi
 
-list_intel_gpu_devices() {
-  local dev
-  local preferred=()
-  local fallback=()
-  for dev in /sys/class/drm/card*/device; do
-    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    local vendor class boot
-    vendor=$(<"$dev/vendor")
-    class=$(<"$dev/class")
-    [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
-    boot="0"
-    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
-    if [[ "$boot" == "1" ]]; then
-      preferred+=("$dev")
-    else
-      fallback+=("$dev")
-    fi
-  done
+# ---------------------------------------------------------------
+# Init: detect platform capabilities, write cache, start daemons
+# ---------------------------------------------------------------
+do_init() {
+  local have_core_type=false
+  [[ -f /sys/devices/system/cpu/cpu0/topology/core_type ]] && have_core_type=true
 
-  if ((${#preferred[@]})); then
-    printf "%s\n" "${preferred[@]}"
-    return 0
+  local use_bzy=false
+  if [[ "$FREQ_SOURCE_MODE" == "bzy" ]]; then
+    use_bzy=true
+  elif [[ "$FREQ_SOURCE_MODE" == "auto" && "$have_core_type" == "true" ]]; then
+    use_bzy=true
   fi
-  if ((${#fallback[@]})); then
-    printf "%s\n" "${fallback[@]}"
-    return 0
-  fi
-  return 1
-}
 
-list_amd_gpu_devices() {
-  local dev
-  local preferred=()
-  local fallback=()
-  for dev in /sys/class/drm/card*/device; do
-    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
-    local vendor class boot
-    vendor=$(<"$dev/vendor")
-    class=$(<"$dev/class")
-    [[ "$vendor" == "0x1002" && "$class" == 0x03* ]] || continue
-    boot="0"
-    [[ -r "$dev/boot_vga" ]] && boot=$(<"$dev/boot_vga")
-    if [[ "$boot" == "1" ]]; then
-      fallback+=("$dev")
-    else
-      preferred+=("$dev")
-    fi
-  done
+  local freq_label="cpufreq"
+  $use_bzy && freq_label="turbostat(Bzy_MHz)"
 
-  if ((${#preferred[@]})); then
-    printf "%s\n" "${preferred[@]}"
-    return 0
-  fi
-  if ((${#fallback[@]})); then
-    printf "%s\n" "${fallback[@]}"
-    return 0
-  fi
-  return 1
-}
+  # Detect mode and classify CPUs
+  local mode="" p_cpus="" e_cpus="" p_max=0 e_max=0
 
-start_daemon() {
-  [[ -x "$DAEMON" ]] || return 0
-  nohup "$DAEMON" >/dev/null 2>&1 &
-}
-
-start_igpu_daemon() {
-  [[ -x "$IGPU_DAEMON" ]] || return 0
-  nohup "$IGPU_DAEMON" >/dev/null 2>&1 &
-}
-
-find_igpu_usage_file() {
-  local dev
-  if [[ -f "$IGPU_USAGE_PATH_CACHE" ]]; then
-    local cached
-    cached=$(<"$IGPU_USAGE_PATH_CACHE")
-    if [[ -n "$cached" && -r "$cached" ]]; then
-      echo "$cached"
-      return 0
-    fi
-  fi
-  while read -r dev; do
-    [[ -n "$dev" ]] || continue
-    for f in gpu_busy_percent gt_busy_percent; do
-      if [[ -r "$dev/$f" ]]; then
-        echo "$dev/$f" > "${IGPU_USAGE_PATH_CACHE}.new" || true
-        mv -f "${IGPU_USAGE_PATH_CACHE}.new" "$IGPU_USAGE_PATH_CACHE" 2>/dev/null || true
-        echo "$dev/$f"
-        return 0
+  if $have_core_type; then
+    mode="core_type"
+    for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
+      local num="${cpu_dir##*/cpu}" ct=""
+      read ct < "$cpu_dir/topology/core_type" 2>/dev/null || ct=""
+      if [[ "$ct" == "1" ]]; then
+        p_cpus="${p_cpus:+$p_cpus }$num"
+      elif [[ "$ct" == "0" ]]; then
+        e_cpus="${e_cpus:+$e_cpus }$num"
       fi
     done
-  done < <(list_intel_gpu_devices || true)
-  return 1
-}
-
-read_igpu_usage() {
-  local f="$1" val
-  if [[ -n "$f" ]] && val=$(<"$f"); then
-    awk -v v="$val" 'BEGIN{if(v=="") print ""; else printf "%d", v+0}'
-    return 0
+  else
+    # Check for hybrid via max_freq split (≥1.2x ratio)
+    local all_max
+    all_max=($(cat /sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq 2>/dev/null | sort -un))
+    if [[ ${#all_max[@]} -eq 2 ]] && (( all_max[0] > 0 && all_max[1] * 100 / all_max[0] >= 120 )); then
+      mode="max_freq_split"
+      p_max=${all_max[1]}
+      e_max=${all_max[0]}
+      for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
+        local num="${cpu_dir##*/cpu}" mf=0
+        read mf < "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || mf=0
+        if [[ "$mf" -eq "$p_max" ]]; then
+          p_cpus="${p_cpus:+$p_cpus }$num"
+        elif [[ "$mf" -eq "$e_max" ]]; then
+          e_cpus="${e_cpus:+$e_cpus }$num"
+        fi
+      done
+    else
+      mode="uniform"
+      for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
+        local num="${cpu_dir##*/cpu}"
+        p_cpus="${p_cpus:+$p_cpus }$num"
+      done
+    fi
   fi
-  return 1
-}
 
-find_amd_gpu_usage_file() {
+  # Detect GPU
+  local gpu_type="none" gpu_file=""
+  # AMD GPU
   local dev
-  if [[ -f "$AMD_GPU_USAGE_PATH_CACHE" ]]; then
-    local cached
-    cached=$(<"$AMD_GPU_USAGE_PATH_CACHE")
-    if [[ -n "$cached" && -r "$cached" ]]; then
-      echo "$cached"
-      return 0
+  for dev in /sys/class/drm/card*/device; do
+    [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+    local vendor class
+    vendor=$(<"$dev/vendor")
+    class=$(<"$dev/class")
+    if [[ "$vendor" == "0x1002" && "$class" == 0x03* && -r "$dev/gpu_busy_percent" ]]; then
+      gpu_type="amd"
+      gpu_file="$dev/gpu_busy_percent"
+      break
     fi
+  done
+  # Intel GPU (sysfs)
+  if [[ "$gpu_type" == "none" ]]; then
+    for dev in /sys/class/drm/card*/device; do
+      [[ -d "$dev" && -f "$dev/vendor" && -f "$dev/class" ]] || continue
+      local vendor class
+      vendor=$(<"$dev/vendor")
+      class=$(<"$dev/class")
+      [[ "$vendor" == "0x8086" && "$class" == 0x03* ]] || continue
+      for f in gpu_busy_percent gt_busy_percent; do
+        if [[ -r "$dev/$f" ]]; then
+          gpu_type="igpu_sysfs"
+          gpu_file="$dev/$f"
+          break 2
+        fi
+      done
+      # RC6 fallback
+      local card="${dev%/device}"
+      if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
+        gpu_type="igpu_rc6"
+        gpu_file="$card/gt/gt0/rc6_residency_ms"
+        break
+      fi
+    done
   fi
-  while read -r dev; do
-    [[ -n "$dev" ]] || continue
-    if [[ -r "$dev/gpu_busy_percent" ]]; then
-      echo "$dev/gpu_busy_percent" > "${AMD_GPU_USAGE_PATH_CACHE}.new" || true
-      mv -f "${AMD_GPU_USAGE_PATH_CACHE}.new" "$AMD_GPU_USAGE_PATH_CACHE" 2>/dev/null || true
-      echo "$dev/gpu_busy_percent"
-      return 0
+  # intel_gpu_top JSON fallback
+  if [[ "$gpu_type" == "none" && -f "$IGPU_JSON" ]]; then
+    gpu_type="igpu_top"
+    gpu_file="$IGPU_JSON"
+  fi
+
+  # Start daemons if applicable
+  if [[ -x "$DAEMON" ]]; then
+    local running=false
+    if [[ -f "$PIDFILE" ]]; then
+      local pid
+      pid=$(<"$PIDFILE") 2>/dev/null && kill -0 "$pid" 2>/dev/null && running=true
     fi
-  done < <(list_amd_gpu_devices || true)
-  return 1
+    $running || nohup "$DAEMON" >/dev/null 2>&1 &
+  fi
+  if [[ "$gpu_type" == "igpu_top" || "$gpu_type" == "none" ]] && [[ -x "$IGPU_DAEMON" ]]; then
+    local running=false
+    if [[ -f "$IGPU_PIDFILE" ]]; then
+      local pid
+      pid=$(<"$IGPU_PIDFILE") 2>/dev/null && kill -0 "$pid" 2>/dev/null && running=true
+    fi
+    $running || nohup "$IGPU_DAEMON" >/dev/null 2>&1 &
+  fi
+
+  # Write cache
+  cat > "$INIT_CACHE" <<CACHE
+MODE=$mode
+USE_BZY=$use_bzy
+FREQ_LABEL=$freq_label
+P_CPUS="$p_cpus"
+E_CPUS="$e_cpus"
+P_MAX=$p_max
+E_MAX=$e_max
+GPU_TYPE=$gpu_type
+GPU_FILE=$gpu_file
+CACHE
 }
 
-read_amd_gpu_usage() {
-  local f="$1" val
-  if [[ -n "$f" ]] && val=$(<"$f"); then
-    awk -v v="$val" 'BEGIN{if(v=="") print ""; if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}'
-    return 0
-  fi
-  return 1
+# ---------------------------------------------------------------
+# Hot path helpers (pure bash, zero subprocesses)
+# ---------------------------------------------------------------
+khz_to_ghz() {
+  local khz="$1"
+  local i=$(( khz / 1000000 ))
+  local f=$(( (khz % 1000000) / 10000 ))
+  printf "%d.%02d" "$i" "$f"
 }
 
-find_igpu_rc6_file() {
-  local card dev
-  if [[ -f "$IGPU_RC6_PATH_CACHE" ]]; then
-    local cached
-    cached=$(<"$IGPU_RC6_PATH_CACHE")
-    if [[ -n "$cached" && -r "$cached" ]]; then
-      echo "$cached"
-      return 0
-    fi
-  fi
-  while read -r dev; do
-    [[ -n "$dev" ]] || continue
-    card="${dev%/device}"
-    if [[ -r "$card/gt/gt0/rc6_residency_ms" ]]; then
-      echo "$card/gt/gt0/rc6_residency_ms" > "${IGPU_RC6_PATH_CACHE}.new" || true
-      mv -f "${IGPU_RC6_PATH_CACHE}.new" "$IGPU_RC6_PATH_CACHE" 2>/dev/null || true
-      echo "$card/gt/gt0/rc6_residency_ms"
-      return 0
-    fi
-  done < <(list_intel_gpu_devices || true)
-  return 1
-}
-
-read_igpu_usage_rc6() {
-  # Usage ~= 100 - (delta_rc6 / delta_time * 100)
-  local rc6_file="$1" now rc6 prev_ts prev_rc6 dt_ms drc6 busy
-  now=$(date +%s%N 2>/dev/null || printf "0")
-  if ! rc6=$(<"$rc6_file"); then
-    echo ""
-    return 1
-  fi
-  prev_ts=0
-  prev_rc6=0
-  if [[ -f "$IGPU_RC6_CACHE" ]]; then
-    IFS=$'\t' read -r prev_ts prev_rc6 < "$IGPU_RC6_CACHE" || true
-  fi
-  printf "%s\t%s\n" "$now" "$rc6" > "${IGPU_RC6_CACHE}.new" || true
-  mv -f "${IGPU_RC6_CACHE}.new" "$IGPU_RC6_CACHE" 2>/dev/null || true
-  if [[ "$prev_ts" -gt 0 ]]; then
-    dt_ms=$(awk -v a="$now" -v b="$prev_ts" 'BEGIN{printf "%.3f", (a-b)/1e6}')
-    drc6=$(( rc6 - prev_rc6 ))
-    busy=$(awk -v drc6="$drc6" -v dt="$dt_ms" 'BEGIN{if(dt>0){v=100-(drc6/dt*100); if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}else print ""}')
-    echo "$busy"
-    return 0
-  fi
-  echo ""
-  return 0
-}
-
-get_igpu_usage_from_intel_gpu_top() {
-  local json="$IGPU_JSON" rc6 render busy
-  [[ -f "$json" ]] || return 1
-
-  json_find_num() {
-    local pattern="$1"
-    if command -v jq >/dev/null 2>&1; then
-      jq -r '
-        def numval:
-          if type=="number" then .
-          elif type=="object" then (.value // .percent // .percentage // empty)
-          else empty end;
-        [.. | objects | to_entries[] | select(.key|ascii_downcase|test($pat)) | .value | numval]
-        | first // empty
-      ' --arg pat "$pattern" "$json" 2>/dev/null || echo ""
-      return 0
-    fi
-    if command -v python3 >/dev/null 2>&1; then
-      python3 - "$json" "$pattern" <<'PY' 2>/dev/null || true
-import json
-import re
-import sys
-
-path = sys.argv[1]
-pat = re.compile(sys.argv[2], re.IGNORECASE)
-
-with open(path, "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-def numval(val):
-    if isinstance(val, (int, float)):
-        return val
-    if isinstance(val, dict):
-        for k in ("value", "percent", "percentage"):
-            v = val.get(k)
-            if isinstance(v, (int, float)):
-                return v
-    return None
-
-def walk(obj):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            if pat.search(str(k)):
-                nv = numval(v)
-                if nv is not None:
-                    return nv
-            nv = walk(v)
-            if nv is not None:
-                return nv
-    elif isinstance(obj, list):
-        for v in obj:
-            nv = walk(v)
-            if nv is not None:
-                return nv
-    return None
-
-nv = walk(data)
-if nv is not None:
-    print(nv)
-PY
-      return 0
-    fi
-    echo ""
-    return 0
-  }
-
-  busy=$(json_find_num "busy|util")
-  if [[ -n "$busy" ]]; then
-    IGPU_LABEL="iGPU"
-    busy=$(awk -v v="$busy" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
-    echo "$busy"
-    return 0
-  fi
-
-  render=$(json_find_num "render|rcs")
-  if [[ -n "$render" ]]; then
-    IGPU_LABEL="Render"
-    render=$(awk -v v="$render" 'BEGIN{if(v<0)v=0; if(v>100)v=100; printf "%d", v+0}')
-    echo "$render"
-    return 0
-  fi
-
-  rc6=$(json_find_num "rc6")
-  [[ -n "$rc6" ]] || return 1
-  IGPU_LABEL="RC6"
-  rc6=$(awk -v r="$rc6" 'BEGIN{u=100-r; if(u<0)u=0; if(u>100)u=100; printf "%d", u+0}')
-  echo "$rc6"
-}
-
-running=false
-if [[ -f "$PIDFILE" ]]; then
-  if pid=$(cat "$PIDFILE" 2>/dev/null) && kill -0 "$pid" 2>/dev/null; then
-    running=true
-  fi
+# ---------------------------------------------------------------
+# Init if needed
+# ---------------------------------------------------------------
+if [[ ! -f "$INIT_CACHE" ]]; then
+  do_init
 fi
-if ! $running; then
-  start_daemon
-fi
+source "$INIT_CACHE"
 
-igpu_running=false
-if [[ -f "$IGPU_PIDFILE" ]]; then
-  if pid=$(cat "$IGPU_PIDFILE" 2>/dev/null) && kill -0 "$pid" 2>/dev/null; then
-    igpu_running=true
-  fi
-fi
-if ! $igpu_running; then
-  start_igpu_daemon
-fi
+# ---------------------------------------------------------------
+# Hot path: read frequencies, compute averages, output JSON
+# ---------------------------------------------------------------
 
-have_core_type=false
-if [[ -f /sys/devices/system/cpu/cpu0/topology/core_type ]]; then
-  have_core_type=true
-fi
-
-use_bzy_freq=false
-if [[ "$FREQ_SOURCE_MODE" == "bzy" ]]; then
-  use_bzy_freq=true
-elif [[ "$FREQ_SOURCE_MODE" == "auto" && "$have_core_type" == "true" ]]; then
-  # On hybrid CPUs, Bzy_MHz generally tracks active-core effective clock better.
-  use_bzy_freq=true
-fi
-
-freq_source_label="cpufreq"
-$use_bzy_freq && freq_source_label="turbostat(Bzy_MHz)"
-
+# Read turbostat Bzy_MHz cache if using bzy mode
 declare -A bzy_by_cpu
-if [[ -f "$CACHE_RAW" ]]; then
+if [[ "$USE_BZY" == "true" && -f "$CACHE_RAW" ]]; then
   while read -r cpu busy bzy; do
     [[ "$cpu" =~ ^[0-9]+$ ]] || continue
     bzy_by_cpu["$cpu"]="$bzy"
   done < "$CACHE_RAW"
 fi
 
-calc_avg_khz() {
-  local total=0 count=0
-  for v in "$@"; do
-    total=$((total + v))
-    count=$((count + 1))
-  done
-  if (( count == 0 )); then
-    echo "N/A"
-    return
-  fi
-  local avg=$((total / count))
-  awk "BEGIN {printf \"%.2f\", $avg / 1000000}"
-}
-
-get_cpu_freq_khz() {
-  local cpu_dir="$1"
-  local cpu_num="$2"
-  local bzy_raw bzy_khz max_khz cur_khz
-  max_khz=$(cat "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || echo 0)
-  cur_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
-
-  if $use_bzy_freq && [[ -n "${bzy_by_cpu[$cpu_num]:-}" ]]; then
-    bzy_raw="${bzy_by_cpu[$cpu_num]}"
-    bzy_khz=$(awk -v v="$bzy_raw" 'BEGIN{if(v=="" || v<0) print 0; else printf "%.0f", v*1000}')
-    # If Bzy_MHz is clearly out of range for this core, fall back to cpufreq.
-    if [[ "$max_khz" -gt 0 ]]; then
-      if awk -v b="$bzy_khz" -v m="$max_khz" 'BEGIN{exit (b > (m * 1.15) ? 0 : 1)}'; then
-        echo "$cur_khz"
-      else
-        echo "$bzy_khz"
-      fi
+# Read frequency for one CPU (no subprocesses)
+read_freq() {
+  local num="$1"
+  local dir="/sys/devices/system/cpu/cpu${num}/cpufreq"
+  local cur=0 max=0
+  read cur < "$dir/scaling_cur_freq" 2>/dev/null || cur=0
+  if [[ "$USE_BZY" == "true" && -n "${bzy_by_cpu[$num]:-}" ]]; then
+    local bzy_raw="${bzy_by_cpu[$num]}"
+    local bzy_khz="${bzy_raw%%.*}"
+    [[ -z "$bzy_khz" || "$bzy_khz" -lt 0 ]] 2>/dev/null && bzy_khz=0
+    bzy_khz=$(( bzy_khz * 1000 ))
+    read max < "$dir/cpuinfo_max_freq" 2>/dev/null || max=0
+    if [[ "$max" -gt 0 && "$bzy_khz" -gt $(( max * 115 / 100 )) ]]; then
+      REPLY=$cur
     else
-      echo "$bzy_khz"
+      REPLY=$bzy_khz
     fi
   else
-    echo "$cur_khz"
+    REPLY=$cur
   fi
 }
 
-IGPU_LABEL=""
-igpu_usage=""
-if amd_gpu_file=$(find_amd_gpu_usage_file); then
-  igpu_usage=$(read_amd_gpu_usage "$amd_gpu_file" || true)
-  [[ -n "$igpu_usage" ]] && IGPU_LABEL="Gfx"
-fi
-
-if [[ -z "$igpu_usage" ]]; then
-  if igpu_file=$(find_igpu_usage_file); then
-    igpu_usage=$(read_igpu_usage "$igpu_file" || true)
-    IGPU_LABEL="iGPU"
-  elif igpu_usage=$(get_igpu_usage_from_intel_gpu_top); then
-    :
-  elif rc6_file=$(find_igpu_rc6_file); then
-    igpu_usage=$(read_igpu_usage_rc6 "$rc6_file" || true)
-    IGPU_LABEL="RC6"
-  fi
-fi
+# GPU suffix
 igpu_suffix=""
-if [[ -n "$igpu_usage" ]]; then
-  igpu_suffix=" | ${IGPU_LABEL:-iGPU} ${igpu_usage}%"
-fi
-
-if $have_core_type; then
-  p_core_freqs=()
-  e_core_freqs=()
-  p_core_indices=()
-  e_core_indices=()
-
-  for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
-    cpu_num=$(basename "$cpu_dir" | sed 's/cpu//')
-    core_type=$(cat "$cpu_dir/topology/core_type" 2>/dev/null || echo "")
-    current_khz=$(get_cpu_freq_khz "$cpu_dir" "$cpu_num")
-
-    if [[ "$core_type" == "1" ]]; then
-      p_core_freqs+=("$current_khz")
-      p_core_indices+=("$cpu_num")
-    elif [[ "$core_type" == "0" ]]; then
-      e_core_freqs+=("$current_khz")
-      e_core_indices+=("$cpu_num")
+case "$GPU_TYPE" in
+  amd|igpu_sysfs)
+    val=""
+    read val < "$GPU_FILE" 2>/dev/null || val=""
+    if [[ -n "$val" ]]; then
+      label="iGPU"
+      [[ "$GPU_TYPE" == "amd" ]] && label="Gfx"
+      igpu_suffix=" | $label ${val}%"
     fi
-  done
-
-  p_core_avg=$(calc_avg_khz "${p_core_freqs[@]}")
-  e_core_avg=$(calc_avg_khz "${e_core_freqs[@]}")
-
-  tooltip="P-Cores:\n"
-  for i in "${!p_core_indices[@]}"; do
-    ghz=$(awk "BEGIN {printf \"%.2f\", ${p_core_freqs[$i]} / 1000000}")
-    tooltip="${tooltip}Core ${p_core_indices[$i]}: ${ghz} GHz\n"
-  done
-  tooltip="${tooltip}\nE-Cores:\n"
-  for i in "${!e_core_indices[@]}"; do
-    ghz=$(awk "BEGIN {printf \"%.2f\", ${e_core_freqs[$i]} / 1000000}")
-    tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
-  done
-  tooltip="${tooltip}\nFreq source: ${freq_source_label}"
-
-  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
-  printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
-  exit 0
-fi
-
-# Fallback: use cpuinfo_max_freq split when core_type is unavailable
-all_max_freqs=($(cat /sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq 2>/dev/null | sort -un))
-
-if [ ${#all_max_freqs[@]} -eq 2 ] && awk -v lo="${all_max_freqs[0]}" -v hi="${all_max_freqs[1]}" 'BEGIN{exit (lo>0 && (hi/lo)>=1.20 ? 0 : 1)}'; then
-  P_CORE_MAX_FREQ=${all_max_freqs[1]}
-  E_CORE_MAX_FREQ=${all_max_freqs[0]}
-
-  p_core_freqs=()
-  e_core_freqs=()
-  p_core_indices=()
-  e_core_indices=()
-
-  for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
-    cpu_num=$(basename "$cpu_dir" | sed 's/cpu//')
-    max_freq=$(cat "$cpu_dir/cpufreq/cpuinfo_max_freq" 2>/dev/null || echo 0)
-    current_khz=$(get_cpu_freq_khz "$cpu_dir" "$cpu_num")
-
-    if [ "$max_freq" -eq "$P_CORE_MAX_FREQ" ]; then
-      p_core_freqs+=("$current_khz")
-      p_core_indices+=("$cpu_num")
-    elif [ "$max_freq" -eq "$E_CORE_MAX_FREQ" ]; then
-      e_core_freqs+=("$current_khz")
-      e_core_indices+=("$cpu_num")
+    ;;
+  igpu_rc6)
+    # Delta-based RC6 usage
+    now=$(date +%s%N 2>/dev/null || printf "0")
+    rc6=""
+    read rc6 < "$GPU_FILE" 2>/dev/null || rc6=""
+    if [[ -n "$rc6" ]]; then
+      prev_ts=0 prev_rc6=0
+      if [[ -f "$IGPU_RC6_CACHE" ]]; then
+        IFS=$'\t' read -r prev_ts prev_rc6 < "$IGPU_RC6_CACHE" || true
+      fi
+      printf "%s\t%s\n" "$now" "$rc6" > "${IGPU_RC6_CACHE}.new" 2>/dev/null
+      mv -f "${IGPU_RC6_CACHE}.new" "$IGPU_RC6_CACHE" 2>/dev/null || true
+      if [[ "$prev_ts" -gt 0 ]]; then
+        dt_ns=$(( now - prev_ts ))
+        drc6=$(( rc6 - prev_rc6 ))
+        if [[ "$dt_ns" -gt 0 ]]; then
+          busy=$(( 100 - drc6 * 1000000000 / dt_ns * 100 / 1000 ))
+          (( busy < 0 )) && busy=0
+          (( busy > 100 )) && busy=100
+          igpu_suffix=" | RC6 ${busy}%"
+        fi
+      fi
     fi
+    ;;
+  igpu_top)
+    # Read from intel_gpu_top JSON - requires jq or python3 (expensive, but rare)
+    if [[ -f "$GPU_FILE" ]] && command -v jq >/dev/null 2>&1; then
+      val=$(jq -r '[.. | objects | to_entries[] | select(.key|test("busy|util|render|rcs";"i")) | .value | if type=="number" then . elif type=="object" then (.value // .percent // empty) else empty end] | first // empty' "$GPU_FILE" 2>/dev/null)
+      if [[ -n "$val" ]]; then
+        igpu_suffix=" | iGPU ${val%.*}%"
+      fi
+    fi
+    ;;
+esac
+
+# Compute averages and build output
+if [[ "$MODE" == "core_type" || "$MODE" == "max_freq_split" ]]; then
+  p_total=0 p_count=0
+  e_total=0 e_count=0
+  p_tooltip="" e_tooltip=""
+
+  for num in $P_CPUS; do
+    read_freq "$num"
+    p_total=$(( p_total + REPLY ))
+    p_count=$(( p_count + 1 ))
+    p_tooltip="${p_tooltip}Core ${num}: $(khz_to_ghz "$REPLY") GHz\n"
   done
 
-  p_core_avg=$(calc_avg_khz "${p_core_freqs[@]}")
-  e_core_avg=$(calc_avg_khz "${e_core_freqs[@]}")
-
-  tooltip="P-Cores (Max: $(awk "BEGIN {printf \"%.2f\", $P_CORE_MAX_FREQ / 1000000}") GHz):\n"
-  for i in "${!p_core_indices[@]}"; do
-    ghz=$(awk "BEGIN {printf \"%.2f\", ${p_core_freqs[$i]} / 1000000}")
-    tooltip="${tooltip}Core ${p_core_indices[$i]}: ${ghz} GHz\n"
+  for num in $E_CPUS; do
+    read_freq "$num"
+    e_total=$(( e_total + REPLY ))
+    e_count=$(( e_count + 1 ))
+    e_tooltip="${e_tooltip}Core ${num}: $(khz_to_ghz "$REPLY") GHz\n"
   done
-  tooltip="${tooltip}\nE-Cores (Max: $(awk "BEGIN {printf \"%.2f\", $E_CORE_MAX_FREQ / 1000000}") GHz):\n"
-  for i in "${!e_core_indices[@]}"; do
-    ghz=$(awk "BEGIN {printf \"%.2f\", ${e_core_freqs[$i]} / 1000000}")
-    tooltip="${tooltip}Core ${e_core_indices[$i]}: ${ghz} GHz\n"
-  done
-  tooltip="${tooltip}\nFreq source: ${freq_source_label}"
 
-  text="P: ${p_core_avg} GHz | E: ${e_core_avg} GHz${igpu_suffix}"
+  p_avg="N/A" e_avg="N/A"
+  (( p_count > 0 )) && p_avg=$(khz_to_ghz "$(( p_total / p_count ))")
+  (( e_count > 0 )) && e_avg=$(khz_to_ghz "$(( e_total / e_count ))")
+
+  if [[ "$MODE" == "max_freq_split" ]]; then
+    tooltip="P-Cores (Max: $(khz_to_ghz "$P_MAX") GHz):\n${p_tooltip}\nE-Cores (Max: $(khz_to_ghz "$E_MAX") GHz):\n${e_tooltip}\nFreq source: ${FREQ_LABEL}"
+  else
+    tooltip="P-Cores:\n${p_tooltip}\nE-Cores:\n${e_tooltip}\nFreq source: ${FREQ_LABEL}"
+  fi
+
+  text="P: ${p_avg} GHz | E: ${e_avg} GHz${igpu_suffix}"
   printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
-  exit 0
-fi
+else
+  # Uniform: all cores averaged
+  total=0 count=0
+  for num in $P_CPUS; do
+    read_freq "$num"
+    total=$(( total + REPLY ))
+    count=$(( count + 1 ))
+  done
+  avg="N/A"
+  (( count > 0 )) && avg=$(khz_to_ghz "$(( total / count ))")
 
-# Last fallback: show overall average only
-all_freqs=()
-for cpu_dir in /sys/devices/system/cpu/cpu[0-9]*; do
-  current_khz=$(cat "$cpu_dir/cpufreq/scaling_cur_freq" 2>/dev/null || echo 0)
-  all_freqs+=("$current_khz")
-done
-avg_all=$(calc_avg_khz "${all_freqs[@]}")
-text="Avg: ${avg_all} GHz${igpu_suffix}"
-tooltip="Average core frequency\nFreq source: ${freq_source_label}"
-printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
+  text="Avg: ${avg} GHz${igpu_suffix}"
+  tooltip="Average core frequency\nFreq source: ${FREQ_LABEL}"
+  printf '{"text": "%s", "tooltip": "%s"}\n' "$text" "$tooltip"
+fi

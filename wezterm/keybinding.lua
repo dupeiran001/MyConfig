@@ -3,16 +3,41 @@ local M = {}
 local wezterm = require("wezterm")
 local act = wezterm.action
 
+local function is_wayland()
+	return os.getenv("WAYLAND_DISPLAY") ~= nil
+end
+
+local copy_action
+local paste_action
+
+if is_wayland() then
+	copy_action = wezterm.action_callback(function(window, pane)
+		local sel = window:get_selection_text_for_pane(pane)
+		if sel and sel ~= "" then
+			local success, stdout, stderr = wezterm.run_child_process({ "wl-copy", sel })
+		end
+	end)
+	paste_action = wezterm.action_callback(function(window, pane)
+		local success, stdout, stderr = wezterm.run_child_process({ "wl-paste", "--no-newline" })
+		if success and stdout and stdout ~= "" then
+			pane:paste(stdout)
+		end
+	end)
+else
+	copy_action = act.CopyTo("Clipboard")
+	paste_action = act.PasteFrom("Clipboard")
+end
+
 M.keys = {
 	{
 		key = "c",
 		mods = "CTRL|SHIFT",
-		action = act.CopyTo("Clipboard"),
+		action = copy_action,
 	},
 	{
 		key = "v",
 		mods = "CTRL|SHIFT",
-		action = act.PasteFrom("Clipboard"),
+		action = paste_action,
 	},
 	{
 		key = "x",

@@ -6,7 +6,12 @@ return {
 		end
 
 		local function paste()
-			return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+			if vim.env.WAYLAND_DISPLAY then
+				return { vim.fn.systemlist("wl-paste --no-newline 2>/dev/null"), "v" }
+			elseif vim.env.DISPLAY then
+				return { vim.fn.systemlist("xclip -selection clipboard -o 2>/dev/null"), "v" }
+			end
+			return { vim.fn.split(vim.fn.getreg("+"), "\n"), vim.fn.getregtype("+") }
 		end
 
 		vim.g.clipboard = {
