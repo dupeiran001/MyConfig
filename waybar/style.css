@@ -191,7 +191,8 @@ tooltip label {
   margin-right: 0px;
 }
 #custom-leftin1 {
-  color: @cpu;
+  color: @main-bg;
+  background: @cpu;
   padding-left: 0px;
   margin-left: 0px;
 }
@@ -248,7 +249,8 @@ tooltip label {
 /* == Time == */
 
 #custom-rightin1 {
-  color: @time;
+  color: @main-bg;
+  background: @time;
 }
 #custom-rightin1.notch {
   background: @cpu;
@@ -424,8 +426,8 @@ tooltip label {
 /* == Power Button == */
 
 #custom-leftin2 {
-  color: @battery;
-  background: @main-bg;
+  color: @main-bg;
+  background: @battery;
 }
 #custom-power {
   color: @main-bg;

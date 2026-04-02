@@ -519,21 +519,21 @@
   // == Left Inverse ==
 
   "custom/leftin1": {
-    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
     "return-type": "json",
     "format": "{}",
     "tooltip": false,
     "interval": "once"
   },
   "custom/leftin2": {
-    "format": "",
+    "format": "",
     "tooltip": false
   },
 
   // == Right Inverse ==
 
   "custom/rightin1": {
-    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
+    "exec": "~/.config/waybar/scripts/notch-arrow.sh ",
     "return-type": "json",
     "format": "{}",
     "tooltip": false,

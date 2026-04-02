@@ -3,5 +3,5 @@
 if grep -q "appledrm.show_notch=1" /proc/cmdline 2>/dev/null; then
     echo '{"text": " ", "class": "notch"}'
 else
-    echo '{"text": " ", "class": "normal"}'
+    echo '{"text": "󰣇 ", "class": "normal"}'
 fi

@@ -23,8 +23,6 @@ else
   FONT_PX=11
 fi
 ARROW_PT=$(echo "scale=1; 14 * $BAR_HEIGHT / 24" | bc)
-ARROW_INV_PT=$(echo "scale=1; 15.2 * $BAR_HEIGHT / 24" | bc)
-ARROW_MB=-2
 DISTRO_PT=$(echo "scale=1; 11 * $BAR_HEIGHT / 24" | bc)
 
 cat > "$GENERATED_CSS" <<EOF
@@ -53,18 +51,16 @@ cat > "$GENERATED_CSS" <<EOF
 
 #custom-leftin1,
 #custom-leftin2 {
-  font-size: ${ARROW_INV_PT}pt;
-  margin-bottom: ${ARROW_MB}px;
+  font-size: ${ARROW_PT}pt;
 }
 
 #custom-rightin1 {
-  font-size: ${ARROW_INV_PT}pt;
-  margin-bottom: ${ARROW_MB}px;
+  font-size: ${ARROW_PT}pt;
 }
 
 #custom-distro.normal {
   font-size: ${DISTRO_PT}pt;
-  margin-bottom: ${ARROW_MB}px;
+  margin-bottom: -2px;
 }
 EOF
 
