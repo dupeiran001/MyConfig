@@ -1,7 +1,7 @@
 return {
 	"nvim-telescope/telescope.nvim",
 	lazy = true,
-	event = VeryLazy,
+	event = "VeryLazy",
 	opts = function()
 		local actions = require("telescope.actions")
 		return {
