@@ -8,7 +8,7 @@ return {
 	event = { "BufReadPre", "BufNewFile" },
 	lazy = true,
 	opts = {
-		ensure_installed = { "lua_ls", "rust_analyzer", "clangd", "bashls", "cmake", "marksman", "pyright", "taplo" },
+		ensure_installed = { "lua_ls", "rust_analyzer", "bashls", "marksman", "pyright", "taplo" },
 	},
 	config = function(_, opts)
 		local capabilities = require("blink.cmp").get_lsp_capabilities()
@@ -46,5 +46,9 @@ return {
 		})
 
 		require("mason-lspconfig").setup(opts)
+
+		-- These are installed system-wide (not via Mason) on aarch64 Linux
+		vim.lsp.enable("clangd")
+		vim.lsp.enable("cmake")
 	end,
 }

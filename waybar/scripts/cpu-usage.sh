@@ -34,10 +34,17 @@ if [[ -f "$CACHE_SUMMARY" ]]; then
   load=$(awk -F= '/^busy=/{print $2}' "$CACHE_SUMMARY" 2>/dev/null || echo "")
 fi
 if [[ -z "$load" ]]; then
-  load=$(awk -v n="$(nproc)" '{printf "%.1f", ($1/n)*100}' /proc/loadavg 2>/dev/null)
-fi
-if [[ -z "$load" ]]; then
-  load=$(vmstat 1 2 | tail -1 | awk '{print 100 - $15}')
+  _sf="/tmp/cpu-stat-prev.${UID_SAFE}"
+  _cur=$(awk '/^cpu /{print $2,$3,$4,$5,$6,$7,$8,$9}' /proc/stat)
+  if [[ -f "$_sf" ]]; then
+    load=$(echo "$_cur" | awk -v prev="$(cat "$_sf")" '
+      BEGIN{split(prev,p)} {
+        dt=($1+$2+$3+$4+$5+$6+$7+$8)-(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+        di=($4+$5)-(p[4]+p[5])
+        if(dt>0) printf "%.1f",(1-di/dt)*100
+      }')
+  fi
+  echo "$_cur" > "$_sf"
 fi
 
 load_int=$(awk -v v="$load" 'BEGIN{printf "%d", v+0.5}')
