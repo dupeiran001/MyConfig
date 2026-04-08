@@ -311,7 +311,10 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/launch-waybar.sh"
+// spawn-sh-at-startup "~/.config/waybar/scripts/run-on-ecores.sh ~/.config/waybar/scripts/launch-waybar.sh"
+
+// rs-bar: auto-detects platform (Asahi/Apple Silicon -> macbook, otherwise -> intel)
+spawn-sh-at-startup "~/.config/niri/launch-rs-bar.sh"
 
 // Keep custom rofi drun entries available in rofi -show drun.
 spawn-sh-at-startup "~/.config/drun/install.sh >/dev/null 2>&1"
