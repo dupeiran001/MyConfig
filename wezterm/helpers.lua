@@ -115,8 +115,6 @@ function AppendIcon(tab)
 		foreground_process_name = tab.active_pane.domain_name ~= "local" and tab.active_pane.domain_name or "wezterm"
 	end
 
-	wezterm.log_info(foreground_process_name)
-
 	local icon_set = false
 	for process, _ in pairs(process_to_icon) do
 		if foreground_process_name:lower():match("^" .. process) then
