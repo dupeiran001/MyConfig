@@ -30,6 +30,7 @@
 !/drun
 !/fcitx5
 !/environment.d
+!/opencode
 
 # Temp files
 *~
