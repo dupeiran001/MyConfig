@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "vllm/qwen3.6-27b",
   "provider": {
     "vllm": {
       "npm": "@ai-sdk/openai-compatible",
@@ -10,7 +11,14 @@
       },
       "models": {
         "qwen3.6-27b": {
-          "name": "Qwen3.6 27b"
+          "name": "Qwen3.6 27B",
+          "limit": {
+            "context": 196608,
+            "output": 32000
+          },
+          "options": {
+            "maxOutputTokens": 16000
+          }
         }
       }
     }
