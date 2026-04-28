@@ -89,8 +89,8 @@ output "eDP-1" {
 
 
 
-// ViewSonic monitor (DP-3)
-output "DP-3" {
+// ViewSonic monitor on left
+output "ViewSonic Corporation VA2719-2K UZJ191120270" {
     mode "2560x1440@59.951"
     scale 1.0
     position x=0 y=0
@@ -98,19 +98,21 @@ output "DP-3" {
 
 
 
+// for lab pc samsung 4k
+output "Samsung Electric Company S27B80T HCPW600062"{
+  mode "3840x2160@60"
+  scale 1.5
+  position x=2560 y=0
+}
 
-output "DP-1" {
+
+
+output "ViewSonic Corporation VA2719-2K UZJ191120274" {
   mode "2560x1440@59.951"
   scale 1
   position x=5120 y=0
 }
 
-// for lab pc hdmi using igpu
-output "DP-4"{
-  mode "3840x2160@60"
-  scale 1.5
-  position x=2560 y=0
-}
 
 // labpc mini dp using w5700
 output "DP-5" {
