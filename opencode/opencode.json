@@ -13,14 +13,19 @@
         "qwen3.6-27b": {
           "name": "Qwen3.6 27B",
           "limit": {
-            "context": 262144,
-            "output": 32000
+            "context": 240000,
+            "output": 16000
           },
           "options": {
-            "maxOutputTokens": 32000
+            "maxOutputTokens": 16000
           }
         }
       }
     }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 20000
   }
 }
